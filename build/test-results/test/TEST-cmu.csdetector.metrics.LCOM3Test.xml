@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="cmu.csdetector.metrics.LCOM3Test" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-03-17T23:09:18" hostname="Leonardos-MacBook-Pro.local" time="0.011">
+  <properties/>
+  <testcase name="testLCOM3DummyDad()" classname="cmu.csdetector.metrics.LCOM3Test" time="0.006"/>
+  <testcase name="testLCOM3DummySon()" classname="cmu.csdetector.metrics.LCOM3Test" time="0.001"/>
+  <testcase name="testLCOM3DummyGrandSon()" classname="cmu.csdetector.metrics.LCOM3Test" time="0.0"/>
+  <testcase name="testLCOM3EmptyClass()" classname="cmu.csdetector.metrics.LCOM3Test" time="0.0"/>
+  <testcase name="testLCOM2NotEmptyClass()" classname="cmu.csdetector.metrics.LCOM3Test" time="0.001"/>
+  <system-out><![CDATA[Starting: . Items to process: 1000
+10.0% complete
+20.0% complete
+30.000002% complete
+40.0% complete
+50.0% complete
+60.000004% complete
+70.0% complete
+80.0% complete
+90.0% complete
+100.0% complete
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
