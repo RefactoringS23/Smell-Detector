@@ -2,6 +2,7 @@ package cmu.csdetector.ast.visitors;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.HashSet;
@@ -27,6 +28,14 @@ public class MethodInvocationVisitor extends ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
 		if (methodBinding == null) {
+			return true;
+		}
+
+		ITypeBinding typeBinding = methodBinding.getDeclaringClass();
+		if (typeBinding == null) { // if we were not able to bind it, just discard.
+			return true;
+		}
+		if (typeBinding.getQualifiedName().startsWith("java")){
 			return true;
 		}
 		
