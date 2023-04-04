@@ -56,7 +56,7 @@ public class MoveMethodLCOMTest {
 
     @Test
     public void calculateSimilarityCoefficient() throws ClassNotFoundException {
-        Type type = getType("Movie");
+        Type type = getType("Customer");
         Method method = getMethod(type, "statement");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);

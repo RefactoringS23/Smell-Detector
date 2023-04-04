@@ -77,6 +77,7 @@ public class ChangingLCOM3Calculator extends BaseLCOM {
 		if (!isPossibleLCOM){
 			return 0.0;
 		}
+		System.out.println();
 
 		/*
 		 * If there are no more than one method in a class, LCOM3 is undefined.

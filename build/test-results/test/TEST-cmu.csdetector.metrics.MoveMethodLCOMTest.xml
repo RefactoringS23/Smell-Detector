@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="cmu.csdetector.metrics.MoveMethodLCOMTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-04-04T07:41:17" hostname="pallavs-MacBook-Air.local" time="0.017">
+<testsuite name="cmu.csdetector.metrics.MoveMethodLCOMTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-04-04T21:12:27" hostname="pallavs-MacBook-Air.local" time="0.01">
   <properties/>
-  <testcase name="calculateSimilarityCoefficient()" classname="cmu.csdetector.metrics.MoveMethodLCOMTest" time="0.017"/>
+  <testcase name="calculateSimilarityCoefficient()" classname="cmu.csdetector.metrics.MoveMethodLCOMTest" time="0.01"/>
   <system-out><![CDATA[Starting: . Items to process: 1000
 10.0% complete
 20.0% complete
@@ -13,26 +13,21 @@
 80.0% complete
 90.0% complete
 100.0% complete
-2.0 3.0 2.0
-neww 3.0 6.0 2.0
+
 0.5
-0.0
-5.0 5.0 2.0
-neww 6.0 10.0 2.0
+0.75
+
 0.625
-0.2
-3.0 4.0 2.0
-neww 4.0 8.0 2.0
 0.5
-0.0
-6.0 9.0 5.0
-neww 7.0 21.0 5.0
+
+0.5
+0.6666666666666666
+
+0.95
 0.8400000000000001
-0.4666666666666666
-5.0 5.0 2.0
-neww 6.0 10.0 2.0
+
 0.625
-0.2
+0.7
 featureEnvyMethod
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>

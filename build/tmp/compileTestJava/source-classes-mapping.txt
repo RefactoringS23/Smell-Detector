@@ -8,20 +8,20 @@ cmu/csdetector/dummy/lcom/EmptyClass.java
  cmu.csdetector.dummy.lcom.EmptyClass
 cmu/csdetector/dummy/lcom/DummySon.java
  cmu.csdetector.dummy.lcom.DummySon
-cmu/csdetector/metrics/LCOM2Test.java
- cmu.csdetector.metrics.LCOM2Test
-cmu/csdetector/metrics/MoveMethodLCOMTest.java
- cmu.csdetector.metrics.MoveMethodLCOMTest
-cmu/csdetector/dummy/smells/SuperDummy.java
- cmu.csdetector.dummy.smells.SuperDummy
-cmu/csdetector/util/GenericCollector.java
- cmu.csdetector.util.GenericCollector
 cmu/csdetector/util/TypeLoader.java
  cmu.csdetector.util.TypeLoader
+cmu/csdetector/dummy/group/Registrar.java
+ cmu.csdetector.dummy.group.Registrar
+cmu/csdetector/dummy/smells/SuperDummy.java
+ cmu.csdetector.dummy.smells.SuperDummy
+cmu/csdetector/metrics/MoveMethodLCOMTest.java
+ cmu.csdetector.metrics.MoveMethodLCOMTest
+cmu/csdetector/dummy/group/Customer.java
+ cmu.csdetector.dummy.group.Customer
 cmu/csdetector/dummy/smells/RefusedBequestSample.java
  cmu.csdetector.dummy.smells.RefusedBequestSample
-cmu/csdetector/metrics/LCOM3Test.java
- cmu.csdetector.metrics.LCOM3Test
+cmu/csdetector/dummy/lcom/DummyDad.java
+ cmu.csdetector.dummy.lcom.DummyDad
 cmu/csdetector/dummy/smells/BlobClassSample.java
  cmu.csdetector.dummy.smells.BlobClassSample
 cmu/csdetector/dummy/lcom/DummyLCOM.java
@@ -36,9 +36,9 @@ cmu/csdetector/dummy/group/Tape.java
  cmu.csdetector.dummy.group.Tape
 cmu/csdetector/metrics/SimilarityCoefficientTest.java
  cmu.csdetector.metrics.SimilarityCoefficientTest
-cmu/csdetector/dummy/lcom/DummyDad.java
- cmu.csdetector.dummy.lcom.DummyDad
-cmu/csdetector/dummy/group/Registrar.java
- cmu.csdetector.dummy.group.Registrar
-cmu/csdetector/dummy/group/Customer.java
- cmu.csdetector.dummy.group.Customer
+cmu/csdetector/metrics/LCOM3Test.java
+ cmu.csdetector.metrics.LCOM3Test
+cmu/csdetector/metrics/LCOM2Test.java
+ cmu.csdetector.metrics.LCOM2Test
+cmu/csdetector/util/GenericCollector.java
+ cmu.csdetector.util.GenericCollector

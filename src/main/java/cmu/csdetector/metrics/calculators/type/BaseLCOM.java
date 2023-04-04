@@ -55,12 +55,10 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 		
 		// get the number of methods within a class
 		this.nMethods = methods.size();
-
 		// Sum the number of times that each attribute is accessed by all methods
 		for (MethodDeclaration md : methods) {
 			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
 			md.accept(fieldVisitor);
-
 			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
 		}
 
@@ -87,9 +85,11 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 		this.nMethods = methods.size();
 
 		// Sum the number of times that each attribute is accessed by all methods
+		timesAccessedAttributes = 0;
 		for (MethodDeclaration md : methods) {
 			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
 			md.accept(fieldVisitor);
+//			System.out.println("pppp" + fieldVisitor.getNodesCollected());
 
 			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
 		}
