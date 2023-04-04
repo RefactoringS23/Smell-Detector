@@ -32,6 +32,7 @@ public class GenericCollector {
 		for (Type type : types) {
 			TypeMetricValueCollectorForFeatureEnvyMethod collector = new TypeMetricValueCollectorForFeatureEnvyMethod(featureEnvyMethod);
 			collector.collect(type);
+
 		}
 	}
 

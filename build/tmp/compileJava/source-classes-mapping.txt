@@ -1,57 +1,63 @@
 cmu/csdetector/ast/visitors/DistinctMethodInvocationVisitor.java
  cmu.csdetector.ast.visitors.DistinctMethodInvocationVisitor
-cmu/csdetector/metrics/calculators/type/OverrideRatioCalculator.java
- cmu.csdetector.metrics.calculators.type.OverrideRatioCalculator
+cmu/csdetector/metrics/MethodMetricValueCollector.java
+ cmu.csdetector.metrics.MethodMetricValueCollector
 cmu/csdetector/ast/ASTBuilder.java
  cmu.csdetector.ast.ASTBuilder
-cmu/csdetector/ast/visitors/LocalMethodCallVisitor.java
- cmu.csdetector.ast.visitors.LocalMethodCallVisitor
-cmu/csdetector/metrics/calculators/type/IsClassAbstract.java
- cmu.csdetector.metrics.calculators.type.IsClassAbstract
+cmu/csdetector/smells/SmellDetector.java
+ cmu.csdetector.smells.SmellDetector
+cmu/csdetector/resources/ParenthoodRegistry.java
+ cmu.csdetector.resources.ParenthoodRegistry
 cmu/csdetector/metrics/calculators/type/PublicFieldCountCalculator.java
  cmu.csdetector.metrics.calculators.type.PublicFieldCountCalculator
 cmu/csdetector/resources/loader/SourceFilesLoader.java
  cmu.csdetector.resources.loader.SourceFilesLoader
-cmu/csdetector/ast/visitors/LocalFieldAccessCollector.java
- cmu.csdetector.ast.visitors.LocalFieldAccessCollector
+cmu/csdetector/metrics/calculators/type/BaseLCOM.java
+ cmu.csdetector.metrics.calculators.type.BaseLCOM
 cmu/csdetector/console/ToolParameters.java
  cmu.csdetector.console.ToolParameters
 cmu/csdetector/metrics/calculators/type/TCCMetricValueCalculator.java
  cmu.csdetector.metrics.calculators.type.TCCMetricValueCalculator
 cmu/csdetector/metrics/calculators/type/WOCCalculator.java
  cmu.csdetector.metrics.calculators.type.WOCCalculator
-cmu/csdetector/metrics/calculators/method/MethodParameterCountCalculator.java
- cmu.csdetector.metrics.calculators.method.MethodParameterCountCalculator
-cmu/csdetector/resources/loader/SourceFile.java
- cmu.csdetector.resources.loader.SourceFile
-cmu/csdetector/metrics/calculators/method/CyclomaticComplexityCalculator.java
- cmu.csdetector.metrics.calculators.method.CyclomaticComplexityCalculator
+cmu/csdetector/metrics/TypeMetricValueCollector.java
+ cmu.csdetector.metrics.TypeMetricValueCollector
+cmu/csdetector/smells/detectors/MessageChain.java
+ cmu.csdetector.smells.detectors.MessageChain
+cmu/csdetector/metrics/MetricValueCollector.java
+ cmu.csdetector.metrics.MetricValueCollector
+cmu/csdetector/resources/Method.java
+ cmu.csdetector.resources.Method
 cmu/csdetector/metrics/calculators/method/CouplingDispersionCalculator.java
  cmu.csdetector.metrics.calculators.method.CouplingDispersionCalculator
 cmu/csdetector/ast/visitors/LinesOfCodeVisitor.java
  cmu.csdetector.ast.visitors.LinesOfCodeVisitor
-cmu/csdetector/metrics/calculators/type/NOAMCalculator.java
- cmu.csdetector.metrics.calculators.type.NOAMCalculator
-cmu/csdetector/smells/detectors/ComplexClass.java
- cmu.csdetector.smells.detectors.ComplexClass
+cmu/csdetector/smells/MethodLevelSmellDetector.java
+ cmu.csdetector.smells.MethodLevelSmellDetector
+cmu/csdetector/metrics/calculators/type/LCOM3Calculator.java
+ cmu.csdetector.metrics.calculators.type.LCOM3Calculator
+cmu/csdetector/metrics/calculators/method/MethodLOCCalculator.java
+ cmu.csdetector.metrics.calculators.method.MethodLOCCalculator
 cmu/csdetector/metrics/calculators/MetricValueCalculator.java
  cmu.csdetector.metrics.calculators.MetricValueCalculator
 cmu/csdetector/metrics/calculators/type/WMCCalculator.java
  cmu.csdetector.metrics.calculators.type.WMCCalculator
 cmu/csdetector/metrics/calculators/type/ClassLOCCalculator.java
  cmu.csdetector.metrics.calculators.type.ClassLOCCalculator
-cmu/csdetector/metrics/calculators/AggregateMetricValues.java
- cmu.csdetector.metrics.calculators.AggregateMetricValues
+cmu/csdetector/smells/Smell.java
+ cmu.csdetector.smells.Smell
 cmu/csdetector/resources/loader/JavaFilesFinder.java
  cmu.csdetector.resources.loader.JavaFilesFinder
 cmu/csdetector/ast/visitors/MethodInvocationVisitor.java
  cmu.csdetector.ast.visitors.MethodInvocationVisitor
 cmu/csdetector/ast/visitors/PublicMethodCollector.java
  cmu.csdetector.ast.visitors.PublicMethodCollector
+cmu/csdetector/smells/SmellName.java
+ cmu.csdetector.smells.SmellName
 cmu/csdetector/metrics/calculators/method/ChangingClassesCalculator.java
  cmu.csdetector.metrics.calculators.method.ChangingClassesCalculator
-cmu/csdetector/ast/CollectorVisitor.java
- cmu.csdetector.ast.CollectorVisitor
+cmu/csdetector/metrics/calculators/type/SimilarityCoefficientCalculator.java
+ cmu.csdetector.metrics.calculators.type.SimilarityCoefficientCalculator
 cmu/csdetector/ast/visitors/PublicFieldCountVisitor.java
  cmu.csdetector.ast.visitors.PublicFieldCountVisitor
 cmu/csdetector/ast/visitors/MaxCallChainVisitor.java
@@ -60,16 +66,20 @@ cmu/csdetector/ast/visitors/MethodCollector.java
  cmu.csdetector.ast.visitors.MethodCollector
 cmu/csdetector/metrics/calculators/method/NOAVCalculator.java
  cmu.csdetector.metrics.calculators.method.NOAVCalculator
+cmu/csdetector/resources/loader/SourceFileASTRequestor.java
+ cmu.csdetector.resources.loader.SourceFileASTRequestor
 cmu/csdetector/metrics/MetricName.java
  cmu.csdetector.metrics.MetricName
 cmu/csdetector/ast/visitors/TypeDeclarationCollector.java
  cmu.csdetector.ast.visitors.TypeDeclarationCollector
+cmu/csdetector/smells/detectors/ComplexClass.java
+ cmu.csdetector.smells.detectors.ComplexClass
 cmu/csdetector/console/output/ObservableExclusionStrategy.java
  cmu.csdetector.console.output.ObservableExclusionStrategy
 cmu/csdetector/ast/visitors/MaximumNestingLevelVisitor.java
  cmu.csdetector.ast.visitors.MaximumNestingLevelVisitor
-cmu/csdetector/resources/loader/SourceFileASTRequestor.java
- cmu.csdetector.resources.loader.SourceFileASTRequestor
+cmu/csdetector/smells/CompositeSmellDetector.java
+ cmu.csdetector.smells.CompositeSmellDetector
 cmu/csdetector/console/ConsoleProgressMonitor.java
  cmu.csdetector.console.ConsoleProgressMonitor
 cmu/csdetector/ast/visitors/FieldNameCollector.java
@@ -78,12 +88,12 @@ cmu/csdetector/ast/visitors/ClassMethodInvocationVisitor.java
  cmu.csdetector.ast.visitors.ClassMethodInvocationVisitor
 cmu/csdetector/metrics/calculators/method/ChangingMethodsCalculator.java
  cmu.csdetector.metrics.calculators.method.ChangingMethodsCalculator
-cmu/csdetector/metrics/calculators/method/MaxNestingCalculator.java
- cmu.csdetector.metrics.calculators.method.MaxNestingCalculator
+cmu/csdetector/ast/visitors/ClassFieldAccessCollector.java
+ cmu.csdetector.ast.visitors.ClassFieldAccessCollector
 cmu/csdetector/metrics/calculators/method/CouplingIntensityCalculator.java
  cmu.csdetector.metrics.calculators.method.CouplingIntensityCalculator
-cmu/csdetector/metrics/calculators/method/MethodLOCCalculator.java
- cmu.csdetector.metrics.calculators.method.MethodLOCCalculator
+cmu/csdetector/resources/Resource.java
+ cmu.csdetector.resources.Resource
 cmu/csdetector/graph/CallGraph.java
  cmu.csdetector.graph.CallGraph
 cmu/csdetector/ast/visitors/CyclomaticComplexityVisitor.java
@@ -92,45 +102,41 @@ cmu/csdetector/ast/visitors/FieldDeclarationCollector.java
  cmu.csdetector.ast.visitors.FieldDeclarationCollector
 cmu/csdetector/ast/visitors/FieldAccessCollector.java
  cmu.csdetector.ast.visitors.FieldAccessCollector
-cmu/csdetector/smells/MethodLevelSmellDetector.java
- cmu.csdetector.smells.MethodLevelSmellDetector
-cmu/csdetector/metrics/calculators/method/MaxCallChainCalculator.java
- cmu.csdetector.metrics.calculators.method.MaxCallChainCalculator
-cmu/csdetector/smells/Thresholds.java
- cmu.csdetector.smells.Thresholds
-cmu/csdetector/resources/Type.java
- cmu.csdetector.resources.Type
-cmu/csdetector/smells/CompositeSmellDetector.java
- cmu.csdetector.smells.CompositeSmellDetector
-cmu/csdetector/CodeSmellDetector.java
- cmu.csdetector.CodeSmellDetector
-cmu/csdetector/metrics/MethodMetricValueCollector.java
- cmu.csdetector.metrics.MethodMetricValueCollector
-cmu/csdetector/smells/SmellDetector.java
- cmu.csdetector.smells.SmellDetector
-cmu/csdetector/resources/ParenthoodRegistry.java
- cmu.csdetector.resources.ParenthoodRegistry
-cmu/csdetector/smells/ClassLevelSmellDetector.java
- cmu.csdetector.smells.ClassLevelSmellDetector
-cmu/csdetector/smells/Smell.java
- cmu.csdetector.smells.Smell
-cmu/csdetector/smells/SmellName.java
- cmu.csdetector.smells.SmellName
-cmu/csdetector/resources/Resource.java
- cmu.csdetector.resources.Resource
-cmu/csdetector/smells/detectors/MessageChain.java
- cmu.csdetector.smells.detectors.MessageChain
-cmu/csdetector/ast/visitors/ClassFieldAccessCollector.java
- cmu.csdetector.ast.visitors.ClassFieldAccessCollector
-cmu/csdetector/metrics/MetricValueCollector.java
- cmu.csdetector.metrics.MetricValueCollector
-cmu/csdetector/resources/Method.java
- cmu.csdetector.resources.Method
-cmu/csdetector/metrics/calculators/type/BaseLCOM.java
- cmu.csdetector.metrics.calculators.type.BaseLCOM
-cmu/csdetector/metrics/calculators/type/LCOM3Calculator.java
- cmu.csdetector.metrics.calculators.type.LCOM3Calculator
 cmu/csdetector/metrics/calculators/type/LCOM2Calculator.java
  cmu.csdetector.metrics.calculators.type.LCOM2Calculator
-cmu/csdetector/metrics/TypeMetricValueCollector.java
- cmu.csdetector.metrics.TypeMetricValueCollector
+cmu/csdetector/metrics/calculators/method/MaxCallChainCalculator.java
+ cmu.csdetector.metrics.calculators.method.MaxCallChainCalculator
+cmu/csdetector/metrics/calculators/type/IsClassAbstract.java
+ cmu.csdetector.metrics.calculators.type.IsClassAbstract
+cmu/csdetector/resources/loader/SourceFile.java
+ cmu.csdetector.resources.loader.SourceFile
+cmu/csdetector/smells/ClassLevelSmellDetector.java
+ cmu.csdetector.smells.ClassLevelSmellDetector
+cmu/csdetector/metrics/calculators/method/CyclomaticComplexityCalculator.java
+ cmu.csdetector.metrics.calculators.method.CyclomaticComplexityCalculator
+cmu/csdetector/resources/Type.java
+ cmu.csdetector.resources.Type
+cmu/csdetector/smells/Thresholds.java
+ cmu.csdetector.smells.Thresholds
+cmu/csdetector/CodeSmellDetector.java
+ cmu.csdetector.CodeSmellDetector
+cmu/csdetector/ast/visitors/LocalFieldAccessCollector.java
+ cmu.csdetector.ast.visitors.LocalFieldAccessCollector
+cmu/csdetector/metrics/calculators/method/MethodParameterCountCalculator.java
+ cmu.csdetector.metrics.calculators.method.MethodParameterCountCalculator
+cmu/csdetector/metrics/calculators/type/OverrideRatioCalculator.java
+ cmu.csdetector.metrics.calculators.type.OverrideRatioCalculator
+cmu/csdetector/metrics/calculators/method/MaxNestingCalculator.java
+ cmu.csdetector.metrics.calculators.method.MaxNestingCalculator
+cmu/csdetector/ast/CollectorVisitor.java
+ cmu.csdetector.ast.CollectorVisitor
+cmu/csdetector/ast/visitors/LocalMethodCallVisitor.java
+ cmu.csdetector.ast.visitors.LocalMethodCallVisitor
+cmu/csdetector/metrics/calculators/AggregateMetricValues.java
+ cmu.csdetector.metrics.calculators.AggregateMetricValues
+cmu/csdetector/metrics/calculators/type/NOAMCalculator.java
+ cmu.csdetector.metrics.calculators.type.NOAMCalculator
+cmu/csdetector/metrics/TypeMetricValueCollectorForFeatureEnvyMethod.java
+ cmu.csdetector.metrics.TypeMetricValueCollectorForFeatureEnvyMethod
+cmu/csdetector/metrics/calculators/type/ChangingLCOM3Calculator.java
+ cmu.csdetector.metrics.calculators.type.ChangingLCOM3Calculator

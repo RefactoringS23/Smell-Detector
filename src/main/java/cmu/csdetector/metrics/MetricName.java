@@ -22,6 +22,7 @@ public enum MetricName {
     LCOM("LackOfCohesionOfMethods"),
     LCOM2,
     LCOM3,
+    LCOM3Diff("Difference in LCOM3"),
 
     JSC("JaccardSimilarityCoefficient");
 
