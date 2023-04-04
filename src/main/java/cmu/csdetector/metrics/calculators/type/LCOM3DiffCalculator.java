@@ -1,8 +1,7 @@
 package cmu.csdetector.metrics.calculators.type;
 
 import cmu.csdetector.metrics.MetricName;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.*;
 
 /**
  * Class to calculate the LCOM3 ‘lack of cohesion of methods’ metrics.
@@ -32,11 +31,9 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 
 	@Override
 	protected Double computeValue(ASTNode target) {
-
-//		System.out.println(target.getParent());
-//		System.out.println(featureEnvyMethod.getParent());
-
-		if(target.getParent().equals(featureEnvyMethod.getParent())){
+		TypeDeclaration type = (TypeDeclaration) target;
+		String featureEnvyParentClass = ((TypeDeclaration) featureEnvyMethod.getParent()).getName().toString();
+		if(type.getName().toString().equals(featureEnvyParentClass)){
 			return 0d;
 		}
 		double before = calculateLCOM3BeforeMove(target);

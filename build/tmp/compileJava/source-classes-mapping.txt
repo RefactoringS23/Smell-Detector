@@ -26,8 +26,8 @@ cmu/csdetector/smells/detectors/MessageChain.java
  cmu.csdetector.smells.detectors.MessageChain
 cmu/csdetector/metrics/MetricValueCollector.java
  cmu.csdetector.metrics.MetricValueCollector
-cmu/csdetector/resources/Method.java
- cmu.csdetector.resources.Method
+cmu/csdetector/ast/visitors/MethodInvocationVisitor.java
+ cmu.csdetector.ast.visitors.MethodInvocationVisitor
 cmu/csdetector/metrics/calculators/method/CouplingDispersionCalculator.java
  cmu.csdetector.metrics.calculators.method.CouplingDispersionCalculator
 cmu/csdetector/ast/visitors/LinesOfCodeVisitor.java
@@ -48,16 +48,16 @@ cmu/csdetector/smells/Smell.java
  cmu.csdetector.smells.Smell
 cmu/csdetector/resources/loader/JavaFilesFinder.java
  cmu.csdetector.resources.loader.JavaFilesFinder
-cmu/csdetector/ast/visitors/MethodInvocationVisitor.java
- cmu.csdetector.ast.visitors.MethodInvocationVisitor
+cmu/csdetector/metrics/calculators/type/SimilarityCoefficientCalculator.java
+ cmu.csdetector.metrics.calculators.type.SimilarityCoefficientCalculator
 cmu/csdetector/ast/visitors/PublicMethodCollector.java
  cmu.csdetector.ast.visitors.PublicMethodCollector
 cmu/csdetector/smells/SmellName.java
  cmu.csdetector.smells.SmellName
 cmu/csdetector/metrics/calculators/method/ChangingClassesCalculator.java
  cmu.csdetector.metrics.calculators.method.ChangingClassesCalculator
-cmu/csdetector/metrics/calculators/type/SimilarityCoefficientCalculator.java
- cmu.csdetector.metrics.calculators.type.SimilarityCoefficientCalculator
+cmu/csdetector/metrics/calculators/type/LCOM3Calculator.java
+ cmu.csdetector.metrics.calculators.type.LCOM3Calculator
 cmu/csdetector/ast/visitors/PublicFieldCountVisitor.java
  cmu.csdetector.ast.visitors.PublicFieldCountVisitor
 cmu/csdetector/ast/visitors/MaxCallChainVisitor.java
@@ -134,8 +134,8 @@ cmu/csdetector/metrics/calculators/type/LCOM2Calculator.java
  cmu.csdetector.metrics.calculators.type.LCOM2Calculator
 cmu/csdetector/metrics/calculators/type/BaseLCOM.java
  cmu.csdetector.metrics.calculators.type.BaseLCOM
-cmu/csdetector/metrics/calculators/type/LCOM3Calculator.java
- cmu.csdetector.metrics.calculators.type.LCOM3Calculator
+cmu/csdetector/resources/Method.java
+ cmu.csdetector.resources.Method
 cmu/csdetector/metrics/TypeMetricValueCollectorForFeatureEnvyMethod.java
  cmu.csdetector.metrics.TypeMetricValueCollectorForFeatureEnvyMethod
 cmu/csdetector/metrics/calculators/type/LCOM3DiffCalculator.java
