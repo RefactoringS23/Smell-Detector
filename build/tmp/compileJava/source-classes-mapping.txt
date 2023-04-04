@@ -130,13 +130,13 @@ cmu/csdetector/metrics/calculators/method/MaxNestingCalculator.java
  cmu.csdetector.metrics.calculators.method.MaxNestingCalculator
 cmu/csdetector/ast/CollectorVisitor.java
  cmu.csdetector.ast.CollectorVisitor
-cmu/csdetector/metrics/TypeMetricValueCollectorForFeatureEnvyMethod.java
- cmu.csdetector.metrics.TypeMetricValueCollectorForFeatureEnvyMethod
+cmu/csdetector/metrics/calculators/type/LCOM2Calculator.java
+ cmu.csdetector.metrics.calculators.type.LCOM2Calculator
 cmu/csdetector/metrics/calculators/type/BaseLCOM.java
  cmu.csdetector.metrics.calculators.type.BaseLCOM
 cmu/csdetector/metrics/calculators/type/LCOM3Calculator.java
  cmu.csdetector.metrics.calculators.type.LCOM3Calculator
-cmu/csdetector/metrics/calculators/type/ChangingLCOM3Calculator.java
- cmu.csdetector.metrics.calculators.type.ChangingLCOM3Calculator
-cmu/csdetector/metrics/calculators/type/LCOM2Calculator.java
- cmu.csdetector.metrics.calculators.type.LCOM2Calculator
+cmu/csdetector/metrics/TypeMetricValueCollectorForFeatureEnvyMethod.java
+ cmu.csdetector.metrics.TypeMetricValueCollectorForFeatureEnvyMethod
+cmu/csdetector/metrics/calculators/type/LCOM3DiffCalculator.java
+ cmu.csdetector.metrics.calculators.type.LCOM3DiffCalculator

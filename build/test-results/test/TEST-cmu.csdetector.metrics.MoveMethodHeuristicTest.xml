@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="cmu.csdetector.metrics.MoveMethodHeuristicTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-04-04T21:32:27" hostname="pallavs-MacBook-Air.local" time="0.012">
+  <properties/>
+  <testcase name="calculateSimilarityCoefficient()" classname="cmu.csdetector.metrics.MoveMethodHeuristicTest" time="0.012"/>
+  <system-out><![CDATA[Starting: . Items to process: 1000
+10.0% complete
+20.0% complete
+30.000002% complete
+40.0% complete
+50.0% complete
+60.000004% complete
+70.0% complete
+80.0% complete
+90.0% complete
+100.0% complete
+featureEnvyMethod
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

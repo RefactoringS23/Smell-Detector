@@ -22,9 +22,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
  * 
  * @author leonardo
  */
-public class ChangingLCOM3Calculator extends BaseLCOM {
+public class LCOM3DiffCalculator extends BaseLCOM {
 	private MethodDeclaration featureEnvyMethod;
-	public ChangingLCOM3Calculator(MethodDeclaration type) {
+	public LCOM3DiffCalculator(MethodDeclaration type) {
 		super();
 
 		featureEnvyMethod = type;
@@ -32,21 +32,15 @@ public class ChangingLCOM3Calculator extends BaseLCOM {
 
 	@Override
 	protected Double computeValue(ASTNode target) {
-		// remove fmethod from src
-		// fix simulation
-		// ignore src
 
 //		System.out.println(target.getParent());
 //		System.out.println(featureEnvyMethod.getParent());
 
 		if(target.getParent().equals(featureEnvyMethod.getParent())){
-			System.out.println("llllllll");
 			return 0d;
 		}
 		double before = calculateLCOM3BeforeMove(target);
 		double after = calculateLCOM3AfterMove(target);
-		System.out.println(before);
-		System.out.println(after);
 		if(after>before){
 			return 0d;
 		}
@@ -77,8 +71,6 @@ public class ChangingLCOM3Calculator extends BaseLCOM {
 		if (!isPossibleLCOM){
 			return 0.0;
 		}
-		System.out.println();
-
 		/*
 		 * If there are no more than one method in a class, LCOM3 is undefined.
 		 * An undefined LCOM3 is displayed as zero.
@@ -88,7 +80,6 @@ public class ChangingLCOM3Calculator extends BaseLCOM {
 		};
 
 //		System.out.println("neww " + nMethods + " " + timesAccessedAttributes + " " + nAttributes );
-
 
 		return (nMethods - timesAccessedAttributes/nAttributes) / (nMethods - 1);
 	}

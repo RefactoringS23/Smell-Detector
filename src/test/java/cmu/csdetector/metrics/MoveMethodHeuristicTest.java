@@ -10,17 +10,26 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class MoveMethodLCOMTest {
+public class MoveMethodHeuristicTest {
     private static List<Type> types;
+    private List<MethodDeclaration> featureEnvies = new ArrayList<>();
 
     @BeforeAll
-    public static void setUp() throws IOException {
+    public static void setUp() throws IOException, ClassNotFoundException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/group");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }
+
+    private void collectFeaturEnvies() throws ClassNotFoundException{
+        Type type = getType("Customer");
+        Method method = getMethod(type, "statement");
+        MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
+        featureEnvies.add(featureEnvyMethod);
+    };
 
     private Type getType(String typeName) throws ClassNotFoundException {
         for (Type type : types) {
@@ -39,24 +48,15 @@ public class MoveMethodLCOMTest {
         }
         throw new ClassNotFoundException();
     }
-//
-//    private boolean isSmellyMethod(SmellName smellName, String className, String methodName) throws ClassNotFoundException {
-//        Type type = getType(className);
-//        return getMethod(type, methodName).hasSmell(smellName);
-//    }
-//
-//    @Test
-//    public void statementMethodInCustomerClassHasFeatureEnvy() throws ClassNotFoundException {
-//        assertTrue(isSmellyMethod(SmellName.FeatureEnvy, "Customer", "statement"));
-//    }
+
 
     @Test
     public void calculateSimilarityCoefficient() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method method = getMethod(type, "statement");
-        MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
-        GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
+        collectFeaturEnvies();
+        for(MethodDeclaration featureEnvyMethod: featureEnvies){
+            GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
+            System.out.println("featureEnvyMethod");
+        }
 
-        System.out.println("featureEnvyMethod");
     }
 }
