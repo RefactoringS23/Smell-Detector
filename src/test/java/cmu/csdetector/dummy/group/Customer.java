@@ -23,29 +23,13 @@ public class Customer {
             Rental each = rentals.next();
 
             //determine amounts for each line
-            switch (each.getTape().getMovie().priceCode()) {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (each.daysRented() > 2)
-                        thisAmount += (each.daysRented() - 2) * 1.5;
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += each.daysRented() * 3;
-                    break;
-                case Movie.CHILDREN:
-                    thisAmount += 1.5;
-                    if (each.daysRented() > 3)
-                        thisAmount += (each.daysRented() - 3) * 1.5;
-                    break;
-
-            }
-            totalAmount += thisAmount;
+            totalAmount += getAmount(thisAmount, each);
 
             // add frequent renter points
             frequentRenterPoints ++;
 
             // add bonus for a two-day new release rental
-            if ((each.getTape().getMovie().priceCode() == Movie.NEW_RELEASE) && each.daysRented() > 1) frequentRenterPoints ++;
+            frequentRenterPoints = updateFreqentRenterPoints(each, frequentRenterPoints);
 
             //show figures for this rental
             result += "\t" + each.getTape().getMovie().getName()+ "\t" + thisAmount + "\n";
@@ -57,6 +41,35 @@ public class Customer {
 
         return result;
 
+    }
+
+    // manually refactored
+    public double getAmount(double thisAmount, Rental each) {
+        switch (each.getTape().getMovie().priceCode()) {
+            case Movie.REGULAR:
+                thisAmount += 2;
+                if (each.daysRented() > 2)
+                    thisAmount += (each.daysRented() - 2) * 1.5;
+                break;
+            case Movie.NEW_RELEASE:
+                thisAmount += each.daysRented() * 3;
+                break;
+            case Movie.CHILDREN:
+                thisAmount += 1.5;
+                if (each.daysRented() > 3)
+                    thisAmount += (each.daysRented() - 3) * 1.5;
+                break;
+
+        }
+        return thisAmount;
+    }
+
+    // manually refactored
+    public int updateFreqentRenterPoints(Rental each, int frequentRenterPoints) {
+        if ((each.getTape().getMovie().priceCode() == Movie.NEW_RELEASE) && each.daysRented() > 1) {
+            frequentRenterPoints = frequentRenterPoints + 1;
+        }
+        return frequentRenterPoints;
     }
 
     public void addRental(Rental rental) {

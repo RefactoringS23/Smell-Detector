@@ -29,9 +29,10 @@ public class SimilarityCoefficientCalculator extends MetricValueCalculator {
         boolean featureEnvyClass = false;
         double similarityScore = 0.0;
         double averageSimilarityScore;
+        Set<String> fEnvyMethodEntities = getEntitiesAccessed(featureEnvyMethod);
         for (MethodDeclaration md : methods) {
             if (!md.getName().equals(featureEnvyMethod.getName())) {
-                similarityScore = similarityScore + getSimilarity(featureEnvyMethod, md);
+                similarityScore = similarityScore + getSimilarity(fEnvyMethodEntities, md);
             } else {
                 featureEnvyClass = true;
             }
@@ -44,14 +45,10 @@ public class SimilarityCoefficientCalculator extends MetricValueCalculator {
         return averageSimilarityScore;
     }
 
-    private Double getSimilarity(MethodDeclaration featureEnvyMethod, MethodDeclaration md) {
-
-
-        Set<String> entitiesAccessedByMethod1 = getEntitiesAccessed(featureEnvyMethod);
-        Set<String> entitiesAccessedByMethod2 = getEntitiesAccessed(md);
-
-        return getIntersection(entitiesAccessedByMethod1, entitiesAccessedByMethod2)/
-                getUnion(entitiesAccessedByMethod1, entitiesAccessedByMethod2);
+    private Double getSimilarity(Set<String> fEnvyMethodEntities, MethodDeclaration md) {
+        Set<String> mdMethodEntities = getEntitiesAccessed(md);
+        return getIntersection(fEnvyMethodEntities, mdMethodEntities)/
+                getUnion(fEnvyMethodEntities, mdMethodEntities);
     }
 
     private Set<String> getEntitiesAccessed(ASTNode declaration) {

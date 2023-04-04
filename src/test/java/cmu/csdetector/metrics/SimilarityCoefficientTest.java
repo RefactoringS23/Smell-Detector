@@ -56,7 +56,7 @@ public class SimilarityCoefficientTest {
     @Test
     public void calculateSimilarityCoefficient() throws ClassNotFoundException {
         Type type = getType("Customer");
-        Method method = getMethod(type, "statement");
+        Method method = getMethod(type, "updateFreqentRenterPoints");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
         System.out.println(featureEnvyMethod);
