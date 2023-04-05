@@ -29,7 +29,7 @@ public class Customer {
             frequentRenterPoints ++;
 
             // add bonus for a two-day new release rental
-            frequentRenterPoints = updateFreqentRenterPoints(each, frequentRenterPoints);
+            frequentRenterPoints = updateFrequentRenterPoints(each, frequentRenterPoints);
 
             //show figures for this rental
             result += "\t" + each.getTape().getMovie().getName()+ "\t" + thisAmount + "\n";
@@ -65,7 +65,7 @@ public class Customer {
     }
 
     // manually refactored
-    public int updateFreqentRenterPoints(Rental each, int frequentRenterPoints) {
+    public int updateFrequentRenterPoints(Rental each, int frequentRenterPoints) {
         if ((each.getTape().getMovie().priceCode() == Movie.NEW_RELEASE) && each.daysRented() > 1) {
             frequentRenterPoints = frequentRenterPoints + 1;
         }

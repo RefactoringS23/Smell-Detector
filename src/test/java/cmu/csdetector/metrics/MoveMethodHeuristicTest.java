@@ -12,23 +12,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class MoveMethodHeuristicTest {
     private static List<Type> types;
-    private List<MethodDeclaration> featureEnvies = new ArrayList<>();
 
     @BeforeAll
-    public static void setUp() throws IOException, ClassNotFoundException {
+    public static void setUp() throws IOException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/group");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }
 
-    private void collectFeaturEnvies() throws ClassNotFoundException{
-        Type type = getType("Customer");
-        Method method = getMethod(type, "statement");
-        MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
-        featureEnvies.add(featureEnvyMethod);
-    };
 
     private Type getType(String typeName) throws ClassNotFoundException {
         for (Type type : types) {
@@ -47,54 +42,50 @@ public class MoveMethodHeuristicTest {
         }
         throw new ClassNotFoundException();
     }
-    private String getLCOM3DiffMetricValue()
+    private String getTargetClassUsingLCOM3Metric()
     {
-        Map<String, Double> LCOM3Diffs = new HashMap<>();
-        Double targetClassDiff = -1d;
+        Map<String, Double> metrics = new HashMap<>();
+        Double maxDifference = -1d;
         String targetClass="";
 
         for(Type t: types){
             Double metricValue = t.getMetricValue(MetricName.LCOM3Diff);
-            LCOM3Diffs.put(t.getFullyQualifiedName(),metricValue);
-            if( metricValue > targetClassDiff){
-                targetClassDiff = metricValue;
-                targetClass = t.getFullyQualifiedName();
+            String className = t.getNodeAsTypeDeclaration().getName().toString();
+            metrics.put(className, metricValue);
+            if( metricValue > maxDifference){
+                maxDifference = metricValue;
+                targetClass = className;
             }
         };
-//        System.out.print(LCOM3Diffs);
-//        Collections.max(LCOM3Diffs.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
         return targetClass;
 
     };
 
-    private String getSimillarityMetricValue()
+    private String getTargetClassUsingSimilarityMetric()
     {
-        Map<String, Double> LCOM3Diffs = new HashMap<>();
-        Double targetClassDiff = -1d;
+        Map<String, Double> metrics = new HashMap<>();
+        Double maxValue = -1d;
         String targetClass="";
 
         for(Type t: types){
             Double metricValue = t.getMetricValue(MetricName.JSC);
-            LCOM3Diffs.put(t.getFullyQualifiedName(),metricValue);
-            if( metricValue > targetClassDiff){
-                targetClassDiff = metricValue;
-                targetClass = t.getFullyQualifiedName();
+            String className = t.getNodeAsTypeDeclaration().getName().toString();
+            metrics.put(className, metricValue);
+            if( metricValue > maxValue){
+                maxValue = metricValue;
+                targetClass = className;
             }
         };
-//        System.out.print(LCOM3Diffs);
-//        Collections.max(LCOM3Diffs.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
         return targetClass;
 
     }
     @Test
-    public void calculateSimilarityCoefficient() throws ClassNotFoundException {
-        collectFeaturEnvies();
-        for(MethodDeclaration featureEnvyMethod: featureEnvies){
-            GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
-        }
-        System.out.println(getSimillarityMetricValue());
-        System.out.println(getLCOM3DiffMetricValue());
-
-
+    public void targetClassForExtractedMethod1ShouldBeMovie() throws ClassNotFoundException {
+        Type type = getType("Customer");
+        Method method = getMethod(type, "getAmount");
+        MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
+        GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
+        assertEquals("Movie", getTargetClassUsingLCOM3Metric());
+        assertEquals("Movie", getTargetClassUsingSimilarityMetric());
     }
 }

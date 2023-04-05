@@ -29,10 +29,9 @@ public class SimilarityCoefficientCalculator extends MetricValueCalculator {
         boolean featureEnvyClass = false;
         double similarityScore = 0.0;
         double averageSimilarityScore;
-        Set<String> fEnvyMethodEntities = getEntitiesAccessed(featureEnvyMethod);
         for (MethodDeclaration md : methods) {
             if (!md.getName().equals(featureEnvyMethod.getName())) {
-                similarityScore = similarityScore + getSimilarity(fEnvyMethodEntities, md);
+                similarityScore = similarityScore + getSimilarity(featureEnvyMethod, md);
             } else {
                 featureEnvyClass = true;
             }
@@ -45,7 +44,8 @@ public class SimilarityCoefficientCalculator extends MetricValueCalculator {
         return averageSimilarityScore;
     }
 
-    private Double getSimilarity(Set<String> fEnvyMethodEntities, MethodDeclaration md) {
+    private Double getSimilarity(MethodDeclaration featureEnvyMethod, MethodDeclaration md) {
+        Set<String> fEnvyMethodEntities = getEntitiesAccessed(featureEnvyMethod);
         Set<String> mdMethodEntities = getEntitiesAccessed(md);
         return getIntersection(fEnvyMethodEntities, mdMethodEntities)/
                 getUnion(fEnvyMethodEntities, mdMethodEntities);
