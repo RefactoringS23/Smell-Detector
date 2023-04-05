@@ -19,6 +19,8 @@ public enum MetricName {
     CDISP("CouplingDispersion"),
     ChangingClasses("ChangingClasses"),
     ChangingMethods("ChangingMethods"),
+    IMC("Internal Method Calls"),
+    EMC("External Method Calls"),
     LCOM("LackOfCohesionOfMethods"),
     LCOM2,
     LCOM3;
