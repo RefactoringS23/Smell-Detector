@@ -15,5 +15,7 @@ public class MethodMetricValueCollector extends MetricValueCollector{
         addCalculator(new MethodLOCCalculator());
         addCalculator(new MethodParameterCountCalculator());
         addCalculator(new NOAVCalculator());
+        addCalculator(new InternalMethodCallsCalculator());
+        addCalculator(new ExternalMethodCallsCalculator());
     }
 }
