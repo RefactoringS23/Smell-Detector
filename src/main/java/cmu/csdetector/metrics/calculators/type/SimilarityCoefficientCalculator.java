@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /*
-* entities = method calls and used attributes
+ * entities = method calls and used attributes
  */
 
 public class SimilarityCoefficientCalculator extends MetricValueCalculator {
@@ -45,10 +45,13 @@ public class SimilarityCoefficientCalculator extends MetricValueCalculator {
     }
 
     private Double getSimilarity(MethodDeclaration featureEnvyMethod, MethodDeclaration md) {
-        Set<String> fEnvyMethodEntities = getEntitiesAccessed(featureEnvyMethod);
-        Set<String> mdMethodEntities = getEntitiesAccessed(md);
-        return getIntersection(fEnvyMethodEntities, mdMethodEntities)/
-                getUnion(fEnvyMethodEntities, mdMethodEntities);
+
+
+        Set<String> entitiesAccessedByMethod1 = getEntitiesAccessed(featureEnvyMethod);
+        Set<String> entitiesAccessedByMethod2 = getEntitiesAccessed(md);
+
+        return getIntersection(entitiesAccessedByMethod1, entitiesAccessedByMethod2)/
+                getUnion(entitiesAccessedByMethod1, entitiesAccessedByMethod2);
     }
 
     private Set<String> getEntitiesAccessed(ASTNode declaration) {
