@@ -4,6 +4,7 @@ import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
+import cmu.csdetector.refactoringTypes.ExtractMethod;
 import cmu.csdetector.smells.ClassLevelSmellDetector;
 import cmu.csdetector.smells.MethodLevelSmellDetector;
 import cmu.csdetector.smells.Smell;
@@ -55,10 +56,17 @@ public class CodeSmellDetector {
 
         saveSmellsFile(allTypes);
 
+        performExtractMethod(allTypes);
+
         System.out.println(new Date());
 
     }
 
+    private void performExtractMethod(List<Type> allTypes) {
+        ExtractMethod extractMethod = new ExtractMethod();
+        extractMethod.extractMethod(allTypes);
+
+    }
     private void detectSmells(List<Type> allTypes) {
         for(Type type : allTypes) {
             // It is important to detect certain smells at method level first, such as Brain Method
@@ -76,7 +84,7 @@ public class CodeSmellDetector {
         }
     }
 
-    private List<Type> loadAllTypes(List<String> sourcePaths) throws IOException {
+    public List<Type> loadAllTypes(List<String> sourcePaths) throws IOException {
         List<Type> allTypes = new ArrayList<>();
 
         JavaFilesFinder sourceLoader = new JavaFilesFinder(sourcePaths);
@@ -98,7 +106,7 @@ public class CodeSmellDetector {
         }
     }
 
-    private void collectMethodMetrics(Type type) {
+    public void collectMethodMetrics(Type type) {
         for (Method method: type.getMethods()) {
             MethodMetricValueCollector methodCollector = new MethodMetricValueCollector();
             methodCollector.collect(method);
@@ -121,4 +129,6 @@ public class CodeSmellDetector {
         gson.toJson(smellyTypes, writer);
         writer.close();
     }
+
+
 }
