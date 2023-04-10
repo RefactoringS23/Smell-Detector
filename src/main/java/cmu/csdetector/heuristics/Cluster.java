@@ -1,6 +1,12 @@
 package cmu.csdetector.heuristics;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.SortedMap;
+import java.util.Collections;
+import java.util.Objects;
 
 public class Cluster {
     private final ClusterLine startLine;
