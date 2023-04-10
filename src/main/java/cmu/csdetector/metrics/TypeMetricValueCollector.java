@@ -16,6 +16,8 @@ public class TypeMetricValueCollector extends MetricValueCollector {
 		addCalculator(new WMCCalculator());
 		addCalculator(new WOCCalculator());
 		addCalculator(new LCOM2Calculator());
+		addCalculator(new LCOM3Calculator());
+
 	}
 	
 	

@@ -55,11 +55,41 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 		
 		// get the number of methods within a class
 		this.nMethods = methods.size();
-
 		// Sum the number of times that each attribute is accessed by all methods
 		for (MethodDeclaration md : methods) {
 			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
 			md.accept(fieldVisitor);
+			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
+		}
+
+		if (nMethods == 0 || nAttributes == 0) {
+			return false; // it is impossible to calculate lcom
+		}
+
+		return true;
+	}
+
+	protected boolean simulateMoveMethod(ASTNode target, MethodDeclaration featureEnvyMethod) {
+		TypeDeclaration type = (TypeDeclaration) target;
+		ITypeBinding binding = type.resolveBinding();
+
+		if (binding == null) {
+			return false;
+		}
+		List<MethodDeclaration> methods = getMethods(target);
+
+		this.nAttributes = this.getVariablesInHierarchy(binding).size();
+
+		methods.add(featureEnvyMethod);
+		// get the number of methods within a class
+		this.nMethods = methods.size();
+
+		// Sum the number of times that each attribute is accessed by all methods
+		timesAccessedAttributes = 0;
+		for (MethodDeclaration md : methods) {
+			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
+			md.accept(fieldVisitor);
+//			System.out.println("pppp" + fieldVisitor.getNodesCollected());
 
 			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
 		}
