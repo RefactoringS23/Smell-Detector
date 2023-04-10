@@ -71,22 +71,17 @@ public class Cluster {
         do {
             List<ClusterLine> sortedLines = convertListOfClusterObjectsToSortedList(mergeCandidates);
             List<ClusterLine> currentOpenClusters = new ArrayList<>();
-            
-            //Integer iterCount = 0;
+
             for (ClusterLine line : sortedLines) {
-                //System.out.println("Starting for loop " + iterCount);
                 if (line.getIsStart()) {
-                    //System.out.println("Iteration: " + iterCount + " => " + line + " is start for ");
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
                         newClusters.add(new Cluster(openClusterStartLine.getLineNumber(),
                                                     line.getCluster().getEndLineNumber()));
                     }
                     currentOpenClusters.add(line);
                 } else {
-                    //System.out.println("Iteration: " + iterCount + " => " + line + " is end");
                     currentOpenClusters.remove(line.getCluster().getStartLine());
                 }
-                //iterCount++;
             }
             mergeCandidates = newClusters;
             finalClusters.addAll(newClusters);
