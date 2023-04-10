@@ -1,6 +1,12 @@
 package cmu.csdetector.heuristics;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.SortedMap;
+import java.util.Collections;
+import java.util.Objects;
 
 public class Cluster {
     private final ClusterLine startLine;
@@ -71,22 +77,17 @@ public class Cluster {
         do {
             List<ClusterLine> sortedLines = convertListOfClusterObjectsToSortedList(mergeCandidates);
             List<ClusterLine> currentOpenClusters = new ArrayList<>();
-            
-            //Integer iterCount = 0;
+
             for (ClusterLine line : sortedLines) {
-                //System.out.println("Starting for loop " + iterCount);
                 if (line.getIsStart()) {
-                    //System.out.println("Iteration: " + iterCount + " => " + line + " is start for ");
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
                         newClusters.add(new Cluster(openClusterStartLine.getLineNumber(),
                                                     line.getCluster().getEndLineNumber()));
                     }
                     currentOpenClusters.add(line);
                 } else {
-                    //System.out.println("Iteration: " + iterCount + " => " + line + " is end");
                     currentOpenClusters.remove(line.getCluster().getStartLine());
                 }
-                //iterCount++;
             }
             mergeCandidates = newClusters;
             finalClusters.addAll(newClusters);
