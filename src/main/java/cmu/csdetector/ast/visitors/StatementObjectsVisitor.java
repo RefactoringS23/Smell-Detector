@@ -19,13 +19,15 @@ public class StatementObjectsVisitor extends ASTVisitor {
             return false;
         }
 
-        Integer lineNumber = getLineNumber(node);
-        HashSet hashSet = this.heuristicMap.get(lineNumber-5);
-        if (hashSet == null) {
-            hashSet = new HashSet();
+        if (binding.getKind() == IBinding.VARIABLE) {
+            Integer lineNumber = getLineNumber(node);
+            HashSet hashSet = this.heuristicMap.get(lineNumber - 5);
+            if (hashSet == null) {
+                hashSet = new HashSet();
+            }
+            hashSet.add(node.resolveBinding().getName());
+            this.heuristicMap.put(lineNumber - 5, hashSet);
         }
-        hashSet.add(node);
-        this.heuristicMap.put(lineNumber-5, hashSet);
         return true;
     }
 
@@ -49,7 +51,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
         if (hashSet == null) {
             hashSet = new HashSet();
         }
-        hashSet.add(node);
+        hashSet.add(node.getName());
         this.heuristicMap.put(lineNumber-5, hashSet);
 
         return true;
