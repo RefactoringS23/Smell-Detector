@@ -50,6 +50,9 @@ public class Cluster {
                             break;
                         }
                     }
+                } else {
+                    // In case of empty line, we cluster for safety measures
+                    clusters.add(new Cluster(currentLine, currentEndLine));
                 }
             }
             
@@ -96,6 +99,73 @@ public class Cluster {
         } while (mergeCandidates.size() > 0);
 
         return finalClusters;
+    }
+
+    public static Set<Cluster> filterValidClusters(Set<Cluster> clusters, Set<Cluster> blocks) {
+        Set<Cluster> filteredClusters = new HashSet<>();
+        for (Cluster cluster : clusters) {
+            // step 1 : find smallest block that contains this cluster
+            Cluster smallestBlock = findSmallestBlockContainingThisCluster(cluster, blocks);
+            if (smallestBlock == null) continue;
+            // step 2: find every sub block of the smallest block
+            Set<Cluster> subBlocks = findSubBlocksOfBlock(smallestBlock, blocks);
+            // step 3: check that endLine is not in any of the sub blocks
+            if (!startLineIsInSubBlocks(cluster.getStartLineNumber(), subBlocks) &&
+                !endLineIsInSubBlocks(cluster.getEndLineNumber(), subBlocks)) {
+                filteredClusters.add(cluster);
+            }
+        }
+        return filteredClusters;
+    }
+
+
+    private static Cluster findSmallestBlockContainingThisCluster(Cluster cluster, Set<Cluster> blocks) {
+        Cluster smallestBlock = null;
+        for (Cluster block : blocks) {
+            if (block.getStartLineNumber() < cluster.getStartLineNumber() &&
+                    block.getEndLineNumber() > cluster.getEndLineNumber()) {
+                if (smallestBlock == null) {
+                    smallestBlock = block;
+                } else if (block.getEndLineNumber() - block.getStartLineNumber() <
+                        smallestBlock.getEndLineNumber() - smallestBlock.getStartLineNumber()) {
+                    smallestBlock = block;
+                }
+            }
+        }
+        return smallestBlock;
+    }
+
+    private static Set<Cluster> findSubBlocksOfBlock(Cluster block, Set<Cluster> blocks) {
+        Set<Cluster> subBlocks = new HashSet<>();
+        for (Cluster subBlock : blocks) {
+            if ((subBlock.getStartLineNumber() >= block.getStartLineNumber() &&
+                    subBlock.getEndLineNumber() < block.getEndLineNumber()) || 
+                    (subBlock.getStartLineNumber() > block.getStartLineNumber() &&
+                    subBlock.getEndLineNumber() <= block.getEndLineNumber())) {
+                subBlocks.add(subBlock);
+            }
+        }
+        return subBlocks;
+    }
+
+    private static boolean startLineIsInSubBlocks(Integer lineNumber, Set<Cluster> subBlocks) {
+        for (Cluster subBlock : subBlocks) {
+            if (subBlock.getStartLineNumber() < lineNumber &&
+                    subBlock.getEndLineNumber() >= lineNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean endLineIsInSubBlocks(Integer lineNumber, Set<Cluster> subBlocks) {
+        for (Cluster subBlock : subBlocks) {
+            if (subBlock.getStartLineNumber() <= lineNumber &&
+                    subBlock.getEndLineNumber() > lineNumber) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
