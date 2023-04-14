@@ -23,13 +23,65 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void canIdentifyAtLeastOneCLusterInLongSnippet() {
+    public void canIdentifyAtLeastOneClusterInLongSnippet() {
         SortedMap<Integer, HashSet<String>> table = createDummyHashMapForClustering();
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-
         Assertions.assertTrue(allClusters.size() >= 1);
+    }
+
+    private Set<Cluster> createSmallDummyBlocks() {
+        Set<Cluster> blocks = new HashSet<>();
+        blocks.add(new Cluster(1, 4));
+        blocks.add(new Cluster(1, 5));
+        blocks.add(new Cluster(3, 4));
+        return blocks;
+    }
+
+    @Test
+    public void invalidClustersAreFilteredOutFromSmallDummy() {
+        SortedMap<Integer, HashSet<String>> table = createSmallDummyHashMapForClustering();
+
+        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+        Set<Cluster> blocks = createSmallDummyBlocks();
+
+        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+        System.out.println(filteredClusters);
+    }
+
+    @Test
+    public void invalidClustersAreFilteredOutFromPaperDummy() {
+        SortedMap<Integer, HashSet<String>> table = createDummyHashMapForClustering();
+
+        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+        Set<Cluster> blocks = createDummyBlocks();
+
+        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+        System.out.println(filteredClusters);
+    }
+
+    private Set<Cluster> createDummyBlocks() {
+        Set<Cluster> blocks = new HashSet<>();
+        blocks.add(new Cluster(1, 34));
+        blocks.add(new Cluster(3, 32));
+        blocks.add(new Cluster(29, 31));
+        blocks.add(new Cluster(5, 9));
+        blocks.add(new Cluster(10, 28));
+        blocks.add(new Cluster(24, 27));
+        blocks.add(new Cluster(12, 23));
+        blocks.add(new Cluster(14, 16));
+        blocks.add(new Cluster(16, 22));
+        blocks.add(new Cluster(18, 20));
+        blocks.add(new Cluster(14, 22));
+        blocks.add(new Cluster(16, 22));
+        blocks.add(new Cluster(5, 7));
+        blocks.add(new Cluster(7, 9));
+        blocks.add(new Cluster(14, 16));
+        blocks.add(new Cluster(16, 22));
+        return blocks;
     }
 
     private SortedMap<Integer, HashSet<String>> createSmallDummyHashMapForClustering() {
