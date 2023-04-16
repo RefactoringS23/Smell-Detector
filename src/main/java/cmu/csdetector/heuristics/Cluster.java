@@ -8,14 +8,59 @@ import java.util.SortedMap;
 import java.util.Collections;
 import java.util.Objects;
 
+import static java.lang.Math.max;
+
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
 
+    private double benefit;
+
+
+
+    private double clusterSize;
+
+
+    private boolean isAlternative = false;
+
+    private List<Cluster> alternatives;
+
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
+        this.clusterSize = max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.alternatives = new ArrayList<>();
     }
+
+
+    public double getClusterSize() {
+        return clusterSize;
+    }
+
+    public void setClusterSize(double clusterSize) {
+        this.clusterSize = clusterSize;
+    }
+
+    public double getBenefit() {
+        return benefit;
+    }
+
+    public boolean isAlternative() {
+        return isAlternative;
+    }
+
+    public void setAlternative(boolean alternative) {
+        isAlternative = alternative;
+    }
+
+    public List<Cluster> getAlternatives() {
+        return alternatives;
+    }
+
+    public void addNewAlternativeCluster(Cluster alternative) {
+        this.alternatives.add(alternative);
+    }
+
 
     public ClusterLine getStartLine() {
         return startLine;
@@ -60,7 +105,8 @@ public class Cluster {
         }
         return clusters;
     }
-    
+
+
     public static List<ClusterLine> convertListOfClusterObjectsToSortedList(Set<Cluster> clusters) {
         List<ClusterLine> sortedLines = new ArrayList<>();
         for (Cluster cluster : clusters) {
@@ -188,4 +234,10 @@ public class Cluster {
         return Objects.equals(this.getStartLineNumber(), otherCluster.getStartLineNumber()) &&
                 Objects.equals(this.getEndLineNumber(), otherCluster.getEndLineNumber());
     }
+
+    private void setBenefit() {
+
+    }
+
+
 }

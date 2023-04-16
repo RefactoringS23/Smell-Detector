@@ -49,6 +49,7 @@ public class FragmentGroupingTest {
 
         Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
         // pick from here for ranking
+        Set<Cluster> rankedClusters = ClusterRanking.rankClusters(filteredClusters);
         System.out.println(filteredClusters);
     }
 
