@@ -1,35 +1,31 @@
 package cmu.csdetector.ast.visitors;
 
+import cmu.csdetector.heuristics.Cluster;
 import org.eclipse.jdt.core.dom.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
 public class BlockLineNumberVisitor extends ASTVisitor {
-    private ArrayList<ArrayList<Integer>> lineMap;
+    private HashSet<Cluster> lineMap;
 
     public BlockLineNumberVisitor() {
-        this.lineMap = new ArrayList<ArrayList<Integer>>();
+        this.lineMap = new HashSet<Cluster>();
     }
 
     public boolean visit(Block node) {
         Integer startLineNumber = getStartLineNumber(node);
         Integer endLineNumber = getEndLineNumber(node);
-        ArrayList arrayList = new ArrayList();
-        arrayList.add(startLineNumber);
-        arrayList.add(endLineNumber);
-        this.lineMap.add(arrayList);
+        Cluster cluster = new Cluster(startLineNumber, endLineNumber);
+        this.lineMap.add(cluster);
         return true;
     }
 
     public boolean visit(IfStatement node) {
         Integer startLineNumber = getStartLineNumber(node);
         Integer endLineNumber = getEndLineNumber(node);
-        ArrayList arrayList = new ArrayList();
-        arrayList.add(startLineNumber);
-        arrayList.add(endLineNumber);
-        this.lineMap.add(arrayList);
+        Cluster cluster = new Cluster(startLineNumber, endLineNumber);
+        this.lineMap.add(cluster);
         return true;
     }
 
@@ -46,7 +42,7 @@ public class BlockLineNumberVisitor extends ASTVisitor {
         return cu.getLineNumber(endPosition);
     }
 
-    public ArrayList<ArrayList<Integer>> getLineMap() {
+    public HashSet<Cluster> getLineMap() {
         return this.lineMap;
     }
 }
