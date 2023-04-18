@@ -29,7 +29,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
             if (hashSet == null) {
                 hashSet = new HashSet();
             }
-            hashSet.add(node.resolveBinding());
+            hashSet.add(node);
             this.heuristicMap.put(lineNumber - 5, hashSet);
             ArrayList elseArray = this.ifMap.get(lineNumber - 5);
             if (elseArray != null) {
@@ -38,7 +38,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
                     if (hashSet1 == null) {
                         hashSet1 = new HashSet();
                     }
-                    hashSet1.add(node.resolveBinding().getName());
+                    hashSet1.add(node);
                     this.heuristicMap.put((Integer) elseArray.get(i), hashSet1);
                 }
             }
