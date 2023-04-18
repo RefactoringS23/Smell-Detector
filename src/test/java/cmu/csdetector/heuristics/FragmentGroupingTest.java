@@ -1,18 +1,34 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
+import cmu.csdetector.resources.Method;
+import cmu.csdetector.resources.Type;
+import cmu.csdetector.util.GenericCollector;
+import cmu.csdetector.util.TypeLoader;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class FragmentGroupingTest {
 
+    private static List<Type> types;
+
+    @BeforeAll
+    public static void setUp() throws IOException {
+        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        types = TypeLoader.loadAllFromDir(dir);
+        GenericCollector.collectAll(types);
+    }
+
     @Test
-    public void canIdentifyAllClustersInSmallSnippetOfCode() {
-        SortedMap<Integer, HashSet<String>> table = createSmallDummyHashMapForClustering();
+    public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
+        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
@@ -23,10 +39,10 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void canIdentifyAtLeastOneClusterInLongSnippet() {
-        SortedMap<Integer, HashSet<String>> table = createDummyHashMapForClustering();
+    public void canIdentifyAtLeastOneClusterInLongSnippet() throws ClassNotFoundException {
+        Map<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
 
-        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> clusters = Cluster.makeClusters((SortedMap<Integer, HashSet<ASTNode>>) table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
         Assertions.assertTrue(allClusters.size() >= 1);
     }
@@ -40,8 +56,8 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void invalidClustersAreFilteredOutFromSmallDummy() {
-        SortedMap<Integer, HashSet<String>> table = createSmallDummyHashMapForClustering();
+    public void invalidClustersAreFilteredOutFromSmallDummy() throws ClassNotFoundException {
+        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
@@ -52,8 +68,8 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void invalidClustersAreFilteredOutFromPaperDummy() {
-        SortedMap<Integer, HashSet<String>> table = createDummyHashMapForClustering();
+    public void invalidClustersAreFilteredOutFromPaperDummy() throws ClassNotFoundException {
+        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
@@ -84,38 +100,65 @@ public class FragmentGroupingTest {
         return blocks;
     }
 
-    private SortedMap<Integer, HashSet<String>> createSmallDummyHashMapForClustering() {
-        SortedMap<Integer, HashSet<String>> table = new TreeMap<>();
+//    private SortedMap<Integer, HashSet<ASTNode>> createSmallDummyHashMapForClustering() {
+//        SortedMap<Integer, HashSet<String>> table = new TreeMap<>();
+//
+//
+//        HashSet<String> set1 = new HashSet<>();
+//        set1.add("manifests");
+//        table.put(1, set1);
+//
+//        HashSet<String> set2 = new HashSet<>();
+//        set2.add("rcs.length");
+//        table.put(2, set2);
+//
+//        HashSet<String> set3 = new HashSet<>();
+//        set3.add("manifests");
+//        set3.add("i");
+//        table.put(3, set3);
+//
+//        HashSet<String> set4 = new HashSet<>();
+//        set4.add("rcs.length");
+//        table.put(4, set4);
+//
+//        HashSet<String> set5 = new HashSet<>();
+//        set5.add("i");
+//        table.put(5, set5);
+//
+//
+//        return table;
+//    }
 
-
-        HashSet<String> set1 = new HashSet<>();
-        set1.add("manifests");
-        table.put(1, set1);
-
-        HashSet<String> set2 = new HashSet<>();
-        set2.add("rcs.length");
-        table.put(2, set2);
-
-        HashSet<String> set3 = new HashSet<>();
-        set3.add("manifests");
-        set3.add("i");
-        table.put(3, set3);
-
-        HashSet<String> set4 = new HashSet<>();
-        set4.add("rcs.length");
-        table.put(4, set4);
-
-        HashSet<String> set5 = new HashSet<>();
-        set5.add("i");
-        table.put(5, set5);
-
-
-        return table;
+    private Type getType(String typeName) throws ClassNotFoundException {
+        for (Type type : types) {
+            if (type.getNodeAsTypeDeclaration().getName().toString().equals(typeName)) {
+                return type;
+            }
+        }
+        throw new ClassNotFoundException();
+    }
+    private Method getMethod(Type type, String methodName) throws ClassNotFoundException {
+        for (Method method : type.getMethods()) {
+            if (method.getBinding().getName().equals(methodName)) {
+                return method;
+            }
+        }
+        throw new ClassNotFoundException();
     }
 
+    private SortedMap<Integer, HashSet<ASTNode>> createHashMapForClustering() throws ClassNotFoundException {
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
+        targetMethod.accept(statementObjectsVisitor);
+        return statementObjectsVisitor.getHeuristicMap();
+    }
+
+    /*
     // This is the Table 2 from the SEMI paper
-    private SortedMap<Integer, HashSet<String>> createDummyHashMapForClustering() {
-        SortedMap<Integer, HashSet<String>> table = new TreeMap<>();
+    private SortedMap<Integer, HashSet<ASTNode>> createDummyHashMapForClustering() {
+        SortedMap<Integer, HashSet<ASTNode>> table = new TreeMap<>();
 
 
         HashSet<String> set2 = new HashSet<>();
@@ -274,4 +317,5 @@ public class FragmentGroupingTest {
 
         return table;
     }
+     */
 }

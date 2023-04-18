@@ -1,5 +1,7 @@
 package cmu.csdetector.heuristics;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -11,6 +13,15 @@ import java.util.Objects;
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
+
+    private Set<ASTNode> accessedVariables;
+
+
+    public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables) {
+        this.startLine = new ClusterLine(startLine, this, true);
+        this.endLine = new ClusterLine(endLine, this, false);
+        this.accessedVariables = accessedVariables;
+    };
 
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
@@ -33,26 +44,33 @@ public class Cluster {
         return endLine.getLineNumber();
     }
 
-    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<String>> table) {
+    public Set<ASTNode> getAccessedVariables() {
+        return accessedVariables;
+    }
+
+
+    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<ASTNode>> table) {
         Set<Cluster> clusters = new HashSet<>();
         int stepSize = 1;
         int methodSize = table.lastKey();
         
         while (stepSize < methodSize) {
             for (Integer currentLine : table.keySet()) {
-                Set<String> row = table.get(currentLine);
+                Set<ASTNode> row = table.get(currentLine);
                 int currentEndLine = currentLine + stepSize;
 
                 if (table.containsKey(currentEndLine)) {
-                    for (String variableOrMethodCall : row) {
+                    for (ASTNode variableOrMethodCall : row) {
                         if (table.get(currentEndLine).contains(variableOrMethodCall)) {
-                            clusters.add(new Cluster(currentLine, currentEndLine));
+                            Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+                            clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                             break;
                         }
                     }
                 } else {
                     // In case of empty line, we cluster for safety measures
-                    clusters.add(new Cluster(currentLine, currentEndLine));
+                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                 }
             }
             
@@ -84,8 +102,10 @@ public class Cluster {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(),
-                                                    line.getCluster().getEndLineNumber()));
+                        Set<ASTNode> mergedAccessedVars = new HashSet<ASTNode>();
+                        mergedAccessedVars.addAll(openClusterStartLine.getCluster().getAccessedVariables());
+                        mergedAccessedVars.addAll(line.getCluster().getAccessedVariables());
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), mergedAccessedVars));
                     }
                     currentOpenClusters.add(line);
                 } else {
@@ -188,4 +208,13 @@ public class Cluster {
         return Objects.equals(this.getStartLineNumber(), otherCluster.getStartLineNumber()) &&
                 Objects.equals(this.getEndLineNumber(), otherCluster.getEndLineNumber());
     }
+
+    private static Set<ASTNode> getListOfAccessedVariables(SortedMap<Integer, HashSet<ASTNode>> table, Integer startLine, Integer endLine) {
+        Set<ASTNode> access = new HashSet<ASTNode>();
+        for (int i = startLine; i <= endLine; i++) {
+            access.addAll(table.get(i));
+        }
+        return access;
+    }
+
 }
