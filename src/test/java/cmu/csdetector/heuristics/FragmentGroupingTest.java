@@ -65,6 +65,27 @@ public class FragmentGroupingTest {
         System.out.println(filteredClusters);
     }
 
+    @Test
+    public void lcomIsCalculatedProperlyForValidClusters() {
+        SortedMap<Integer, HashSet<String>> table = createDummyHashMapForClustering();
+
+        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+        Set<Cluster> blocks = createDummyBlocks();
+
+        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+        
+        SortedMap<Integer, Set<Integer>> linePairs = Cluster.buildLinePairs(table);
+
+
+        for (Cluster cluster : filteredClusters) {
+            System.out.println(cluster);
+            cluster.calculateLcom(linePairs);
+            System.out.println(cluster.getLcom());
+        }
+
+    }
+
     private Set<Cluster> createDummyBlocks() {
         Set<Cluster> blocks = new HashSet<>();
         blocks.add(new Cluster(1, 34));
@@ -236,6 +257,12 @@ public class FragmentGroupingTest {
         set18.add("afs.getFullpath");
         set18.add("getProj");
         set18.add("afs.getPref");
+        set18.add("afs");
+        set18.add("getFullpath");
+        set18.add("getPref");
+        set18.add("pr.endsWith");
+        set18.add("pr");
+        set18.add("endsWith");
         table.put(18, set18);
 
         HashSet<String> set19 = new HashSet<>();
