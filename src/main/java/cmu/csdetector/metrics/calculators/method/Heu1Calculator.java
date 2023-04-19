@@ -17,7 +17,7 @@ public class Heu1Calculator extends MetricValueCalculator {
         target.accept(visitor);
 
         System.out.println(visitor.getHeuristicMap());
-        //System.out.println(visitor1.getLineMap());
+        System.out.println(visitor.getNodeNameMap());
         return 0.2;
     }
 
