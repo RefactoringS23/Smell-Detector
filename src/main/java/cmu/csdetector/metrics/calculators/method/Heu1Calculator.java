@@ -1,6 +1,8 @@
 package cmu.csdetector.metrics.calculators.method;
 
 import cmu.csdetector.ast.visitors.IfBlockVisitor;
+import cmu.csdetector.ast.visitors.BlockLineNumberVisitor;
+import cmu.csdetector.ast.visitors.CyclomaticComplexityVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.calculators.MetricValueCalculator;
