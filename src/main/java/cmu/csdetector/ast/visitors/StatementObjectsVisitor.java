@@ -5,102 +5,18 @@ import org.eclipse.jdt.core.dom.*;
 import java.util.*;
 
 public class StatementObjectsVisitor extends ASTVisitor {
-    private SortedMap<Integer, HashSet<ASTNode>> heuristicMap;
+    private SortedMap<Integer, HashSet<String>> heuristicMap;
+    private Map<Integer, ArrayList<Integer>> ifMap;
 
-    public StatementObjectsVisitor() {
-        this.heuristicMap = new SortedMap<Integer, HashSet<ASTNode>>() {
-            @Override
-            public Comparator<? super Integer> comparator() {
-                return null;
-            }
+    private Map<String, ASTNode> nodeNameMap;
 
-            @Override
-            public SortedMap<Integer, HashSet<ASTNode>> subMap(Integer fromKey, Integer toKey) {
-                return null;
-            }
-
-            @Override
-            public SortedMap<Integer, HashSet<ASTNode>> headMap(Integer toKey) {
-                return null;
-            }
-
-            @Override
-            public SortedMap<Integer, HashSet<ASTNode>> tailMap(Integer fromKey) {
-                return null;
-            }
-
-            @Override
-            public Integer firstKey() {
-                return null;
-            }
-
-            @Override
-            public Integer lastKey() {
-                return null;
-            }
-
-            @Override
-            public Set<Integer> keySet() {
-                return null;
-            }
-
-            @Override
-            public Collection<HashSet<ASTNode>> values() {
-                return null;
-            }
-
-            @Override
-            public Set<Entry<Integer, HashSet<ASTNode>>> entrySet() {
-                return null;
-            }
-
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                return false;
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return false;
-            }
-
-            @Override
-            public HashSet<ASTNode> get(Object key) {
-                return null;
-            }
-
-            @Override
-            public HashSet<ASTNode> put(Integer key, HashSet<ASTNode> value) {
-                return null;
-            }
-
-            @Override
-            public HashSet<ASTNode> remove(Object key) {
-                return null;
-            }
-
-            @Override
-            public void putAll(Map<? extends Integer, ? extends HashSet<ASTNode>> m) {
-
-            }
-
-            @Override
-            public void clear() {
-
-            }
-        };
+    public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
+        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
+        this.nodeNameMap = new HashMap<String, ASTNode>();
+        this.ifMap = ifMap;
     }
 
+    @Override
     public boolean visit(SimpleName node) {
         IBinding binding = node.resolveBinding();
         if (binding == null) {
@@ -108,17 +24,22 @@ public class StatementObjectsVisitor extends ASTVisitor {
         }
 
         if (binding.getKind() == IBinding.VARIABLE) {
-            Integer lineNumber = getLineNumber(node);
-            HashSet hashSet = this.heuristicMap.get(lineNumber - 5);
-            if (hashSet == null) {
-                hashSet = new HashSet();
+            Integer lineNumber = getStartLineNumber(node);
+            addNodeToMap(binding.getName(), lineNumber);
+            this.nodeNameMap.put(binding.getName(), node);
+
+            ArrayList elseArray = this.ifMap.get(lineNumber);
+            if (elseArray != null) {
+                for (int i = 0; i < elseArray.size(); i++) {
+                    addNodeToMap(binding.getName(),(Integer) elseArray.get(i));
+                    this.nodeNameMap.put(binding.getName(), node);
+                }
             }
-            hashSet.add(node.resolveBinding().getName());
-            this.heuristicMap.put(lineNumber - 5, hashSet);
         }
         return true;
     }
 
+    @Override
     public boolean visit(MethodInvocation node) {
         IMethodBinding methodBinding = node.resolveMethodBinding();
         if (methodBinding == null) {
@@ -130,27 +51,44 @@ public class StatementObjectsVisitor extends ASTVisitor {
             return true;
         }
 
-        if (typeBinding.getQualifiedName().startsWith("java")){
-            return true;
-        }
+        String nodeName = node.resolveMethodBinding().getName();
 
-        Integer lineNumber = getLineNumber(node);
-        HashSet hashSet = this.heuristicMap.get(lineNumber-5);
+        Integer lineNumber = getStartLineNumber(node);
+        addNodeToMap(nodeName, lineNumber);
+        this.nodeNameMap.put(nodeName, node);
+
+        ArrayList elseArray = this.ifMap.get(lineNumber);
+        if (elseArray != null)
+        {
+            for (int i=0; i< elseArray.size(); i++)
+            {
+                addNodeToMap(nodeName,(Integer) elseArray.get(i));
+                this.nodeNameMap.put(nodeName, node);
+            }
+        }
+        return true;
+    }
+
+    private void addNodeToMap (String nodeName, Integer lineNumber) {
+        HashSet hashSet = this.heuristicMap.get(lineNumber);
         if (hashSet == null) {
             hashSet = new HashSet();
         }
-        hashSet.add(node);
-        this.heuristicMap.put(lineNumber-5, hashSet);
-
-        return true;
+        hashSet.add(nodeName);
+        this.heuristicMap.put(lineNumber, hashSet);
     }
-    private Integer getLineNumber(ASTNode astNode) {
+
+    private Integer getStartLineNumber(ASTNode astNode) {
         int startPosition = astNode.getStartPosition();
         CompilationUnit cu = (CompilationUnit) astNode.getRoot();
         return cu.getLineNumber(startPosition);
     }
 
-    public SortedMap<Integer, HashSet<ASTNode>> getHeuristicMap() {
+    public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
         return this.heuristicMap;
+    }
+
+    public Map<String, ASTNode> getNodeNameMap() {
+        return this.nodeNameMap;
     }
 }
