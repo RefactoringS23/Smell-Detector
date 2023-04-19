@@ -5,7 +5,7 @@ import org.eclipse.jdt.core.dom.*;
 import java.util.*;
 
 public class StatementObjectsVisitor extends ASTVisitor {
-    private TreeMap<Integer, HashSet<String>> heuristicMap;
+    private SortedMap<Integer, HashSet<String>> heuristicMap;
     private Map<Integer, ArrayList<Integer>> ifMap;
 
     private Map<String, ASTNode> nodeNameMap;
@@ -84,7 +84,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
         return cu.getLineNumber(startPosition);
     }
 
-    public TreeMap<Integer, HashSet<String>> getHeuristicMap() {
+    public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
         return this.heuristicMap;
     }
 
