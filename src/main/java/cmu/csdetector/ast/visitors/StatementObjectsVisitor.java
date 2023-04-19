@@ -2,17 +2,21 @@ package cmu.csdetector.ast.visitors;
 
 import org.eclipse.jdt.core.dom.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class StatementObjectsVisitor extends ASTVisitor {
-    private Map<Integer, HashSet<ASTNode>> heuristicMap;
+    private SortedMap<Integer, HashSet<String>> heuristicMap;
+    private Map<Integer, ArrayList<Integer>> ifMap;
 
-    public StatementObjectsVisitor() {
-        this.heuristicMap = new HashMap<Integer, HashSet<ASTNode>>();
+    private Map<String, ASTNode> nodeNameMap;
+
+    public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
+        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
+        this.nodeNameMap = new HashMap<String, ASTNode>();
+        this.ifMap = ifMap;
     }
 
+    @Override
     public boolean visit(SimpleName node) {
         IBinding binding = node.resolveBinding();
         if (binding == null) {
@@ -20,17 +24,22 @@ public class StatementObjectsVisitor extends ASTVisitor {
         }
 
         if (binding.getKind() == IBinding.VARIABLE) {
-            Integer lineNumber = getLineNumber(node);
-            HashSet hashSet = this.heuristicMap.get(lineNumber - 5);
-            if (hashSet == null) {
-                hashSet = new HashSet();
+            Integer lineNumber = getStartLineNumber(node);
+            addNodeToMap(binding.getName(), lineNumber);
+            this.nodeNameMap.put(binding.getName(), node);
+
+            ArrayList elseArray = this.ifMap.get(lineNumber);
+            if (elseArray != null) {
+                for (int i = 0; i < elseArray.size(); i++) {
+                    addNodeToMap(binding.getName(),(Integer) elseArray.get(i));
+                    this.nodeNameMap.put(binding.getName(), node);
+                }
             }
-            hashSet.add(node.resolveBinding().getName());
-            this.heuristicMap.put(lineNumber - 5, hashSet);
         }
         return true;
     }
 
+    @Override
     public boolean visit(MethodInvocation node) {
         IMethodBinding methodBinding = node.resolveMethodBinding();
         if (methodBinding == null) {
@@ -42,27 +51,44 @@ public class StatementObjectsVisitor extends ASTVisitor {
             return true;
         }
 
-        if (typeBinding.getQualifiedName().startsWith("java")){
-            return true;
-        }
+        String nodeName = node.resolveMethodBinding().getName();
 
-        Integer lineNumber = getLineNumber(node);
-        HashSet hashSet = this.heuristicMap.get(lineNumber-5);
+        Integer lineNumber = getStartLineNumber(node);
+        addNodeToMap(nodeName, lineNumber);
+        this.nodeNameMap.put(nodeName, node);
+
+        ArrayList elseArray = this.ifMap.get(lineNumber);
+        if (elseArray != null)
+        {
+            for (int i=0; i< elseArray.size(); i++)
+            {
+                addNodeToMap(nodeName,(Integer) elseArray.get(i));
+                this.nodeNameMap.put(nodeName, node);
+            }
+        }
+        return true;
+    }
+
+    private void addNodeToMap (String nodeName, Integer lineNumber) {
+        HashSet hashSet = this.heuristicMap.get(lineNumber);
         if (hashSet == null) {
             hashSet = new HashSet();
         }
-        hashSet.add(node.getName());
-        this.heuristicMap.put(lineNumber-5, hashSet);
-
-        return true;
+        hashSet.add(nodeName);
+        this.heuristicMap.put(lineNumber, hashSet);
     }
-    private Integer getLineNumber(ASTNode astNode) {
+
+    private Integer getStartLineNumber(ASTNode astNode) {
         int startPosition = astNode.getStartPosition();
         CompilationUnit cu = (CompilationUnit) astNode.getRoot();
         return cu.getLineNumber(startPosition);
     }
 
-    public Map<Integer, HashSet<ASTNode>> getHeuristicMap() {
+    public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
         return this.heuristicMap;
+    }
+
+    public Map<String, ASTNode> getNodeNameMap() {
+        return this.nodeNameMap;
     }
 }
