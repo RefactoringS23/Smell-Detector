@@ -5,17 +5,93 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Collections;
 import java.util.Objects;
+
+import static java.lang.Math.max;
 
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
 
+    private double benefit;
+
+    private double lcom;
+
+    private double clusterSize;
+
+    private boolean isAlternative = false;
+
+    private List<Cluster> alternatives;
+
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
+        this.clusterSize = max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.alternatives = new ArrayList<>();
     }
+
+    public double getLcom() {
+        return lcom;
+    }
+
+    public void calculateLcom (SortedMap<Integer, Set<Integer>> linePairs) {
+        // p = number of pairs of statements that do not share variables
+        // q = number of pairs of lines that share variables
+
+        double p = 0, q = 0;
+
+        for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
+            Set<Integer> pairs = linePairs.get(i);
+            if (pairs == null) {
+                if (i < this.getEndLineNumber()) {
+                    p++;
+                }
+                continue;
+            }
+            for (int j = i + 1; j <= this.getEndLineNumber(); j++) {
+                if (pairs.contains(j)) {
+                    q++;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+
+        this.lcom = p - q;
+        if (this.lcom < 0) this.lcom = 0;
+    }
+    
+    public double getClusterSize() {
+        return clusterSize;
+    }
+
+    public void setClusterSize(double clusterSize) {
+        this.clusterSize = clusterSize;
+    }
+
+    public double getBenefit() {
+        return benefit;
+    }
+
+    public boolean isAlternative() {
+        return isAlternative;
+    }
+
+    public void setAlternative(boolean alternative) {
+        isAlternative = alternative;
+    }
+
+    public List<Cluster> getAlternatives() {
+        return alternatives;
+    }
+
+    public void addNewAlternativeCluster(Cluster alternative) {
+        this.alternatives.add(alternative);
+    }
+
 
     public ClusterLine getStartLine() {
         return startLine;
@@ -60,7 +136,8 @@ public class Cluster {
         }
         return clusters;
     }
-    
+
+
     public static List<ClusterLine> convertListOfClusterObjectsToSortedList(Set<Cluster> clusters) {
         List<ClusterLine> sortedLines = new ArrayList<>();
         for (Cluster cluster : clusters) {
@@ -115,9 +192,35 @@ public class Cluster {
                 filteredClusters.add(cluster);
             }
         }
+
         return filteredClusters;
     }
 
+    // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
+    // the valid clusters
+    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
+        for (Cluster cluster : clusters) {
+            cluster.calculateLcom(linePairs);
+        }
+    }
+
+    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
+        for (Integer thisLine : table.keySet()) {
+            linePairs.put(thisLine, new HashSet<Integer>());
+            for (Integer otherLine : table.keySet()) {
+                if (thisLine.equals(otherLine)) continue;
+                for (String variable : table.get(thisLine)) {
+                    if (table.get(otherLine).contains(variable)) {
+                        linePairs.get(thisLine).add(otherLine);
+                        break;
+                    }
+                }
+            }
+        }
+        return linePairs;
+    }
 
     private static Cluster findSmallestBlockContainingThisCluster(Cluster cluster, Set<Cluster> blocks) {
         Cluster smallestBlock = null;
@@ -188,4 +291,10 @@ public class Cluster {
         return Objects.equals(this.getStartLineNumber(), otherCluster.getStartLineNumber()) &&
                 Objects.equals(this.getEndLineNumber(), otherCluster.getEndLineNumber());
     }
+
+    private void setBenefit() {
+
+    }
+
+
 }
