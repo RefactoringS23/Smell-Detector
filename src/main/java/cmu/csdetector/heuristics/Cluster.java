@@ -212,9 +212,21 @@ public class Cluster {
     private static Set<ASTNode> getListOfAccessedVariables(SortedMap<Integer, HashSet<ASTNode>> table, Integer startLine, Integer endLine) {
         Set<ASTNode> access = new HashSet<ASTNode>();
         for (int i = startLine; i <= endLine; i++) {
+            if(table.get(i) == null) continue;
             access.addAll(table.get(i));
         }
         return access;
     }
+
+//    private void getAttributesList(){
+//        System.out.prinln()
+////        Set<ASTNode> access = new HashSet<ASTNode>();
+////        for (int i = startLine; i <= endLine; i++) {
+////
+////
+////        }
+////        return access;
+//
+//    }
 
 }

@@ -21,7 +21,7 @@ public class FragmentGroupingTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }
@@ -147,11 +147,12 @@ public class FragmentGroupingTest {
     }
 
     private SortedMap<Integer, HashSet<ASTNode>> createHashMapForClustering() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
+        System.out.println(statementObjectsVisitor.getNodesDeclared().size());
         return statementObjectsVisitor.getHeuristicMap();
     }
 
