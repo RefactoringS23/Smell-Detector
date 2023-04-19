@@ -2,13 +2,7 @@ package cmu.csdetector.heuristics;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.SortedMap;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 public class Cluster {
     private final ClusterLine startLine;
@@ -16,11 +10,17 @@ public class Cluster {
 
     private Set<ASTNode> accessedVariables;
 
+    private static Map<ASTNode, Integer> nodesDeclared;
+
+    private Set<String> missingVars;
+
 
     public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.accessedVariables = accessedVariables;
+        this.missingVars = getAttributesList();
+
     };
 
     public Cluster(Integer startLine, Integer endLine) {
@@ -68,7 +68,7 @@ public class Cluster {
                         }
                     }
                 } else {
-                    // In case of empty line, we cluster for safety measures
+                    // In case of empty line, we for safety measures
                     Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
                     clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                 }
@@ -218,15 +218,19 @@ public class Cluster {
         return access;
     }
 
-//    private void getAttributesList(){
-//        System.out.prinln()
-////        Set<ASTNode> access = new HashSet<ASTNode>();
-////        for (int i = startLine; i <= endLine; i++) {
-////
-////
-////        }
-////        return access;
-//
-//    }
+    private Set<String> getAttributesList() {
+        Set<String> requiredAttributes = new HashSet<>();
+
+        for (ASTNode n : accessedVariables) {
+            if (nodesDeclared.get(n) == null || nodesDeclared.get(n) < startLine.getLineNumber() || nodesDeclared.get(n) > endLine.getLineNumber()) {
+                requiredAttributes.add(n.toString());
+            }
+        }
+        ;
+        return requiredAttributes;
+    }
+    public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
+        nodesDeclared = vardDecs;
+    }
 
 }

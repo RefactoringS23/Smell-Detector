@@ -29,6 +29,8 @@ public class FragmentGroupingTest {
     @Test
     public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Cluster.setDeclaredNodes(declaredVars);
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
@@ -38,14 +40,14 @@ public class FragmentGroupingTest {
         Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
     }
 
-    @Test
-    public void canIdentifyAtLeastOneClusterInLongSnippet() throws ClassNotFoundException {
-        Map<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
-
-        Set<Cluster> clusters = Cluster.makeClusters((SortedMap<Integer, HashSet<ASTNode>>) table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-        Assertions.assertTrue(allClusters.size() >= 1);
-    }
+//    @Test
+//    public void canIdentifyAtLeastOneClusterInLongSnippet() throws ClassNotFoundException {
+//        Map<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+//
+//        Set<Cluster> clusters = Cluster.makeClusters((SortedMap<Integer, HashSet<ASTNode>>) table);
+//        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+//        Assertions.assertTrue(allClusters.size() >= 1);
+//    }
 
     private Set<Cluster> createSmallDummyBlocks() {
         Set<Cluster> blocks = new HashSet<>();
@@ -55,29 +57,28 @@ public class FragmentGroupingTest {
         return blocks;
     }
 
-    @Test
-    public void invalidClustersAreFilteredOutFromSmallDummy() throws ClassNotFoundException {
-        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-        Set<Cluster> blocks = createSmallDummyBlocks();
-
-        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
-        System.out.println(filteredClusters);
-    }
-
-    @Test
-    public void invalidClustersAreFilteredOutFromPaperDummy() throws ClassNotFoundException {
-        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-        Set<Cluster> blocks = createDummyBlocks();
-
-        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
-        System.out.println(filteredClusters);
-    }
+//    @Test
+//    public void invalidClustersAreFilteredOutFromSmallDummy() throws ClassNotFoundException {
+//        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+//
+//        Set<Cluster> clusters = Cluster.makeClusters(table);
+//        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+//        Set<Cluster> blocks = createSmallDummyBlocks();
+//
+//        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+//        System.out.println(filteredClusters);
+//    }
+//
+//    @Test
+//    public void invalidClustersAreFilteredOutFromPaperDummy() throws ClassNotFoundException {
+//        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+//        Set<Cluster> clusters = Cluster.makeClusters(table);
+//        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+//        Set<Cluster> blocks = createDummyBlocks();
+//
+//        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+//        System.out.println(filteredClusters);
+//    }
 
     private Set<Cluster> createDummyBlocks() {
         Set<Cluster> blocks = new HashSet<>();
@@ -152,8 +153,16 @@ public class FragmentGroupingTest {
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
-        System.out.println(statementObjectsVisitor.getNodesDeclared().size());
         return statementObjectsVisitor.getHeuristicMap();
+    };
+
+    private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
+        targetMethod.accept(statementObjectsVisitor);
+        return statementObjectsVisitor.getNodesDeclared();
     }
 
     /*

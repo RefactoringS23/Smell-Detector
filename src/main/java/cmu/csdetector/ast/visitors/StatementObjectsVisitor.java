@@ -10,7 +10,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
 
     private Map<String, ASTNode> nodeNameMap;
 
-    private List<ASTNode> nodesDeclared = new ArrayList<>();
+    private Map<ASTNode, Integer> nodesDeclared = new HashMap<>();
 
     public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
         this.heuristicMap = new TreeMap<Integer, HashSet<ASTNode>>();
@@ -49,7 +49,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
 
 
     public boolean visit(VariableDeclarationFragment node) {
-        this.nodesDeclared.add(node);
+        this.nodesDeclared.put(node.getName(), getStartLineNumber(node));
         return true;
     }
 
@@ -106,7 +106,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
     public Map<String, ASTNode> getNodeNameMap() {
         return this.nodeNameMap;
     }
-    public List<ASTNode> getNodesDeclared(){
+    public Map<ASTNode, Integer> getNodesDeclared(){
         return this.nodesDeclared;
     }
 }
