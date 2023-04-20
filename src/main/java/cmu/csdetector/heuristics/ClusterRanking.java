@@ -10,7 +10,7 @@ import java.util.SortedMap;
 public class ClusterRanking {
 
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
-    private static final double THRESHOLD_OVERLAPPING = 0.5;
+    private static final double THRESHOLD_OVERLAPPING = 0.1;
 
     public static void rankClusters(Set<Cluster> filteredClusters) {
 
@@ -41,8 +41,8 @@ public class ClusterRanking {
     }
 
     public static boolean significantOverlapping(Cluster primaryCluster, Cluster secondaryCluster) {
-        double overlap = Math.max(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber())
-                - Math.min(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber());
+        double overlap = Math.max(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber())
+                - Math.min(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber());
         Double percentageOverlapping = overlap
                 /Math.max(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
         return percentageOverlapping > THRESHOLD_OVERLAPPING;

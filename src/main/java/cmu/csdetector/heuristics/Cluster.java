@@ -143,8 +143,8 @@ public class Cluster {
                     }
                 } else {
                     // In case of empty line, we for safety measures
-                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
-                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
+//                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+//                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                 }
             }
             
