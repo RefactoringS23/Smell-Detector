@@ -9,27 +9,63 @@ import java.util.TreeMap;
 import java.util.Collections;
 import java.util.Objects;
 
-import static java.lang.Math.max;
+import org.eclipse.jdt.core.dom.ASTNode;
+
+import java.util.*;
 
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
 
     private double benefit;
+    private Set<ASTNode> accessedVariables;
 
     private double lcom;
+    private static Map<ASTNode, Integer> nodesDeclared;
 
     private double clusterSize;
+    private Set<String> missingVars;
 
     private boolean isAlternative = false;
 
     private List<Cluster> alternatives;
 
+
+    public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables) {
+        this.startLine = new ClusterLine(startLine, this, true);
+        this.endLine = new ClusterLine(endLine, this, false);
+        this.accessedVariables = accessedVariables;
+        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.alternatives = new ArrayList<>();
+        this.missingVars = getAttributesList();
+
+    };
+
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
-        this.clusterSize = max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
         this.alternatives = new ArrayList<>();
+    }
+
+    public ClusterLine getStartLine() {
+        return startLine;
+    }
+
+    public Integer getStartLineNumber() {
+        return startLine.getLineNumber();
+    }
+
+    public ClusterLine getEndLine() {
+        return endLine;
+    }
+
+    public Integer getEndLineNumber() {
+        return endLine.getLineNumber();
+    }
+
+    public Set<ASTNode> getAccessedVariables() {
+        return accessedVariables;
     }
 
     public double getLcom() {
@@ -53,17 +89,14 @@ public class Cluster {
             for (int j = i + 1; j <= this.getEndLineNumber(); j++) {
                 if (pairs.contains(j)) {
                     q++;
-                }
-                else {
+                } else {
                     p++;
                 }
             }
         }
-
         this.lcom = p - q;
         if (this.lcom < 0) this.lcom = 0;
-    }
-    
+    };
     public double getClusterSize() {
         return clusterSize;
     }
@@ -87,48 +120,32 @@ public class Cluster {
     public List<Cluster> getAlternatives() {
         return alternatives;
     }
-
     public void addNewAlternativeCluster(Cluster alternative) {
         this.alternatives.add(alternative);
-    }
+    };
 
-
-    public ClusterLine getStartLine() {
-        return startLine;
-    }
-
-    public Integer getStartLineNumber() {
-        return startLine.getLineNumber();
-    }
-
-    public ClusterLine getEndLine() {
-        return endLine;
-    }
-
-    public Integer getEndLineNumber() {
-        return endLine.getLineNumber();
-    }
-
-    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<String>> table) {
+    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<ASTNode>> table) {
         Set<Cluster> clusters = new HashSet<>();
         int stepSize = 1;
         int methodSize = table.lastKey();
         
         while (stepSize < methodSize) {
             for (Integer currentLine : table.keySet()) {
-                Set<String> row = table.get(currentLine);
+                Set<ASTNode> row = table.get(currentLine);
                 int currentEndLine = currentLine + stepSize;
 
                 if (table.containsKey(currentEndLine)) {
-                    for (String variableOrMethodCall : row) {
+                    for (ASTNode variableOrMethodCall : row) {
                         if (table.get(currentEndLine).contains(variableOrMethodCall)) {
-                            clusters.add(new Cluster(currentLine, currentEndLine));
+                            Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+                            clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                             break;
                         }
                     }
                 } else {
-                    // In case of empty line, we cluster for safety measures
-                    clusters.add(new Cluster(currentLine, currentEndLine));
+                    // In case of empty line, we for safety measures
+                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                 }
             }
             
@@ -136,8 +153,7 @@ public class Cluster {
         }
         return clusters;
     }
-
-
+    
     public static List<ClusterLine> convertListOfClusterObjectsToSortedList(Set<Cluster> clusters) {
         List<ClusterLine> sortedLines = new ArrayList<>();
         for (Cluster cluster : clusters) {
@@ -161,8 +177,10 @@ public class Cluster {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(),
-                                                    line.getCluster().getEndLineNumber()));
+                        Set<ASTNode> mergedAccessedVars = new HashSet<ASTNode>();
+                        mergedAccessedVars.addAll(openClusterStartLine.getCluster().getAccessedVariables());
+                        mergedAccessedVars.addAll(line.getCluster().getAccessedVariables());
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), mergedAccessedVars));
                     }
                     currentOpenClusters.add(line);
                 } else {
@@ -192,35 +210,9 @@ public class Cluster {
                 filteredClusters.add(cluster);
             }
         }
-
         return filteredClusters;
     }
 
-    // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
-    // the valid clusters
-    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
-        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
-        for (Cluster cluster : clusters) {
-            cluster.calculateLcom(linePairs);
-        }
-    }
-
-    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
-        SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
-        for (Integer thisLine : table.keySet()) {
-            linePairs.put(thisLine, new HashSet<Integer>());
-            for (Integer otherLine : table.keySet()) {
-                if (thisLine.equals(otherLine)) continue;
-                for (String variable : table.get(thisLine)) {
-                    if (table.get(otherLine).contains(variable)) {
-                        linePairs.get(thisLine).add(otherLine);
-                        break;
-                    }
-                }
-            }
-        }
-        return linePairs;
-    }
 
     private static Cluster findSmallestBlockContainingThisCluster(Cluster cluster, Set<Cluster> blocks) {
         Cluster smallestBlock = null;
@@ -276,6 +268,31 @@ public class Cluster {
         return "Cluster: " + this.startLine.getLineNumber().toString() + " to " + this.endLine.getLineNumber().toString();
     }
 
+    // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
+    // the valid clusters
+    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
+        for (Cluster cluster : clusters) {
+            cluster.calculateLcom(linePairs);
+        }
+    }
+
+    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
+        for (Integer thisLine : table.keySet()) {
+            linePairs.put(thisLine, new HashSet<Integer>());
+            for (Integer otherLine : table.keySet()) {
+                if (thisLine.equals(otherLine)) continue;
+                for (String variable : table.get(thisLine)) {
+                    if (table.get(otherLine).contains(variable)) {
+                        linePairs.get(thisLine).add(otherLine);
+                        break;
+                    }
+                }
+            }
+        }
+        return linePairs;
+    }
     @Override
     public int hashCode() {
         return this.getStartLineNumber() + this.getEndLineNumber();
@@ -292,9 +309,28 @@ public class Cluster {
                 Objects.equals(this.getEndLineNumber(), otherCluster.getEndLineNumber());
     }
 
-    private void setBenefit() {
-
+    private static Set<ASTNode> getListOfAccessedVariables(SortedMap<Integer, HashSet<ASTNode>> table, Integer startLine, Integer endLine) {
+        Set<ASTNode> access = new HashSet<ASTNode>();
+        for (int i = startLine; i <= endLine; i++) {
+            if(table.get(i) == null) continue;
+            access.addAll(table.get(i));
+        }
+        return access;
     }
 
+    private Set<String> getAttributesList() {
+        Set<String> requiredAttributes = new HashSet<>();
+
+        for (ASTNode n : accessedVariables) {
+            if (nodesDeclared.get(n) == null || nodesDeclared.get(n) < startLine.getLineNumber() || nodesDeclared.get(n) > endLine.getLineNumber()) {
+                requiredAttributes.add(n.toString());
+            }
+        }
+        ;
+        return requiredAttributes;
+    }
+    public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
+        nodesDeclared = vardDecs;
+    }
 
 }
