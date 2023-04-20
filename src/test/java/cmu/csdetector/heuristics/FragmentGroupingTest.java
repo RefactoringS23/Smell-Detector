@@ -1,5 +1,6 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.ast.visitors.BlockLineNumberVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
@@ -39,6 +40,27 @@ public class FragmentGroupingTest {
 
         Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
     }
+
+    @Test
+    public void canRankClusters() throws ClassNotFoundException {
+        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Cluster.setDeclaredNodes(declaredVars);
+
+        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+
+        Set<Cluster> blocks = getGrabManifestsBlock();
+        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
+        Cluster.calculateLcomOfClusters(filteredClusters, table);
+        ClusterRanking.rankClusters(filteredClusters);
+
+        int expectedNumberOfClusters = 6;
+
+        Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
+    }
+
+
 
 //    @Test
 //    public void canIdentifyAtLeastOneClusterInLongSnippet() throws ClassNotFoundException {
@@ -175,6 +197,15 @@ public class FragmentGroupingTest {
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
         return statementObjectsVisitor.getNodesDeclared();
+    }
+
+    private Set<Cluster> getGrabManifestsBlock() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        BlockLineNumberVisitor blockLineNumberVisitor = new BlockLineNumberVisitor();
+        targetMethod.accept(blockLineNumberVisitor);
+        return blockLineNumberVisitor.getLineMap();
     }
 
     /*

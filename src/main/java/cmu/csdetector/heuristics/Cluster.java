@@ -269,21 +269,21 @@ public class Cluster {
 
     // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
     // the valid clusters
-    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
+    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<ASTNode>> table) {
         SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
         for (Cluster cluster : clusters) {
             cluster.calculateLcom(linePairs);
         }
     }
 
-    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
+    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<ASTNode>> table) {
         SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
         for (Integer thisLine : table.keySet()) {
             linePairs.put(thisLine, new HashSet<Integer>());
             for (Integer otherLine : table.keySet()) {
                 if (thisLine.equals(otherLine)) continue;
-                for (String variable : table.get(thisLine)) {
-                    if (table.get(otherLine).contains(variable)) {
+                for (ASTNode variable : table.get(thisLine)) {
+                    if (table.get(otherLine).toString().contains(variable.toString())) {
                         linePairs.get(thisLine).add(otherLine);
                         break;
                     }
