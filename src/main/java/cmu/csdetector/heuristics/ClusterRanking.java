@@ -12,7 +12,7 @@ public class ClusterRanking {
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
     private static final double THRESHOLD_OVERLAPPING = 0.5;
 
-    public static Set<Cluster> rankClusters(Set<Cluster> filteredClusters) {
+    public static void rankClusters(Set<Cluster> filteredClusters) {
 
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
@@ -28,11 +28,10 @@ public class ClusterRanking {
                         } else {
                             otherCluster.addNewAlternativeCluster(cluster);
                             cluster.setAlternative(true);
-                        }
                     }
                 }
             }
-        return new HashSet<>();
+        }
     }
 
     public static boolean notSimilarSize(Cluster primaryCluster, Cluster secondaryCluster) {
@@ -47,15 +46,6 @@ public class ClusterRanking {
         Double percentageOverlapping = overlap
                 /Math.max(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
         return percentageOverlapping > THRESHOLD_OVERLAPPING;
-    }
-
-    private static double calculateLCOM2(ClusterLine startLine, ClusterLine endLine, SortedMap<Integer, HashSet<String>> table) {
-        for (Integer currentLine : table.keySet()) {
-            Set<String> row = table.get(currentLine);
-//            int currentEndLine = currentLine + stepSize;
-        }
-
-        return 0.0;
     }
 
 }

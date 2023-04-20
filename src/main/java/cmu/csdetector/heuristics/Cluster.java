@@ -16,9 +16,8 @@ import java.util.*;
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
-
-    private double benefit;
     private Set<ASTNode> accessedVariables;
+
 
     private double lcom;
     private static Map<ASTNode, Integer> nodesDeclared;
@@ -106,7 +105,7 @@ public class Cluster {
     }
 
     public double getBenefit() {
-        return benefit;
+        return lcom;
     }
 
     public boolean isAlternative() {
