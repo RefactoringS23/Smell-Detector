@@ -153,7 +153,19 @@ public class FragmentGroupingTest {
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
-        return statementObjectsVisitor.getHeuristicMap();
+
+        Map<String, ASTNode> nameMap = statementObjectsVisitor.getNodeNameMap();
+        SortedMap<Integer, HashSet<String>> tableWithName = statementObjectsVisitor.getHeuristicMap();
+        SortedMap<Integer, HashSet<ASTNode>> table = new TreeMap<Integer, HashSet<ASTNode>>();
+        for (int ind : tableWithName.keySet()) {
+            HashSet<String> nodeNames = tableWithName.get(ind);
+            HashSet<ASTNode> nodes = new HashSet<ASTNode>();
+            for (String name: nodeNames) {
+                nodes.add(nameMap.get(name));
+            }
+            table.put(ind, nodes);
+        }
+        return table;
     };
 
     private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
