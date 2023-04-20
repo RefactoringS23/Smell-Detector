@@ -1,5 +1,14 @@
 package cmu.csdetector.heuristics;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Collections;
+import java.util.Objects;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.util.*;
@@ -8,17 +17,26 @@ public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
 
+    private double benefit;
     private Set<ASTNode> accessedVariables;
 
+    private double lcom;
     private static Map<ASTNode, Integer> nodesDeclared;
 
+    private double clusterSize;
     private Set<String> missingVars;
+
+    private boolean isAlternative = false;
+
+    private List<Cluster> alternatives;
 
 
     public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.accessedVariables = accessedVariables;
+        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.alternatives = new ArrayList<>();
         this.missingVars = getAttributesList();
 
     };
@@ -26,6 +44,8 @@ public class Cluster {
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
+        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
+        this.alternatives = new ArrayList<>();
     }
 
     public ClusterLine getStartLine() {
@@ -48,6 +68,61 @@ public class Cluster {
         return accessedVariables;
     }
 
+    public double getLcom() {
+        return lcom;
+    }
+
+    public void calculateLcom (SortedMap<Integer, Set<Integer>> linePairs) {
+        // p = number of pairs of statements that do not share variables
+        // q = number of pairs of lines that share variables
+
+        double p = 0, q = 0;
+
+        for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
+            Set<Integer> pairs = linePairs.get(i);
+            if (pairs == null) {
+                if (i < this.getEndLineNumber()) {
+                    p++;
+                }
+                continue;
+            }
+            for (int j = i + 1; j <= this.getEndLineNumber(); j++) {
+                if (pairs.contains(j)) {
+                    q++;
+                } else {
+                    p++;
+                }
+            }
+        }
+        this.lcom = p - q;
+        if (this.lcom < 0) this.lcom = 0;
+    };
+    public double getClusterSize() {
+        return clusterSize;
+    }
+
+    public void setClusterSize(double clusterSize) {
+        this.clusterSize = clusterSize;
+    }
+
+    public double getBenefit() {
+        return benefit;
+    }
+
+    public boolean isAlternative() {
+        return isAlternative;
+    }
+
+    public void setAlternative(boolean alternative) {
+        isAlternative = alternative;
+    }
+
+    public List<Cluster> getAlternatives() {
+        return alternatives;
+    }
+    public void addNewAlternativeCluster(Cluster alternative) {
+        this.alternatives.add(alternative);
+    };
 
     public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<ASTNode>> table) {
         Set<Cluster> clusters = new HashSet<>();
@@ -193,6 +268,31 @@ public class Cluster {
         return "Cluster: " + this.startLine.getLineNumber().toString() + " to " + this.endLine.getLineNumber().toString();
     }
 
+    // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
+    // the valid clusters
+    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
+        for (Cluster cluster : clusters) {
+            cluster.calculateLcom(linePairs);
+        }
+    }
+
+    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
+        SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
+        for (Integer thisLine : table.keySet()) {
+            linePairs.put(thisLine, new HashSet<Integer>());
+            for (Integer otherLine : table.keySet()) {
+                if (thisLine.equals(otherLine)) continue;
+                for (String variable : table.get(thisLine)) {
+                    if (table.get(otherLine).contains(variable)) {
+                        linePairs.get(thisLine).add(otherLine);
+                        break;
+                    }
+                }
+            }
+        }
+        return linePairs;
+    }
     @Override
     public int hashCode() {
         return this.getStartLineNumber() + this.getEndLineNumber();

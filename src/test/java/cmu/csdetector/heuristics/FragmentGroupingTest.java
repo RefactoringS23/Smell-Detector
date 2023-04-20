@@ -287,6 +287,12 @@ public class FragmentGroupingTest {
         set18.add("afs.getFullpath");
         set18.add("getProj");
         set18.add("afs.getPref");
+         set18.add("afs");
+         set18.add("getFullpath");
+         set18.add("getPref");
+         set18.add("pr.endsWith");
+         set18.add("pr");
+         set18.add("endsWith");
         table.put(18, set18);
 
         HashSet<String> set19 = new HashSet<>();
