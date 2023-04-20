@@ -5,7 +5,7 @@ import org.eclipse.jdt.core.dom.*;
 import java.util.*;
 
 public class StatementObjectsVisitor extends ASTVisitor {
-    private SortedMap<Integer, HashSet<ASTNode>> heuristicMap;
+    private SortedMap<Integer, HashSet<String>> heuristicMap;
     private Map<Integer, ArrayList<Integer>> ifMap;
 
     private Map<String, ASTNode> nodeNameMap;
@@ -13,12 +13,12 @@ public class StatementObjectsVisitor extends ASTVisitor {
     private Map<ASTNode, Integer> nodesDeclared = new HashMap<>();
 
     public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
-        this.heuristicMap = new TreeMap<Integer, HashSet<ASTNode>>();
+        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = ifMap;
     };
     public StatementObjectsVisitor() {
-        this.heuristicMap = new TreeMap<Integer, HashSet<ASTNode>>();
+        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = new HashMap<Integer, ArrayList<Integer>>();
     }
@@ -32,13 +32,13 @@ public class StatementObjectsVisitor extends ASTVisitor {
 
         if (binding.getKind() == IBinding.VARIABLE) {
             Integer lineNumber = getStartLineNumber(node);
-            addNodeToMap((ASTNode) node, lineNumber);
+            addNodeToMap(node.resolveBinding().getName(), lineNumber);
             this.nodeNameMap.put(binding.getName(), node);
 
             ArrayList elseArray = this.ifMap.get(lineNumber);
             if (elseArray != null) {
                 for (int i = 0; i < elseArray.size(); i++) {
-                    addNodeToMap((ASTNode) node,(Integer) elseArray.get(i));
+                    addNodeToMap(node.resolveBinding().getName(),(Integer) elseArray.get(i));
                     this.nodeNameMap.put(binding.getName(), node);
                 }
             }
@@ -69,7 +69,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
         ASTNode astNode = (ASTNode) node;
 
         Integer lineNumber = getStartLineNumber(node);
-        addNodeToMap(astNode, lineNumber);
+        addNodeToMap(nodeName, lineNumber);
         this.nodeNameMap.put(nodeName, node);
 
         ArrayList elseArray = this.ifMap.get(lineNumber);
@@ -77,14 +77,14 @@ public class StatementObjectsVisitor extends ASTVisitor {
         {
             for (int i=0; i< elseArray.size(); i++)
             {
-                addNodeToMap(astNode,(Integer) elseArray.get(i));
+                addNodeToMap(nodeName,(Integer) elseArray.get(i));
                 this.nodeNameMap.put(nodeName, node);
             }
         }
         return true;
     }
 
-    private void addNodeToMap (ASTNode node, Integer lineNumber) {
+    private void addNodeToMap (String node, Integer lineNumber) {
         HashSet hashSet = this.heuristicMap.get(lineNumber);
         if (hashSet == null) {
             hashSet = new HashSet();
@@ -99,7 +99,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
         return cu.getLineNumber(startPosition);
     }
 
-    public SortedMap<Integer, HashSet<ASTNode>> getHeuristicMap() {
+    public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
         return this.heuristicMap;
     }
 
