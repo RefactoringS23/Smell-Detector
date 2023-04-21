@@ -40,6 +40,12 @@ public class FragmentGroupingTest {
 
         int expectedNumberOfClusters = 6;
 
+        for (Cluster cluster: allClusters) {
+            System.out.println("aa");
+            System.out.println(cluster);
+            System.out.println(cluster.getReturnType());
+        }
+
         Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
     }
 

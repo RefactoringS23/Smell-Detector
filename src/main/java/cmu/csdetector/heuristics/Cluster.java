@@ -333,7 +333,7 @@ public class Cluster {
         return requiredAttributes;
     }
 
-    private String getReturnType() {
+    public String getReturnType() {
         String returnType = "void";
         Integer count = 0;
 
