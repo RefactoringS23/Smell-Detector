@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.Collections;
 import java.util.Objects;
 
+import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class Cluster {
 
     private double benefit;
     private Set<ASTNode> accessedVariables;
+    private static Map<ASTNode, List<Integer>> assignedVariables;
 
     private double lcom;
     private static Map<ASTNode, Integer> nodesDeclared;
@@ -38,7 +40,7 @@ public class Cluster {
         this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
         this.alternatives = new ArrayList<>();
         this.missingVars = getAttributesList();
-
+        this.assignedVariables = new HashMap<>();
     };
 
     public Cluster(Integer startLine, Integer endLine) {
@@ -46,6 +48,7 @@ public class Cluster {
         this.endLine = new ClusterLine(endLine, this, false);
         this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
         this.alternatives = new ArrayList<>();
+        this.assignedVariables = new HashMap<>();
     }
 
     public ClusterLine getStartLine() {
@@ -329,8 +332,32 @@ public class Cluster {
         ;
         return requiredAttributes;
     }
+
+    private String getReturnType() {
+        String returnType = "void";
+        Integer count = 0;
+
+        for (ASTNode node: accessedVariables) {
+            List<Integer> index = assignedVariables.get(node);
+            if (index != null) {
+                for( int ind : index) {
+                    if (ind > endLine.getLineNumber()) {
+                        returnType = node.toString();
+                        count += 1;
+                    }
+                }
+            }
+        }
+        if (count>1) {
+            returnType = "invalid";
+        }
+        return returnType;
+    }
     public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
         nodesDeclared = vardDecs;
     }
 
+    public static void setAssignedNodes(Map<ASTNode, List<Integer>> varsAssigned){
+        assignedVariables = varsAssigned;
+    }
 }

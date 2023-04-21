@@ -1,5 +1,6 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
@@ -30,7 +31,9 @@ public class FragmentGroupingTest {
     public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<ASTNode, List<Integer>> assignedVars = extractReturnMap();
         Cluster.setDeclaredNodes(declaredVars);
+        Cluster.setAssignedNodes(assignedVars);
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
@@ -175,6 +178,22 @@ public class FragmentGroupingTest {
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
         return statementObjectsVisitor.getNodesDeclared();
+    }
+
+    private  Map<ASTNode, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        AssignmentVisitor assignmentVisitor = new AssignmentVisitor();
+        targetMethod.accept(assignmentVisitor);
+
+        Map<String, List<Integer>> assignmentNameMap = assignmentVisitor.getLineMap();
+        Map<String, ASTNode> nameMap = assignmentVisitor.getNameMap();
+        Map<ASTNode, List<Integer>>  assignmentMap = new HashMap<ASTNode, List<Integer>>();
+        for(String name: assignmentNameMap.keySet()) {
+            assignmentMap.put(nameMap.get(name),assignmentNameMap.get(name));
+        }
+        return assignmentMap;
     }
 
     /*
