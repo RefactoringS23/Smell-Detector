@@ -19,11 +19,13 @@ import java.util.*;
 public class FragmentGroupingTest {
 
     private static List<Type> types;
+    private static SortedMap<Integer, HashSet<String>> table1;
 
     @BeforeAll
     public static void setUp() throws IOException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
         types = TypeLoader.loadAllFromDir(dir);
+        table1 = new TreeMap<Integer, HashSet<String>>();
         GenericCollector.collectAll(types);
     }
 
@@ -31,18 +33,17 @@ public class FragmentGroupingTest {
     public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        Map<ASTNode, List<Integer>> assignedVars = extractReturnMap();
+        Map<String, List<Integer>> assignedVars = extractReturnMap();
         Cluster.setDeclaredNodes(declaredVars);
         Cluster.setAssignedNodes(assignedVars);
 
-        Set<Cluster> clusters = Cluster.makeClusters(table);
+        Set<Cluster> clusters = Cluster.makeClusters(table, table1);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
 
         int expectedNumberOfClusters = 6;
 
         for (Cluster cluster: allClusters) {
-            System.out.println("aa");
-            System.out.println(cluster);
+            cluster.setAssignedNodes(assignedVars);
             System.out.println(cluster.getReturnType());
         }
 
@@ -165,6 +166,7 @@ public class FragmentGroupingTest {
 
         Map<String, ASTNode> nameMap = statementObjectsVisitor.getNodeNameMap();
         SortedMap<Integer, HashSet<String>> tableWithName = statementObjectsVisitor.getHeuristicMap();
+        table1 = tableWithName;
         SortedMap<Integer, HashSet<ASTNode>> table = new TreeMap<Integer, HashSet<ASTNode>>();
         for (int ind : tableWithName.keySet()) {
             HashSet<String> nodeNames = tableWithName.get(ind);
@@ -186,7 +188,7 @@ public class FragmentGroupingTest {
         return statementObjectsVisitor.getNodesDeclared();
     }
 
-    private  Map<ASTNode, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
+    private  Map<String, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
         Type type = getType("testFile");
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
@@ -199,7 +201,8 @@ public class FragmentGroupingTest {
         for(String name: assignmentNameMap.keySet()) {
             assignmentMap.put(nameMap.get(name),assignmentNameMap.get(name));
         }
-        return assignmentMap;
+
+        return assignmentNameMap;
     }
 
     /*

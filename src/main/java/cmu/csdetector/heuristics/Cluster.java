@@ -20,7 +20,8 @@ public class Cluster {
 
     private double benefit;
     private Set<ASTNode> accessedVariables;
-    private static Map<ASTNode, List<Integer>> assignedVariables;
+    private Map<String, List<Integer>> accessedVariables1;
+    private static Map<String, List<Integer>> assignedVariables;
 
     private double lcom;
     private static Map<ASTNode, Integer> nodesDeclared;
@@ -33,7 +34,7 @@ public class Cluster {
     private List<Cluster> alternatives;
 
 
-    public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables) {
+    public Cluster(Integer startLine, Integer endLine, Set<ASTNode> accessedVariables, Map<String, List<Integer>> accessedVariables1) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.accessedVariables = accessedVariables;
@@ -41,6 +42,7 @@ public class Cluster {
         this.alternatives = new ArrayList<>();
         this.missingVars = getAttributesList();
         this.assignedVariables = new HashMap<>();
+        this.accessedVariables1 = accessedVariables1;
     };
 
     public Cluster(Integer startLine, Integer endLine) {
@@ -69,6 +71,10 @@ public class Cluster {
 
     public Set<ASTNode> getAccessedVariables() {
         return accessedVariables;
+    }
+
+    public Map<String, List<Integer>> getAccessedVariables1() {
+        return accessedVariables1;
     }
 
     public double getLcom() {
@@ -127,7 +133,7 @@ public class Cluster {
         this.alternatives.add(alternative);
     };
 
-    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<ASTNode>> table) {
+    public static Set<Cluster> makeClusters(SortedMap<Integer, HashSet<ASTNode>> table, SortedMap<Integer, HashSet<String>> table1) {
         Set<Cluster> clusters = new HashSet<>();
         int stepSize = 1;
         int methodSize = table.lastKey();
@@ -141,14 +147,16 @@ public class Cluster {
                     for (ASTNode variableOrMethodCall : row) {
                         if (table.get(currentEndLine).contains(variableOrMethodCall)) {
                             Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
-                            clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
+                            Map<String, List<Integer>> accessedVariables1 = getListOfAccessedVariables1(table1, currentLine, currentEndLine);
+                            clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables, accessedVariables1));
                             break;
                         }
                     }
                 } else {
                     // In case of empty line, we for safety measures
                     Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
-                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
+                    Map<String, List<Integer>> accessedVariables1 = getListOfAccessedVariables1(table1, currentLine, currentEndLine);
+                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables, accessedVariables1));
                 }
             }
             
@@ -183,7 +191,12 @@ public class Cluster {
                         Set<ASTNode> mergedAccessedVars = new HashSet<ASTNode>();
                         mergedAccessedVars.addAll(openClusterStartLine.getCluster().getAccessedVariables());
                         mergedAccessedVars.addAll(line.getCluster().getAccessedVariables());
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), mergedAccessedVars));
+
+                        Map<String, List<Integer>> mergedAccessedVarsNames = new HashMap<String, List<Integer>>();
+                        mergedAccessedVarsNames.putAll(openClusterStartLine.getCluster().getAccessedVariables1());
+                        mergedAccessedVarsNames.putAll(line.getCluster().getAccessedVariables1());
+
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), mergedAccessedVars, mergedAccessedVarsNames));
                     }
                     currentOpenClusters.add(line);
                 } else {
@@ -321,6 +334,23 @@ public class Cluster {
         return access;
     }
 
+    private static Map<String, List<Integer>>  getListOfAccessedVariables1(SortedMap<Integer, HashSet<String>> table, Integer startLine, Integer endLine) {
+        Map<String, List<Integer>>  access = new HashMap<String, List<Integer>>();
+        for (int ind: table.keySet()) {
+            for(String name: table.get(ind)) {
+                List<Integer> indList = access.get(name);
+                if(indList == null) {
+                    indList = new ArrayList<>();
+                }
+                indList.add(ind);
+                access.put(name, indList);
+            }
+        }
+        //System.out.println("the table");
+        //System.out.println(access);
+        return access;
+    }
+
     private Set<String> getAttributesList() {
         Set<String> requiredAttributes = new HashSet<>();
 
@@ -337,27 +367,49 @@ public class Cluster {
         String returnType = "void";
         Integer count = 0;
 
-        for (ASTNode node: accessedVariables) {
-            List<Integer> index = assignedVariables.get(node);
-            if (index != null) {
-                for( int ind : index) {
-                    if (ind > endLine.getLineNumber()) {
-                        returnType = node.toString();
-                        count += 1;
+        for (String node: assignedVariables.keySet()) {
+            //System.out.println("  aaaa  ");
+            //System.out.println(index);
+            //System.out.println(node);
+            //System.out.println(assignedVariables);
+            //System.out.println(startLine.getLineNumber());
+            //System.out.println(endLine.getLineNumber());
+                //System.out.println(index);
+            List<Integer> indexList = accessedVariables1.get(node);
+            int insideCluster = 0;
+            int afterCluster = 0;
+            if(indexList != null) {
+                for( int ind : indexList) {
+                    //System.out.println(ind);
+                    if (ind >= startLine.getLineNumber() && ind <= endLine.getLineNumber()) {
+                        insideCluster += 1;
+                    } else if (ind > endLine.getLineNumber()) {
+                        afterCluster += 1;
                     }
                 }
+            }
+            if (insideCluster > 0 && afterCluster > 0) {
+                //System.out.println(ind);
+                returnType = node;
+                count += 1;
+                //System.out.println(returnType);
             }
         }
         if (count>1) {
             returnType = "invalid";
         }
+        System.out.println(" ");
+        System.out.println("returntype");
+        System.out.println(startLine.getLineNumber());
+        System.out.println(endLine.getLineNumber());
+        System.out.println(returnType);
         return returnType;
     }
     public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
         nodesDeclared = vardDecs;
     }
 
-    public static void setAssignedNodes(Map<ASTNode, List<Integer>> varsAssigned){
+    public static void setAssignedNodes(Map<String, List<Integer>> varsAssigned){;
         assignedVariables = varsAssigned;
     }
 }
