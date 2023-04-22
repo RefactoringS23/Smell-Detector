@@ -6,14 +6,23 @@ import java.util.Set;
 import java.lang.Math;
 import java.util.SortedMap;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ClusterRanking {
 
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
     private static final double THRESHOLD_OVERLAPPING = 0.1;
 
-    public static void rankClusters(Set<Cluster> filteredClusters) {
+    // Move to ClusterManager eventually
+    public static void prepareClustersForRanking(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
+        Cluster.calculateBenefitOfClusters(filteredClusters, table);
+        for (Cluster cluster : filteredClusters) {
+            cluster.calculateClusterSize(table);
+        }
+    }
 
+    public static void rankClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
+        prepareClustersForRanking(filteredClusters, table);
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
                 continue;
@@ -33,16 +42,17 @@ public class ClusterRanking {
             }
         }
     }
-
+    
     public static boolean notSimilarSize(Cluster primaryCluster, Cluster secondaryCluster) {
         Double difference = Math.abs(primaryCluster.getClusterSize() - secondaryCluster.getClusterSize())
                 /Math.min(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
-        return difference > THRESHOLD_SIZE_DIFFERENCE;
+        // TODO: according to the paper, should be 'return difference > THRESHOLD_SIZE_DIFFERENCE', but we don't get why
+        return difference < THRESHOLD_SIZE_DIFFERENCE;
     }
 
     public static boolean significantOverlapping(Cluster primaryCluster, Cluster secondaryCluster) {
-        double overlap = Math.max(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber())
-                - Math.min(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber());
+        double overlap = Math.min(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber())
+                - Math.max(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber());
         Double percentageOverlapping = overlap
                 /Math.max(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
         return percentageOverlapping > THRESHOLD_OVERLAPPING;

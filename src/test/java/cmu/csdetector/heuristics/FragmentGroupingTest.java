@@ -54,8 +54,8 @@ public class FragmentGroupingTest {
 
         Set<Cluster> blocks = getGrabManifestsBlock();
         Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
-        Cluster.calculateLcomOfClusters(filteredClusters, table);
-        ClusterRanking.rankClusters(filteredClusters);
+        Cluster.calculateBenefitOfClusters(filteredClusters, table);
+        ClusterRanking.rankClusters(filteredClusters, table);
 
         int expectedNumberOfClusters = 6;
 

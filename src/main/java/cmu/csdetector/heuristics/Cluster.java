@@ -20,6 +20,7 @@ public class Cluster {
 
 
     private double lcom;
+    private double benefit;
     private static Map<ASTNode, Integer> nodesDeclared;
 
     private double clusterSize;
@@ -34,17 +35,24 @@ public class Cluster {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.accessedVariables = accessedVariables;
-        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
         this.alternatives = new ArrayList<>();
         this.missingVars = getAttributesList();
-
-    };
+    }
 
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
-        this.clusterSize = Math.max(0, this.endLine.getLineNumber() - this.startLine.getLineNumber());
         this.alternatives = new ArrayList<>();
+    }
+
+    public void calculateClusterSize(SortedMap<Integer, HashSet<ASTNode>> table) {
+        double clusterSize = 0;
+        for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
+            if (table.containsKey(i)) {
+                clusterSize += 1;
+            }
+        }
+        this.clusterSize = clusterSize;
     }
 
     public ClusterLine getStartLine() {
@@ -137,7 +145,7 @@ public class Cluster {
 
     // Call this only after calculating benefit 
     public double getBenefit() {
-        return lcom;
+        return benefit;
     }
 
     public void calculateBenefit(Cluster method, SortedMap<Integer, Set<Integer>> linePairs) {
