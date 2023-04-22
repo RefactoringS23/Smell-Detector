@@ -72,7 +72,7 @@ public class Cluster {
         return lcom;
     }
 
-    public void calculateLcom (SortedMap<Integer, Set<Integer>> linePairs) {
+    public double calculateLcom (SortedMap<Integer, Set<Integer>> linePairs) {
         // p = number of pairs of statements that do not share variables
         // q = number of pairs of lines that share variables
 
@@ -81,9 +81,6 @@ public class Cluster {
         for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
             Set<Integer> pairs = linePairs.get(i);
             if (pairs == null) {
-                if (i < this.getEndLineNumber()) {
-                    p++;
-                }
                 continue;
             }
             for (int j = i + 1; j <= this.getEndLineNumber(); j++) {
@@ -96,7 +93,41 @@ public class Cluster {
         }
         this.lcom = p - q;
         if (this.lcom < 0) this.lcom = 0;
-    };
+        return this.lcom;
+    }
+
+    // Need cluster for the entire method
+    public double calculateLcomOfMethodAfterRefactoring(Cluster method, SortedMap<Integer, Set<Integer>> linePairs) {
+        double p = 0, q = 0;
+
+        for (int i = method.getStartLineNumber(); i <= method.getEndLineNumber(); i++) {
+            if (this.getStartLineNumber() <= i && i <= this.getEndLineNumber()) {
+                i = this.getEndLineNumber();
+                continue;
+            }
+            Set<Integer> pairs = linePairs.get(i);
+            if (pairs == null) {
+                continue;
+            }
+            for (int j = i + 1; j <= method.getEndLineNumber(); j++) {
+                if (this.getStartLineNumber() <= j &&  j <= this.getEndLineNumber()) {
+                    j = this.getEndLineNumber();
+                    continue;
+                }
+                if (pairs.contains(j)) {
+                    q++;
+                } else {
+                    p++;
+                }
+            }
+        }
+        
+        double lcom = p - q;
+        if (lcom < 0) lcom = 0;
+        return lcom;
+    }
+        
+
     public double getClusterSize() {
         return clusterSize;
     }
@@ -105,8 +136,18 @@ public class Cluster {
         this.clusterSize = clusterSize;
     }
 
+    // Call this only after calculating benefit 
     public double getBenefit() {
         return benefit;
+    }
+
+    public void calculateBenefit(Cluster method, SortedMap<Integer, Set<Integer>> linePairs) {
+        double originalLcom = method.getLcom();
+        double opportunityLcom = this.calculateLcom(linePairs);
+        double methodLcomAfterRefactoring = this.calculateLcomOfMethodAfterRefactoring(method, linePairs);
+
+        double benefit = originalLcom - Math.max(opportunityLcom, methodLcomAfterRefactoring);
+        this.benefit = benefit;
     }
 
     public boolean isAlternative() {
@@ -144,8 +185,8 @@ public class Cluster {
                     }
                 } else {
                     // In case of empty line, we for safety measures
-                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
-                    clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
+                    //Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
+                    //clusters.add(new Cluster(currentLine, currentEndLine, accessedVariables));
                 }
             }
             
@@ -270,20 +311,26 @@ public class Cluster {
 
     // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
     // the valid clusters
-    public static void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<String>> table) {
+    public static void calculateBenefitOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<ASTNode>> table) {
         SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
+        int minKey = table.firstKey();
+        int maxKey = table.lastKey();
+        Cluster methodCluster = new Cluster(minKey, maxKey);
+        methodCluster.calculateLcom(linePairs);
         for (Cluster cluster : clusters) {
             cluster.calculateLcom(linePairs);
+            cluster.calculateBenefit(methodCluster, linePairs);
         }
+
     }
 
-    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<String>> table) {
+    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<ASTNode>> table) {
         SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
         for (Integer thisLine : table.keySet()) {
-            linePairs.put(thisLine, new HashSet<Integer>());
+            linePairs.put(thisLine, new HashSet<>());
             for (Integer otherLine : table.keySet()) {
                 if (thisLine.equals(otherLine)) continue;
-                for (String variable : table.get(thisLine)) {
+                for (ASTNode variable : table.get(thisLine)) {
                     if (table.get(otherLine).contains(variable)) {
                         linePairs.get(thisLine).add(otherLine);
                         break;
