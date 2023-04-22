@@ -35,6 +35,7 @@ public class FragmentGroupingTest {
 
         Set<Cluster> clusters = Cluster.makeClusters(table);
         Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
+        Cluster.calculateBenefitOfClusters(allClusters, table);
 
         int expectedNumberOfClusters = 6;
 
