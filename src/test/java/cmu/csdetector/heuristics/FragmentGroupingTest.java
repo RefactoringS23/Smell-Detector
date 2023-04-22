@@ -21,11 +21,14 @@ public class FragmentGroupingTest {
     private static List<Type> types;
     private static SortedMap<Integer, HashSet<String>> table1;
 
+    private static Map<String, String> nodeTypeMap;
+
     @BeforeAll
     public static void setUp() throws IOException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
         types = TypeLoader.loadAllFromDir(dir);
         table1 = new TreeMap<Integer, HashSet<String>>();
+        nodeTypeMap = new HashMap<>();
         GenericCollector.collectAll(types);
     }
 
@@ -44,7 +47,11 @@ public class FragmentGroupingTest {
 
         for (Cluster cluster: allClusters) {
             cluster.setAssignedNodes(assignedVars);
-            System.out.println(cluster.getReturnType());
+            String returnValue = cluster.getReturnValue();
+            System.out.println(returnValue);
+            System.out.println(cluster.getReturnType(nodeTypeMap, returnValue));
+            Random rand = new Random();
+            System.out.println(cluster.getMethodName(returnValue, rand.nextInt()));
         }
 
         Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
@@ -196,11 +203,8 @@ public class FragmentGroupingTest {
         targetMethod.accept(assignmentVisitor);
 
         Map<String, List<Integer>> assignmentNameMap = assignmentVisitor.getLineMap();
-        Map<String, ASTNode> nameMap = assignmentVisitor.getNameMap();
-        Map<ASTNode, List<Integer>>  assignmentMap = new HashMap<ASTNode, List<Integer>>();
-        for(String name: assignmentNameMap.keySet()) {
-            assignmentMap.put(nameMap.get(name),assignmentNameMap.get(name));
-        }
+        Map<String, String> nameMap = assignmentVisitor.getNodeTypeMap();
+        nodeTypeMap = nameMap;
 
         return assignmentNameMap;
     }

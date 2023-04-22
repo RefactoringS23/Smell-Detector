@@ -6,11 +6,11 @@ import java.util.*;
 
 public class AssignmentVisitor extends ASTVisitor {
     private HashMap<String, List<Integer>> assignmentMap;
-    private Map<String, ASTNode> nodeNameMap;
+    private Map<String, String> nodeTypeMap;
 
     public AssignmentVisitor () {
         assignmentMap = new HashMap<String, List<Integer>>();
-        nodeNameMap = new HashMap<String, ASTNode>();
+        nodeTypeMap = new HashMap<String, String>();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class AssignmentVisitor extends ASTVisitor {
         if(primitiveTypesList.contains(node.getLeftHandSide().resolveTypeBinding().getName())) {
             lineList.add(getStartLineNumber(node));
             this.assignmentMap.put(name, lineList);
-            this.nodeNameMap.put(name, node.getLeftHandSide());
+            this.nodeTypeMap.put(name, node.getLeftHandSide().resolveTypeBinding().getName());
         }
         return true;
     }
@@ -58,7 +58,7 @@ public class AssignmentVisitor extends ASTVisitor {
         return this.assignmentMap;
     }
 
-    public Map<String, ASTNode> getNameMap() {
-        return this.nodeNameMap;
+    public Map<String, String> getNodeTypeMap() {
+        return this.nodeTypeMap;
     }
 }

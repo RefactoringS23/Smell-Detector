@@ -363,18 +363,11 @@ public class Cluster {
         return requiredAttributes;
     }
 
-    public String getReturnType() {
+    public String getReturnValue() {
         String returnType = "void";
         Integer count = 0;
 
         for (String node: assignedVariables.keySet()) {
-            //System.out.println("  aaaa  ");
-            //System.out.println(index);
-            //System.out.println(node);
-            //System.out.println(assignedVariables);
-            //System.out.println(startLine.getLineNumber());
-            //System.out.println(endLine.getLineNumber());
-                //System.out.println(index);
             List<Integer> indexList = accessedVariables1.get(node);
             int insideCluster = 0;
             int afterCluster = 0;
@@ -399,11 +392,30 @@ public class Cluster {
             returnType = "invalid";
         }
         System.out.println(" ");
-        System.out.println("returntype");
+        System.out.println("return value");
         System.out.println(startLine.getLineNumber());
         System.out.println(endLine.getLineNumber());
         System.out.println(returnType);
         return returnType;
+    }
+
+    public String getReturnType(Map<String, String> nodeTypeMap, String returnValue) {
+        System.out.println("test");
+        System.out.println(returnValue);
+        if (returnValue != "void" && returnValue != "invalid") {
+            return nodeTypeMap.get(returnValue);
+        }
+        else {
+            return returnValue;
+        }
+    }
+
+    public String getMethodName(String returnValue, int i) {
+        String name = String.join("","LeoIsTheBestProf", String.valueOf(i));
+        if (returnValue != "void" && returnValue != "invalid") {
+            name = String.join("","calculate",returnValue);
+        }
+        return name;
     }
     public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
         nodesDeclared = vardDecs;
