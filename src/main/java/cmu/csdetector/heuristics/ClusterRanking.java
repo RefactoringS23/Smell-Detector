@@ -13,9 +13,7 @@ public class ClusterRanking {
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
     private static final double THRESHOLD_OVERLAPPING = 0.1;
 
-    // Move to ClusterManager eventually
-
-
+    // return a list of extractions sorted by benefit
     public static void rankClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {

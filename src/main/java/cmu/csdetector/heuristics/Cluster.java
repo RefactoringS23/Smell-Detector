@@ -33,6 +33,8 @@ public class Cluster {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.alternatives = new ArrayList<>();
+        this.accessedVariables = new HashSet<>();
+        this.missingVars = new HashSet<>();
     }
 
     public void setMissingVars(Set<String> missingVars) {

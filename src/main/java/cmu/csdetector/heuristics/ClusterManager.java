@@ -5,28 +5,33 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import java.util.*;
 
 public class ClusterManager {
-    private Map<Cluster, Set<ASTNode>> accessedVariablesMap;
+
     private Map<ASTNode, Integer> nodesDeclared;
-    private Map<Cluster, HashSet<String>> missingVars;
     private SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap;
+
+    private Cluster finalCluster; // ClusterManager returns this finalCluster
 
     private Set<Cluster> allClusters;
     private Set<Cluster> mergedClusters;
+    private Set<Cluster> filteredClusters;
 
     public ClusterManager(SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap, Map<ASTNode, Integer> variableDeclarations) {
         this.statementObjectsMap = statementObjectsMap;
         this.nodesDeclared = variableDeclarations;
-        this.missingVars = new HashMap<>();
-        this.accessedVariablesMap = new HashMap<>();
+
     }
 
-    public void createClusters() {
+    public void createClusters(Set<Cluster> blocks) {
         allClusters = makeClusters();
         mergedClusters = createMergedClusters();
+        filteredClusters = filterValidClusters(blocks);
+        this.calculateLcomOfClusters();
+        this.prepareClustersForRanking();
+        ClusterRanking.rankClusters(filteredClusters, this.statementObjectsMap);
     }
 
     private Set<ASTNode> getListOfAccessedVariables(Integer startLine, Integer endLine) {
-        Set<ASTNode> access = new HashSet<ASTNode>();
+        Set<ASTNode> access = new HashSet<>();
         for (int i = startLine; i <= endLine; i++) {
             if(this.statementObjectsMap.get(i) == null) continue;
             access.addAll(this.statementObjectsMap.get(i));
@@ -36,8 +41,7 @@ public class ClusterManager {
 
     private void setMissingVarsForValidCluster(Cluster cluster) {
         Set<String> requiredAttributes = new HashSet<>();
-
-        for (ASTNode n : accessedVariablesMap.get(cluster)) {
+        for (ASTNode n : cluster.getAccessedVariables()) {
             if (nodesDeclared.get(n) == null || nodesDeclared.get(n) < cluster.getStartLine().getLineNumber() || nodesDeclared.get(n) > cluster.getEndLine().getLineNumber()) {
                 requiredAttributes.add(n.toString());
             }
@@ -45,7 +49,7 @@ public class ClusterManager {
         cluster.setMissingVars(requiredAttributes);
     }
 
-    public Set<Cluster> makeClusters() {
+    private Set<Cluster> makeClusters() {
         Set<Cluster> clusters = new HashSet<>();
         int stepSize = 1;
         int methodSize = this.statementObjectsMap.lastKey();
@@ -58,15 +62,13 @@ public class ClusterManager {
                 if (this.statementObjectsMap.containsKey(currentEndLine)) {
                     for (ASTNode variableOrMethodCall : row) {
                         if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
-//                            Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
                             clusters.add(new Cluster(currentLine, currentEndLine));
                             break;
                         }
                     }
                 } else {
-                    // In case of empty line, we for safety measures
-//                    Set<ASTNode> accessedVariables = getListOfAccessedVariables(table, currentLine, currentEndLine);
-//                    clusters.add(new Cluster(currentLine, currentEndLine));
+                    // In case of empty line, we add it for safety measures
+                    clusters.add(new Cluster(currentLine, currentEndLine));
                 }
             }
 
@@ -76,7 +78,7 @@ public class ClusterManager {
     }
 
 
-    public static List<ClusterLine> convertListOfClusterObjectsToSortedList(Set<Cluster> clusters) {
+    private static List<ClusterLine> convertListOfClusterObjectsToSortedList(Set<Cluster> clusters) {
         List<ClusterLine> sortedLines = new ArrayList<>();
         for (Cluster cluster : clusters) {
             sortedLines.add(cluster.getStartLine());
@@ -88,7 +90,7 @@ public class ClusterManager {
         return sortedLines;
     }
 
-    public Set<Cluster> createMergedClusters() {
+    private Set<Cluster> createMergedClusters() {
         Set<Cluster> mergeCandidates = new HashSet<>(this.allClusters);
         Set<Cluster> finalClusters = mergeCandidates;
         Set<Cluster> newClusters = new HashSet<>();
@@ -99,9 +101,7 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        Set<ASTNode> mergedAccessedVars = new HashSet<ASTNode>();
-//                        mergedAccessedVars.addAll(openClusterStartLine.getCluster().getAccessedVariables());
-//                        mergedAccessedVars.addAll(line.getCluster().getAccessedVariables());
+                        Set<ASTNode> mergedAccessedVars = new HashSet<>();
                         newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber()));
                     }
                     currentOpenClusters.add(line);
@@ -119,7 +119,7 @@ public class ClusterManager {
     }
 
 
-    public Set<Cluster> filterValidClusters(Set<Cluster> blocks) {
+    private Set<Cluster> filterValidClusters(Set<Cluster> blocks) {
         Set<Cluster> filteredClusters = new HashSet<>();
         for (Cluster cluster : mergedClusters) {
             // step 1 : find smallest block that contains this cluster
@@ -140,15 +140,14 @@ public class ClusterManager {
     private void setAccessedVariablesForValidClusters(Set<Cluster> validClusters) {
         for (Cluster cluster : validClusters) {
             Set<ASTNode> accessedVariables = getListOfAccessedVariables(cluster.getStartLineNumber(), cluster.getEndLineNumber());
-            setMissingVarsForValidCluster(cluster);
-            accessedVariablesMap.put(cluster, accessedVariables);
             cluster.setAccessedVariables(accessedVariables);
+            setMissingVarsForValidCluster(cluster);
         }
     }
 
-    public void prepareClustersForRanking(Set<Cluster> filteredClusters) {
-        this.calculateBenefitOfClusters(filteredClusters);
-        for (Cluster cluster : filteredClusters) {
+    private void prepareClustersForRanking() {
+        this.calculateBenefitOfClusters(this.filteredClusters);
+        for (Cluster cluster : this.filteredClusters) {
             cluster.calculateClusterSize(this.statementObjectsMap);
         }
     }
@@ -156,7 +155,7 @@ public class ClusterManager {
     // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
     // the valid clusters
     private void calculateBenefitOfClusters(Set<Cluster> clusters) {
-        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((this.statementObjectsMap));
+        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs();
         int minKey = this.statementObjectsMap.firstKey();
         int maxKey = this.statementObjectsMap.lastKey();
         Cluster methodCluster = new Cluster(minKey, maxKey);
@@ -165,6 +164,10 @@ public class ClusterManager {
             cluster.calculateLcom(linePairs);
             cluster.calculateBenefit(methodCluster, linePairs);
         }
+    }
+
+    public Set<Cluster> getFilteredClusters() {
+        return filteredClusters;
     }
 
 
@@ -219,22 +222,22 @@ public class ClusterManager {
 
     // Call this method after filtering out the invalid clusters (and before ranking) to calculate the LCOM of
     // the valid clusters
-    public void calculateLcomOfClusters(Set<Cluster> clusters, SortedMap<Integer, HashSet<ASTNode>> table) {
-        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs((table));
-        for (Cluster cluster : clusters) {
+    private void calculateLcomOfClusters() {
+        SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs();
+        for (Cluster cluster : this.filteredClusters) {
             cluster.calculateLcom(linePairs);
         }
     }
 
 
-    public static SortedMap<Integer, Set<Integer>> buildLinePairs (SortedMap<Integer, HashSet<ASTNode>> table) {
+    private SortedMap<Integer, Set<Integer>> buildLinePairs() {
         SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
-        for (Integer thisLine : table.keySet()) {
+        for (Integer thisLine : this.statementObjectsMap.keySet()) {
             linePairs.put(thisLine, new HashSet<>());
-            for (Integer otherLine : table.keySet()) {
+            for (Integer otherLine : this.statementObjectsMap.keySet()) {
                 if (thisLine.equals(otherLine)) continue;
-                for (ASTNode variable : table.get(thisLine)) {
-                    if (table.get(otherLine).toString().contains(variable.toString())) {
+                for (ASTNode variable : this.statementObjectsMap.get(thisLine)) {
+                    if (this.statementObjectsMap.get(otherLine).toString().contains(variable.toString())) {
                         linePairs.get(thisLine).add(otherLine);
                         break;
                     }

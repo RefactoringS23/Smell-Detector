@@ -32,12 +32,10 @@ public class FragmentGroupingTest {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, declaredVars);
-        cm.createClusters();
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);
-        cm.prepareClustersForRanking(filteredClusters);
+        cm.createClusters(blocks);
         int expectedNumberOfClusters = 4;
-        Assertions.assertEquals(expectedNumberOfClusters, filteredClusters.size());
+        Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
     }
 
     @Test
@@ -45,11 +43,8 @@ public class FragmentGroupingTest {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, declaredVars);
-        cm.createClusters();
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);
-        cm.prepareClustersForRanking(filteredClusters);
-        ClusterRanking.rankClusters(filteredClusters, table);
+        cm.createClusters(blocks);
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
