@@ -30,9 +30,8 @@ public class FragmentGroupingTest {
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
-        ClusterManager cm = new ClusterManager(table);
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        cm.setDeclaredNodes(declaredVars);
+        ClusterManager cm = new ClusterManager(table, declaredVars);
         cm.createClusters();
         Set<Cluster> blocks = getGrabManifestsBlock();
         Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);
@@ -44,9 +43,8 @@ public class FragmentGroupingTest {
     @Test
     public void canRankClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
-        ClusterManager cm = new ClusterManager(table);
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        cm.setDeclaredNodes(declaredVars);
+        ClusterManager cm = new ClusterManager(table, declaredVars);
         cm.createClusters();
         Set<Cluster> blocks = getGrabManifestsBlock();
         Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);

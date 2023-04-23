@@ -13,11 +13,11 @@ public class ClusterManager {
     private Set<Cluster> allClusters;
     private Set<Cluster> mergedClusters;
 
-    public ClusterManager(SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap) {
+    public ClusterManager(SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap, Map<ASTNode, Integer> variableDeclarations) {
         this.statementObjectsMap = statementObjectsMap;
-        this.accessedVariablesMap = new HashMap<>();
-        this.nodesDeclared = new HashMap<>();
+        this.nodesDeclared = variableDeclarations;
         this.missingVars = new HashMap<>();
+        this.accessedVariablesMap = new HashMap<>();
     }
 
     public void createClusters() {
@@ -43,10 +43,6 @@ public class ClusterManager {
             }
         }
         cluster.setMissingVars(requiredAttributes);
-    }
-
-    public void setDeclaredNodes(Map<ASTNode, Integer> variableDeclarations){
-        nodesDeclared =  variableDeclarations;
     }
 
     public Set<Cluster> makeClusters() {
