@@ -14,21 +14,15 @@ public class ClusterRanking {
     private static final double THRESHOLD_OVERLAPPING = 0.1;
 
     // Move to ClusterManager eventually
-    public static void prepareClustersForRanking(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
-        Cluster.calculateBenefitOfClusters(filteredClusters, table);
-        for (Cluster cluster : filteredClusters) {
-            cluster.calculateClusterSize(table);
-        }
-    }
+
 
     public static void rankClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
-        prepareClustersForRanking(filteredClusters, table);
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
                 continue;
             }
             for (Cluster otherCluster : filteredClusters) {
-                if (!otherCluster.equals(cluster) && (otherCluster.getClusterSize() != 0))
+                if (!otherCluster.equals(cluster) && (otherCluster.getClusterSize() != 0)) {
                     if (!otherCluster.isAlternative() && notSimilarSize(cluster, otherCluster)
                             && significantOverlapping(cluster, otherCluster)) {
                         if (cluster.getBenefit() > otherCluster.getBenefit()) {
@@ -37,6 +31,7 @@ public class ClusterRanking {
                         } else {
                             otherCluster.addNewAlternativeCluster(cluster);
                             cluster.setAlternative(true);
+                        }
                     }
                 }
             }

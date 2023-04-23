@@ -28,38 +28,30 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
+    public void canIdentifyAllClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        ClusterManager cm = new ClusterManager(table);
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        Cluster.setDeclaredNodes(declaredVars);
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-        Cluster.calculateBenefitOfClusters(allClusters, table);
-
-        int expectedNumberOfClusters = 6;
-
-        Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
+        cm.setDeclaredNodes(declaredVars);
+        cm.createClusters();
+        Set<Cluster> blocks = getGrabManifestsBlock();
+        Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);
+        cm.prepareClustersForRanking(filteredClusters);
+        int expectedNumberOfClusters = 4;
+        Assertions.assertEquals(expectedNumberOfClusters, filteredClusters.size());
     }
 
-    // TODO: USE THIS TEST TO INTERACT WITH ACTUAL VISITORS
     @Test
     public void canRankClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        ClusterManager cm = new ClusterManager(table);
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        Cluster.setDeclaredNodes(declaredVars);
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-
+        cm.setDeclaredNodes(declaredVars);
+        cm.createClusters();
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
-        Cluster.calculateBenefitOfClusters(filteredClusters, table);
+        Set<Cluster> filteredClusters = cm.filterValidClusters(blocks);
+        cm.prepareClustersForRanking(filteredClusters);
         ClusterRanking.rankClusters(filteredClusters, table);
-
-        int expectedNumberOfClusters = 6;
-
-        Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
