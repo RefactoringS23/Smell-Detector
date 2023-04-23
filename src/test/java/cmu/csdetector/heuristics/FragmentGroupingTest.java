@@ -28,38 +28,23 @@ public class FragmentGroupingTest {
     }
 
     @Test
-    public void canIdentifyAllClustersInSmallSnippetOfCode() throws ClassNotFoundException {
+    public void canIdentifyAllClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        Cluster.setDeclaredNodes(declaredVars);
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-        Cluster.calculateBenefitOfClusters(allClusters, table);
-
-        int expectedNumberOfClusters = 6;
-
-        Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
+        ClusterManager cm = new ClusterManager(table, declaredVars);
+        Set<Cluster> blocks = getGrabManifestsBlock();
+        cm.createClusters(blocks);
+        int expectedNumberOfClusters = 4;
+        Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
     }
 
-    // TODO: USE THIS TEST TO INTERACT WITH ACTUAL VISITORS
     @Test
     public void canRankClusters() throws ClassNotFoundException {
         SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        Cluster.setDeclaredNodes(declaredVars);
-
-        Set<Cluster> clusters = Cluster.makeClusters(table);
-        Set<Cluster> allClusters = Cluster.createMergedClusters(clusters);
-
+        ClusterManager cm = new ClusterManager(table, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Set<Cluster> filteredClusters = Cluster.filterValidClusters(allClusters, blocks);
-        Cluster.calculateBenefitOfClusters(filteredClusters, table);
-        ClusterRanking.rankClusters(filteredClusters, table);
-
-        int expectedNumberOfClusters = 6;
-
-        Assertions.assertEquals(expectedNumberOfClusters, allClusters.size());
+        cm.createClusters(blocks);
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
