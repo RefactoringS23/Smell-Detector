@@ -8,20 +8,49 @@ public class AssignmentVisitor extends ASTVisitor {
     private HashMap<String, List<Integer>> assignmentMap;
     private Map<String, String> nodeTypeMap;
 
-    public AssignmentVisitor () {
+    private Set<Integer> specialLine;
+
+    private String[] primitiveTypes;
+
+    public AssignmentVisitor (Set<Integer> lineSet) {
         assignmentMap = new HashMap<String, List<Integer>>();
         nodeTypeMap = new HashMap<String, String>();
+        specialLine = lineSet;
+        primitiveTypes = new String[]{"String", "int", "boolean", "long", "byte", "short", "float", "double", "char"};
     }
 
     @Override
     public boolean visit(Assignment node) {
-        String[] primitiveTypes = {"String", "int", "boolean", "long", "byte", "short", "float", "double", "char"};
-        List<String> primitiveTypesList = Arrays.asList(primitiveTypes);
         if(node.getLeftHandSide() == null || node.getLeftHandSide().resolveTypeBinding() == null){
             return true;
         }
-        // System.out.println(node.getLeftHandSide().resolveTypeBinding().getName());
+
         ASTNode leftNode = (ASTNode) node.getLeftHandSide();
+        addToMap(leftNode, node.getLeftHandSide().resolveTypeBinding().getName());
+
+        return true;
+    }
+
+    @Override
+    public boolean visit(PrefixExpression node) {
+        if (node.getOperator() == PrefixExpression.Operator.INCREMENT || node.getOperator() == PrefixExpression.Operator.DECREMENT) {
+            ASTNode leftNode = (ASTNode) node.getOperand();
+            addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+        }
+        return true;
+    }
+
+    @Override
+    public boolean visit(PostfixExpression node) {
+        if (node.getOperator() == PostfixExpression.Operator.INCREMENT || node.getOperator() == PostfixExpression.Operator.DECREMENT) {
+            ASTNode leftNode = (ASTNode) node.getOperand();
+            addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+        }
+        return true;
+    }
+
+    private void addToMap (ASTNode leftNode, String nodeName) {
+        List<String> primitiveTypesList = Arrays.asList(this.primitiveTypes);
         List<Integer> lineList;
         String name = "";
 
@@ -40,12 +69,13 @@ public class AssignmentVisitor extends ASTVisitor {
         }
 
 
-        if(primitiveTypesList.contains(node.getLeftHandSide().resolveTypeBinding().getName())) {
-            lineList.add(getStartLineNumber(node));
-            this.assignmentMap.put(name, lineList);
-            this.nodeTypeMap.put(name, node.getLeftHandSide().resolveTypeBinding().getName());
+        if(primitiveTypesList.contains(nodeName)) {
+            if(!this.specialLine.contains(getStartLineNumber(leftNode))){
+                lineList.add(getStartLineNumber(leftNode));
+                this.assignmentMap.put(name, lineList);
+                this.nodeTypeMap.put(name, nodeName);
+            }
         }
-        return true;
     }
 
     private Integer getStartLineNumber(ASTNode astNode) {

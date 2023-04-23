@@ -2,6 +2,7 @@ package cmu.csdetector.heuristics;
 
 import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.BlockLineNumberVisitor;
+import cmu.csdetector.ast.visitors.IfBlockVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
@@ -117,7 +118,8 @@ public class FragmentGroupingTest {
         Type type = getType("testFile");
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        AssignmentVisitor assignmentVisitor = new AssignmentVisitor();
+        IfBlockVisitor visitor =  new IfBlockVisitor();
+        AssignmentVisitor assignmentVisitor = new AssignmentVisitor(visitor.getSpecialLine());
         targetMethod.accept(assignmentVisitor);
 
         Map<String, List<Integer>> assignmentNameMap = assignmentVisitor.getLineMap();

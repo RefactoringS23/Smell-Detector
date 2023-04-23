@@ -12,15 +12,16 @@ public class Heu1Calculator extends MetricValueCalculator {
     protected Double computeValue(ASTNode target) {
         IfBlockVisitor visitor1 = new IfBlockVisitor();
         target.accept(visitor1);
+        System.out.println(visitor1.getSpecialLine());
         //System.out.println(visitor1.getIfMap());
 
         StatementObjectsVisitor visitor = new StatementObjectsVisitor(visitor1.getIfMap());
         target.accept(visitor);
 
-        AssignmentVisitor assignmentVisitor = new AssignmentVisitor();
+        AssignmentVisitor assignmentVisitor = new AssignmentVisitor(visitor1.getSpecialLine());
         target.accept(assignmentVisitor);
-        //System.out.println("aa");
-        //System.out.println(assignmentVisitor.getLineMap());
+        System.out.println("aa");
+        System.out.println(assignmentVisitor.getLineMap());
 
         System.out.println(visitor.getHeuristicMap());
         //System.out.println(visitor.getNodeNameMap());
