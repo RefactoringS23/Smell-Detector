@@ -213,21 +213,7 @@ public class Cluster {
                 access.put(name, indList);
             }
         }
-        //System.out.println("the table");
-        //System.out.println(access);
         return access;
-    }
-
-    private Set<String> getAttributesList() {
-        Set<String> requiredAttributes = new HashSet<>();
-
-        for (ASTNode n : accessedVariables) {
-            if (nodesDeclared.get(n) == null || nodesDeclared.get(n) < startLine.getLineNumber() || nodesDeclared.get(n) > endLine.getLineNumber()) {
-                requiredAttributes.add(n.toString());
-            }
-        }
-        ;
-        return requiredAttributes;
     }
 
     public String getReturnValue() {
@@ -235,6 +221,7 @@ public class Cluster {
         Integer count = 0;
 
         for (String node: assignedVariables.keySet()) {
+            System.out.println(accessedVariables1);
             List<Integer> indexList = accessedVariables1.get(node);
             int insideCluster = 0;
             int afterCluster = 0;
@@ -249,10 +236,8 @@ public class Cluster {
                 }
             }
             if (insideCluster > 0 && afterCluster > 0) {
-                //System.out.println(ind);
                 returnType = node;
                 count += 1;
-                //System.out.println(returnType);
             }
         }
         if (count>1) {
@@ -283,9 +268,6 @@ public class Cluster {
             name = String.join("","calculate",returnValue);
         }
         return name;
-    }
-    public static void setDeclaredNodes(Map<ASTNode, Integer> vardDecs){
-        nodesDeclared = vardDecs;
     }
 
     public static void setAssignedNodes(Map<String, List<Integer>> varsAssigned){;
