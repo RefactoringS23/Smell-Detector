@@ -6,20 +6,21 @@ import java.util.Set;
 import java.lang.Math;
 import java.util.SortedMap;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ClusterRanking {
 
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
-    private static final double THRESHOLD_OVERLAPPING = 0.5;
+    private static final double THRESHOLD_OVERLAPPING = 0.1;
 
-    public static Set<Cluster> rankClusters(Set<Cluster> filteredClusters) {
-
+    // return a list of extractions sorted by benefit
+    public static void rankClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
                 continue;
             }
             for (Cluster otherCluster : filteredClusters) {
-                if (!otherCluster.equals(cluster) && (otherCluster.getClusterSize() != 0))
+                if (!otherCluster.equals(cluster) && (otherCluster.getClusterSize() != 0)) {
                     if (!otherCluster.isAlternative() && notSimilarSize(cluster, otherCluster)
                             && significantOverlapping(cluster, otherCluster)) {
                         if (cluster.getBenefit() > otherCluster.getBenefit()) {
@@ -32,30 +33,22 @@ public class ClusterRanking {
                     }
                 }
             }
-        return new HashSet<>();
+        }
     }
-
+    
     public static boolean notSimilarSize(Cluster primaryCluster, Cluster secondaryCluster) {
         Double difference = Math.abs(primaryCluster.getClusterSize() - secondaryCluster.getClusterSize())
                 /Math.min(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
-        return difference > THRESHOLD_SIZE_DIFFERENCE;
+        // TODO: according to the paper, should be 'return difference > THRESHOLD_SIZE_DIFFERENCE', but we don't get why
+        return difference < THRESHOLD_SIZE_DIFFERENCE;
     }
 
     public static boolean significantOverlapping(Cluster primaryCluster, Cluster secondaryCluster) {
-        double overlap = Math.max(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber())
-                - Math.min(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber());
+        double overlap = Math.min(primaryCluster.getEndLineNumber(), secondaryCluster.getEndLineNumber())
+                - Math.max(primaryCluster.getStartLineNumber(), secondaryCluster.getStartLineNumber());
         Double percentageOverlapping = overlap
                 /Math.max(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
         return percentageOverlapping > THRESHOLD_OVERLAPPING;
-    }
-
-    private static double calculateLCOM2(ClusterLine startLine, ClusterLine endLine, SortedMap<Integer, HashSet<String>> table) {
-        for (Integer currentLine : table.keySet()) {
-            Set<String> row = table.get(currentLine);
-//            int currentEndLine = currentLine + stepSize;
-        }
-
-        return 0.0;
     }
 
 }
