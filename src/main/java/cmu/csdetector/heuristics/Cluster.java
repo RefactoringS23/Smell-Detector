@@ -26,6 +26,8 @@ public class Cluster {
 
     private List<Cluster> alternatives;
 
+    private String parentClassName;
+
 
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
@@ -33,6 +35,16 @@ public class Cluster {
         this.alternatives = new ArrayList<>();
         this.accessedVariables = new HashSet<ASTNode>();
         this.missingVars = new HashSet<>();
+    }
+
+    // getter for parent class name
+    public String getParentClassName() {
+        return parentClassName;
+    }
+
+    // setter for parent class name
+    public void setParentClassName(String parentClassName) {
+        this.parentClassName = parentClassName;
     }
 
     public void setMissingVars(Set<ASTNode> missingVars) {
