@@ -23,7 +23,24 @@ public class Customer {
             Rental each = rentals.next();
 
             //determine amounts for each line
-            totalAmount += getAmount(thisAmount, each);
+           switch (each.getTape().getMovie().priceCode()) {
+                case Movie.REGULAR:
+                    thisAmount += 2;
+                    if (each.daysRented() > 2) {
+                        totalAmount += (each.daysRented() - 2) * 1.5;
+                    }
+                    break;
+                case Movie.NEW_RELEASE:
+                    totalAmount += each.daysRented() * 3;
+                    break;
+                case Movie.CHILDREN:
+                    totalAmount += 1.5;
+                    if (each.daysRented() > 3) {
+                        totalAmount += (each.daysRented() - 3) * 1.5;
+                    }
+                    break;
+
+            }
 
             // add frequent renter points
             frequentRenterPoints ++;

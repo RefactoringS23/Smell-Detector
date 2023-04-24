@@ -82,7 +82,7 @@ public class MoveMethodHeuristicTest {
     @Test
     public void targetClassForExtractedMethod1ShouldBeMovie() throws ClassNotFoundException {
         Type type = getType("Customer");
-        Method method = getMethod(type, "statement");
+        Method method = getMethod(type, "getAmount");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
         assertEquals("Movie", getTargetClassUsingLCOM3Metric());

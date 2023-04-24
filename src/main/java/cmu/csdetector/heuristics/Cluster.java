@@ -73,6 +73,10 @@ public class Cluster {
         return accessedVariables;
     }
 
+   public String getParentClass() {
+        return "abcd";
+   }
+
     public double getLcom() {
         return lcom;
     }

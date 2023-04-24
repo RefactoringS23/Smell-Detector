@@ -21,14 +21,19 @@ import java.util.*;
 public class FragmentGroupingTest {
 
     private static List<Type> types;
+    private static List<Type> moviewtypes;
+
     private static SortedMap<Integer, HashSet<String>> table1;
 
     private static Map<String, String> nodeTypeMap;
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        File moview = new File("src/test/java/cmu/csdetector/dummy/group");
+
         types = TypeLoader.loadAllFromDir(dir);
+        moviewtypes = TypeLoader.loadAllFromDir(moview);
         table1 = new TreeMap<Integer, HashSet<String>>();
         nodeTypeMap = new HashMap<>();
         GenericCollector.collectAll(types);
@@ -65,9 +70,34 @@ public class FragmentGroupingTest {
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster cluster = cm.getBestCluster(blocks);
+        Cluster recommendedCluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
-        Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
+        int startLine = 17;
+        int endLine = 32;
+        Assertions.assertEquals(25, cm.getFilteredClusters().size());
+        // adderting if the final cluster 17-32
+        Assertions.assertEquals(new Integer(17), recommendedCluster.getStartLineNumber());
+        Assertions.assertEquals(new Integer(32), recommendedCluster.getEndLineNumber());
+
+    }
+    @Test
+    public void moveMethodForExtractMethod() throws ClassNotFoundException {
+        SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
+        Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
+        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        Set<Cluster> blocks = getGrabManifestsBlock();
+        Cluster recommendedCluster = cm.getBestCluster(blocks);
+        int expectedNumberOfClusters = 4;
+        int startLine = 17;
+        int endLine = 32;
+//        Assertions.assertEquals(25, cm.getFilteredClusters().size());
+        // adderting if the final cluster 17-32
+//        Assertions.assertEquals(new Integer(17), recommendedCluster.getStartLineNumber());
+//        Assertions.assertEquals(new Integer(32), recommendedCluster.getEndLineNumber());
+        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster);
+
+        System.out.println("moving");
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
@@ -88,8 +118,8 @@ public class FragmentGroupingTest {
     }
 
     private Map<String, ASTNode> getStringASTNodeMap() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         targetMethod.accept(ifBlockVisitor);
@@ -99,8 +129,8 @@ public class FragmentGroupingTest {
     }
 
     private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         targetMethod.accept(ifBlockVisitor);
@@ -110,8 +140,8 @@ public class FragmentGroupingTest {
     };
 
     private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
@@ -119,8 +149,8 @@ public class FragmentGroupingTest {
     }
 
     private  Map<String, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor visitor =  new IfBlockVisitor();
         targetMethod.accept(visitor);
@@ -140,8 +170,8 @@ public class FragmentGroupingTest {
     }
 
     private Set<Cluster> getGrabManifestsBlock() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
+        Type type = getType("Customer");
+        Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         BlockLineNumberVisitor blockLineNumberVisitor = new BlockLineNumberVisitor();
         targetMethod.accept(blockLineNumberVisitor);

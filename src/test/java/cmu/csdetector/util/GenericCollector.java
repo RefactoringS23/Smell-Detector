@@ -1,5 +1,6 @@
 package cmu.csdetector.util;
 
+import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
 import cmu.csdetector.metrics.TypeMetricValueCollectorForFeatureEnvyMethod;
@@ -8,9 +9,11 @@ import cmu.csdetector.resources.Type;
 import cmu.csdetector.smells.ClassLevelSmellDetector;
 import cmu.csdetector.smells.MethodLevelSmellDetector;
 import cmu.csdetector.smells.Smell;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.util.List;
+import java.util.Set;
 
 public class GenericCollector {
 
@@ -29,8 +32,17 @@ public class GenericCollector {
 	}
 
 	public static void collectTypeMetricsForFeatureEnvyMethod(List<Type> types, MethodDeclaration featureEnvyMethod) {
+
 		for (Type type : types) {
 			TypeMetricValueCollectorForFeatureEnvyMethod collector = new TypeMetricValueCollectorForFeatureEnvyMethod(featureEnvyMethod);
+			collector.collect(type);
+
+		}
+	}
+	public static void collectTypeMetricsForExtractedMethod(List<Type> types, Cluster em) {
+
+		for (Type type : types) {
+			TypeMetricValueCollectorForFeatureEnvyMethod collector = new TypeMetricValueCollectorForFeatureEnvyMethod(em);
 			collector.collect(type);
 
 		}
