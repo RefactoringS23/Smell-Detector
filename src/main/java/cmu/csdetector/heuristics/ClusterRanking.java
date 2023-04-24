@@ -12,7 +12,8 @@ public class ClusterRanking {
     private static final double THRESHOLD_OVERLAPPING = 0.1;
 
     // return a list of extractions sorted by benefit
-    public static void groupClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<String>> table) {
+
+    public static void groupClusters(Set<Cluster> filteredClusters) {
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
                 continue;
@@ -37,8 +38,7 @@ public class ClusterRanking {
     public static boolean notSimilarSize(Cluster primaryCluster, Cluster secondaryCluster) {
         Double difference = Math.abs(primaryCluster.getClusterSize() - secondaryCluster.getClusterSize())
                 /Math.min(primaryCluster.getClusterSize(), secondaryCluster.getClusterSize());
-        // TODO: according to the paper, should be 'return difference > THRESHOLD_SIZE_DIFFERENCE', but we don't get why
-        return difference < THRESHOLD_SIZE_DIFFERENCE;
+        return difference > THRESHOLD_SIZE_DIFFERENCE;
     }
 
     public static boolean significantOverlapping(Cluster primaryCluster, Cluster secondaryCluster) {
