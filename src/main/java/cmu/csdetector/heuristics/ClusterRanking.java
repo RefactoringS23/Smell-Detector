@@ -6,15 +6,13 @@ import java.util.Set;
 import java.lang.Math;
 import java.util.SortedMap;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-
 public class ClusterRanking {
 
     private static final double THRESHOLD_SIZE_DIFFERENCE = 0.2;
     private static final double THRESHOLD_OVERLAPPING = 0.1;
 
     // return a list of extractions sorted by benefit
-    public static void rankClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<ASTNode>> table) {
+    public static void groupClusters(Set<Cluster> filteredClusters, SortedMap<Integer, HashSet<String>> table) {
         for (Cluster cluster : filteredClusters) {
             if (cluster.isAlternative() || (cluster.getClusterSize() == 0)) {
                 continue;
