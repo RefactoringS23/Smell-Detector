@@ -31,7 +31,7 @@ public class ClusterManager {
         filteredClusters = filterValidClusters(blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
-        ClusterRanking.groupClusters(filteredClusters, this.statementObjectsMap);
+        ClusterRanking.groupClusters(filteredClusters);
         finalCluster = this.rankClusters();
         return finalCluster;
     }
@@ -47,6 +47,7 @@ public class ClusterManager {
                 .sorted(Comparator.comparing(Cluster::getBenefit).reversed())
                 .collect(Collectors.toList());
         return sortedClusters.get(0);
+
     }
 
     private Set<ASTNode> getListOfAccessedVariables(Integer startLine, Integer endLine) {
