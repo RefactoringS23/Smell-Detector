@@ -1,15 +1,14 @@
 package cmu.csdetector.heuristics;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Collections;
 import java.util.Objects;
 
-import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.util.*;
@@ -25,7 +24,7 @@ public class Cluster {
     private double benefit;
 
     private double clusterSize;
-    private Set<String> missingVars;
+    private Set<ASTNode> missingVars;
 
     private boolean isAlternative = false;
 
@@ -36,19 +35,19 @@ public class Cluster {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.alternatives = new ArrayList<>();
-        this.accessedVariables = new HashSet<>();
+        this.accessedVariables = new HashSet<ASTNode>();
         this.missingVars = new HashSet<>();
     }
 
-    public void setMissingVars(Set<String> missingVars) {
+    public void setMissingVars(Set<ASTNode> missingVars) {
         this.missingVars = missingVars;
     }
 
-    public Set<String> getMissingVars() {
+    public Set<ASTNode> getMissingVars() {
         return this.missingVars;
     }
 
-    public void calculateClusterSize(SortedMap<Integer, HashSet<ASTNode>> table) {
+    public void calculateClusterSize(SortedMap<Integer, HashSet<String>> table) {
         double clusterSize = 0;
         for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
             if (table.containsKey(i)) {

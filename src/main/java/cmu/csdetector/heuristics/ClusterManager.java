@@ -1,13 +1,17 @@
 package cmu.csdetector.heuristics;
 
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClusterManager {
 
     private Map<ASTNode, Integer> nodesDeclared;
-    private SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap;
+    private SortedMap<Integer, HashSet<String>> statementObjectsMap;
+
+    private Map<String, ASTNode> stringASTNodeMap;
 
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
@@ -15,35 +19,58 @@ public class ClusterManager {
     private Set<Cluster> mergedClusters;
     private Set<Cluster> filteredClusters;
 
-    public ClusterManager(SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap, Map<ASTNode, Integer> variableDeclarations) {
+    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<ASTNode, Integer> variableDeclarations) {
         this.statementObjectsMap = statementObjectsMap;
+        this.stringASTNodeMap = stringASTNodeMap;
         this.nodesDeclared = variableDeclarations;
-
     }
 
-    public void createClusters(Set<Cluster> blocks) {
+    public Cluster getBestCluster(Set<Cluster> blocks) {
         allClusters = makeClusters();
         mergedClusters = createMergedClusters();
         filteredClusters = filterValidClusters(blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
-        ClusterRanking.rankClusters(filteredClusters, this.statementObjectsMap);
+        ClusterRanking.groupClusters(filteredClusters, this.statementObjectsMap);
+        finalCluster = this.rankClusters();
+        return finalCluster;
+    }
+
+    private Cluster rankClusters() {
+        Set<Cluster> primaryClusters = new HashSet<>();
+        for (Cluster cluster : this.filteredClusters) {
+            if (!cluster.isAlternative()) {
+                primaryClusters.add(cluster);
+            }
+        }
+        List<Cluster> sortedClusters = primaryClusters.stream()
+                .sorted(Comparator.comparing(Cluster::getBenefit).reversed())
+                .collect(Collectors.toList());
+        return sortedClusters.get(0);
     }
 
     private Set<ASTNode> getListOfAccessedVariables(Integer startLine, Integer endLine) {
         Set<ASTNode> access = new HashSet<>();
         for (int i = startLine; i <= endLine; i++) {
             if(this.statementObjectsMap.get(i) == null) continue;
-            access.addAll(this.statementObjectsMap.get(i));
+            HashSet<ASTNode> nodes = new HashSet<>();
+            for (String name: this.statementObjectsMap.get(i)) {
+                if (this.stringASTNodeMap.containsKey(name)) {
+                    nodes.add(this.stringASTNodeMap.get(name));
+                }
+            }
+            access.addAll(nodes);
         }
         return access;
     }
 
+    // TODO: missing vars logic is incorrect
     private void setMissingVarsForValidCluster(Cluster cluster) {
-        Set<String> requiredAttributes = new HashSet<>();
+        Set<ASTNode> requiredAttributes = new HashSet<>();
         for (ASTNode n : cluster.getAccessedVariables()) {
-            if (nodesDeclared.get(n) == null || nodesDeclared.get(n) < cluster.getStartLine().getLineNumber() || nodesDeclared.get(n) > cluster.getEndLine().getLineNumber()) {
-                requiredAttributes.add(n.toString());
+            // ERROR: this.nodesDeclared.get(n) is always null
+            if (this.nodesDeclared.get(n) == null || this.nodesDeclared.get(n) < cluster.getStartLine().getLineNumber() || this.nodesDeclared.get(n) > cluster.getEndLine().getLineNumber()) {
+                requiredAttributes.add(n);
             }
         }
         cluster.setMissingVars(requiredAttributes);
@@ -56,11 +83,11 @@ public class ClusterManager {
 
         while (stepSize < methodSize) {
             for (Integer currentLine : this.statementObjectsMap.keySet()) {
-                Set<ASTNode> row = this.statementObjectsMap.get(currentLine);
+                Set<String> row = this.statementObjectsMap.get(currentLine);
                 int currentEndLine = currentLine + stepSize;
 
                 if (this.statementObjectsMap.containsKey(currentEndLine)) {
-                    for (ASTNode variableOrMethodCall : row) {
+                    for (String variableOrMethodCall : row) {
                         if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
                             clusters.add(new Cluster(currentLine, currentEndLine));
                             break;
@@ -101,7 +128,6 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        Set<ASTNode> mergedAccessedVars = new HashSet<>();
                         newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber()));
                     }
                     currentOpenClusters.add(line);
@@ -236,8 +262,8 @@ public class ClusterManager {
             linePairs.put(thisLine, new HashSet<>());
             for (Integer otherLine : this.statementObjectsMap.keySet()) {
                 if (thisLine.equals(otherLine)) continue;
-                for (ASTNode variable : this.statementObjectsMap.get(thisLine)) {
-                    if (this.statementObjectsMap.get(otherLine).toString().contains(variable.toString())) {
+                for (String variable : this.statementObjectsMap.get(thisLine)) {
+                    if (this.statementObjectsMap.get(otherLine).contains(variable)) {
                         linePairs.get(thisLine).add(otherLine);
                         break;
                     }

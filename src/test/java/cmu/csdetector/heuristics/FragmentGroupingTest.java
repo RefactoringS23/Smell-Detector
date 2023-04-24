@@ -36,13 +36,14 @@ public class FragmentGroupingTest {
 
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
-        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
+        Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         Map<String, List<Integer>> assignedVars = extractReturnMap();
         Cluster.setAssignedNodes(assignedVars);
-        ClusterManager cm = new ClusterManager(table, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        cm.createClusters(blocks);
+        Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
 
         for (Cluster cluster: blocks) {
@@ -61,11 +62,14 @@ public class FragmentGroupingTest {
 
     @Test
     public void canRankClusters() throws ClassNotFoundException {
-        SortedMap<Integer, HashSet<ASTNode>> table = createHashMapForClustering();
+        SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
+        Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        ClusterManager cm = new ClusterManager(table, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        cm.createClusters(blocks);
+        Cluster cluster = cm.getBestCluster(blocks);
+        int expectedNumberOfClusters = 4;
+        Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
@@ -85,26 +89,26 @@ public class FragmentGroupingTest {
         throw new ClassNotFoundException();
     }
 
-    private SortedMap<Integer, HashSet<ASTNode>> createHashMapForClustering() throws ClassNotFoundException {
+    private Map<String, ASTNode> getStringASTNodeMap() throws ClassNotFoundException {
         Type type = getType("testFile");
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
+        IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
+        targetMethod.accept(ifBlockVisitor);
+        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
         targetMethod.accept(statementObjectsVisitor);
+        return statementObjectsVisitor.getNodeNameMap();
+    }
 
-        Map<String, ASTNode> nameMap = statementObjectsVisitor.getNodeNameMap();
-        SortedMap<Integer, HashSet<String>> tableWithName = statementObjectsVisitor.getHeuristicMap();
-        table1 = tableWithName;
-        SortedMap<Integer, HashSet<ASTNode>> table = new TreeMap<>();
-        for (int ind : tableWithName.keySet()) {
-            HashSet<String> nodeNames = tableWithName.get(ind);
-            HashSet<ASTNode> nodes = new HashSet<ASTNode>();
-            for (String name: nodeNames) {
-                nodes.add(nameMap.get(name));
-            }
-            table.put(ind, nodes);
-        }
-        return table;
+    private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
+        targetMethod.accept(ifBlockVisitor);
+        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
+        targetMethod.accept(statementObjectsVisitor);
+        return statementObjectsVisitor.getHeuristicMap();
     };
 
     private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
