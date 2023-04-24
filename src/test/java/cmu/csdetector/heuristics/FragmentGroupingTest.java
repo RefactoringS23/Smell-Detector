@@ -47,10 +47,12 @@ public class FragmentGroupingTest {
 
         for (Cluster cluster: blocks) {
             cluster.setAssignedNodes(assignedVars);
-            String returnValue = cluster.getReturnValue();
-            System.out.println(returnValue);
+            String returnValue = cluster.getReturnValue(assignedVars,table1);
+            //System.out.println(returnValue);
+            //cluster.getReturnType(nodeTypeMap, returnValue);
             System.out.println(cluster.getReturnType(nodeTypeMap, returnValue));
             Random rand = new Random();
+            //cluster.getMethodName(returnValue, rand.nextInt());
             System.out.println(cluster.getMethodName(returnValue, rand.nextInt()));
         }
 
@@ -119,6 +121,7 @@ public class FragmentGroupingTest {
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor visitor =  new IfBlockVisitor();
+        targetMethod.accept(visitor);
         AssignmentVisitor assignmentVisitor = new AssignmentVisitor(visitor.getSpecialLine());
         targetMethod.accept(assignmentVisitor);
 
@@ -126,6 +129,11 @@ public class FragmentGroupingTest {
         Map<String, String> nameMap = assignmentVisitor.getNodeTypeMap();
         nodeTypeMap = nameMap;
 
+        /**
+        System.out.println("1234567890");
+        System.out.println(visitor.getSpecialLine());
+        System.out.println(assignmentNameMap);
+        System.out.println("12345678901234"); **/
         return assignmentNameMap;
     }
 

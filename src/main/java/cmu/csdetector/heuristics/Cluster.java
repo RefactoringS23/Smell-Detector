@@ -201,7 +201,7 @@ public class Cluster {
         this.accessedVariables = accessedVariables;
     }
 
-    private static Map<String, List<Integer>>  getListOfAccessedVariables1(SortedMap<Integer, HashSet<String>> table, Integer startLine, Integer endLine) {
+    private Map<String, List<Integer>>  getListOfAccessedVariables1(SortedMap<Integer, HashSet<String>> table) {
         Map<String, List<Integer>>  access = new HashMap<String, List<Integer>>();
         for (int ind: table.keySet()) {
             for(String name: table.get(ind)) {
@@ -216,18 +216,17 @@ public class Cluster {
         return access;
     }
 
-    public String getReturnValue() {
+    public String getReturnValue(Map<String, List<Integer>> assignmentVariables, SortedMap<Integer, HashSet<String>> visitorTable) {
         String returnType = "void";
         Integer count = 0;
 
-        for (String node: assignedVariables.keySet()) {
-            System.out.println(accessedVariables1);
-            List<Integer> indexList = accessedVariables1.get(node);
+        Map<String, List<Integer>> variablesAccessedInClass = getListOfAccessedVariables1(visitorTable);
+        for (String node: assignmentVariables.keySet()) {
+            List<Integer> indexList = variablesAccessedInClass.get(node);
             int insideCluster = 0;
             int afterCluster = 0;
             if(indexList != null) {
                 for( int ind : indexList) {
-                    //System.out.println(ind);
                     if (ind >= startLine.getLineNumber() && ind <= endLine.getLineNumber()) {
                         insideCluster += 1;
                     } else if (ind > endLine.getLineNumber()) {
@@ -243,17 +242,15 @@ public class Cluster {
         if (count>1) {
             returnType = "invalid";
         }
-        System.out.println(" ");
         System.out.println("return value");
         System.out.println(startLine.getLineNumber());
         System.out.println(endLine.getLineNumber());
         System.out.println(returnType);
+        System.out.println(" ");
         return returnType;
     }
 
     public String getReturnType(Map<String, String> nodeTypeMap, String returnValue) {
-        System.out.println("test");
-        System.out.println(returnValue);
         if (returnValue != "void" && returnValue != "invalid") {
             return nodeTypeMap.get(returnValue);
         }
@@ -265,7 +262,7 @@ public class Cluster {
     public String getMethodName(String returnValue, int i) {
         String name = String.join("","LeoIsTheBestProf", String.valueOf(i));
         if (returnValue != "void" && returnValue != "invalid") {
-            name = String.join("","calculate",returnValue);
+            name = String.join("","get",returnValue);
         }
         return name;
     }
