@@ -7,7 +7,8 @@ import java.util.*;
 public class ClusterManager {
 
     private Map<ASTNode, Integer> nodesDeclared;
-    private SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap;
+    private SortedMap<Integer, Set<String>> statementStringsMap;
+    private SortedMap<Integer, Set<ASTNode>> statementObjectsMap;
 
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
@@ -15,7 +16,8 @@ public class ClusterManager {
     private Set<Cluster> mergedClusters;
     private Set<Cluster> filteredClusters;
 
-    public ClusterManager(SortedMap<Integer, HashSet<ASTNode>> statementObjectsMap, Map<ASTNode, Integer> variableDeclarations) {
+    public ClusterManager(SortedMap<Integer, Set<String>> statementStringsMap, SortedMap<Integer, Set<ASTNode>> statementObjectsMap, Map<ASTNode, Integer> variableDeclarations) {
+        this.statementStringsMap = statementStringsMap;
         this.statementObjectsMap = statementObjectsMap;
         this.nodesDeclared = variableDeclarations;
 
@@ -27,7 +29,7 @@ public class ClusterManager {
         filteredClusters = filterValidClusters(blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
-        ClusterRanking.rankClusters(filteredClusters, this.statementObjectsMap);
+        ClusterRanking.rankClusters(filteredClusters);
     }
 
     private Set<ASTNode> getListOfAccessedVariables(Integer startLine, Integer endLine) {
@@ -52,16 +54,16 @@ public class ClusterManager {
     private Set<Cluster> makeClusters() {
         Set<Cluster> clusters = new HashSet<>();
         int stepSize = 1;
-        int methodSize = this.statementObjectsMap.lastKey();
+        int methodSize = this.statementStringsMap.lastKey();
 
         while (stepSize < methodSize) {
-            for (Integer currentLine : this.statementObjectsMap.keySet()) {
-                Set<ASTNode> row = this.statementObjectsMap.get(currentLine);
+            for (Integer currentLine : this.statementStringsMap.keySet()) {
+                Set<String> row = this.statementStringsMap.get(currentLine);
                 int currentEndLine = currentLine + stepSize;
 
-                if (this.statementObjectsMap.containsKey(currentEndLine)) {
-                    for (ASTNode variableOrMethodCall : row) {
-                        if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
+                if (this.statementStringsMap.containsKey(currentEndLine)) {
+                    for (String variableOrMethodCall : row) {
+                        if (this.statementStringsMap.get(currentEndLine).contains(variableOrMethodCall)) {
                             clusters.add(new Cluster(currentLine, currentEndLine));
                             break;
                         }
@@ -94,14 +96,14 @@ public class ClusterManager {
         Set<Cluster> mergeCandidates = new HashSet<>(this.allClusters);
         Set<Cluster> finalClusters = mergeCandidates;
         Set<Cluster> newClusters = new HashSet<>();
-        do {
+
+        while (mergeCandidates.size() > 0) {
             List<ClusterLine> sortedLines = convertListOfClusterObjectsToSortedList(mergeCandidates);
             List<ClusterLine> currentOpenClusters = new ArrayList<>();
 
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        Set<ASTNode> mergedAccessedVars = new HashSet<>();
                         newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber()));
                     }
                     currentOpenClusters.add(line);
@@ -113,7 +115,7 @@ public class ClusterManager {
             finalClusters.addAll(newClusters);
             newClusters = new HashSet<>();
 
-        } while (mergeCandidates.size() > 0);
+        }
 
         return finalClusters;
     }
@@ -148,7 +150,7 @@ public class ClusterManager {
     private void prepareClustersForRanking() {
         this.calculateBenefitOfClusters(this.filteredClusters);
         for (Cluster cluster : this.filteredClusters) {
-            cluster.calculateClusterSize(this.statementObjectsMap);
+            cluster.calculateClusterSize(this.statementStringsMap);
         }
     }
 
@@ -156,8 +158,8 @@ public class ClusterManager {
     // the valid clusters
     private void calculateBenefitOfClusters(Set<Cluster> clusters) {
         SortedMap<Integer, Set<Integer>> linePairs = buildLinePairs();
-        int minKey = this.statementObjectsMap.firstKey();
-        int maxKey = this.statementObjectsMap.lastKey();
+        int minKey = this.statementStringsMap.firstKey();
+        int maxKey = this.statementStringsMap.lastKey();
         Cluster methodCluster = new Cluster(minKey, maxKey);
         methodCluster.calculateLcom(linePairs);
         for (Cluster cluster : clusters) {
@@ -232,12 +234,12 @@ public class ClusterManager {
 
     private SortedMap<Integer, Set<Integer>> buildLinePairs() {
         SortedMap<Integer, Set<Integer>> linePairs = new TreeMap<>();
-        for (Integer thisLine : this.statementObjectsMap.keySet()) {
+        for (Integer thisLine : this.statementStringsMap.keySet()) {
             linePairs.put(thisLine, new HashSet<>());
-            for (Integer otherLine : this.statementObjectsMap.keySet()) {
+            for (Integer otherLine : this.statementStringsMap.keySet()) {
                 if (thisLine.equals(otherLine)) continue;
-                for (ASTNode variable : this.statementObjectsMap.get(thisLine)) {
-                    if (this.statementObjectsMap.get(otherLine).toString().contains(variable.toString())) {
+                for (String variable : this.statementStringsMap.get(thisLine)) {
+                    if (this.statementStringsMap.get(otherLine).contains(variable)) {
                         linePairs.get(thisLine).add(otherLine);
                         break;
                     }

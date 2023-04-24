@@ -45,7 +45,7 @@ public class Cluster {
         return this.missingVars;
     }
 
-    public void calculateClusterSize(SortedMap<Integer, HashSet<ASTNode>> table) {
+    public void calculateClusterSize(SortedMap<Integer, Set<String>> table) {
         double clusterSize = 0;
         for (int i = this.getStartLineNumber(); i <= this.getEndLineNumber(); i++) {
             if (table.containsKey(i)) {

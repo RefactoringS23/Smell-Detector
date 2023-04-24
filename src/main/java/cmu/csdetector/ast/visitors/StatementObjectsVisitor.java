@@ -5,7 +5,7 @@ import org.eclipse.jdt.core.dom.*;
 import java.util.*;
 
 public class StatementObjectsVisitor extends ASTVisitor {
-    private SortedMap<Integer, HashSet<String>> heuristicMap;
+    private SortedMap<Integer, Set<String>> heuristicMap;
     private Map<Integer, ArrayList<Integer>> ifMap;
 
     private Map<String, ASTNode> nodeNameMap;
@@ -13,12 +13,12 @@ public class StatementObjectsVisitor extends ASTVisitor {
     private Map<ASTNode, Integer> nodesDeclared = new HashMap<>();
 
     public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
-        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
+        this.heuristicMap = new TreeMap<Integer, Set<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = ifMap;
     };
     public StatementObjectsVisitor() {
-        this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
+        this.heuristicMap = new TreeMap<Integer, Set<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = new HashMap<Integer, ArrayList<Integer>>();
     }
@@ -85,9 +85,9 @@ public class StatementObjectsVisitor extends ASTVisitor {
     }
 
     private void addNodeToMap (String node, Integer lineNumber) {
-        HashSet hashSet = this.heuristicMap.get(lineNumber);
+        Set<String> hashSet = this.heuristicMap.get(lineNumber);
         if (hashSet == null) {
-            hashSet = new HashSet();
+            hashSet = new HashSet<String>();
         }
         hashSet.add(node);
         this.heuristicMap.put(lineNumber, hashSet);
@@ -99,7 +99,7 @@ public class StatementObjectsVisitor extends ASTVisitor {
         return cu.getLineNumber(startPosition);
     }
 
-    public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
+    public SortedMap<Integer, Set<String>> getHeuristicMap() {
         return this.heuristicMap;
     }
 
