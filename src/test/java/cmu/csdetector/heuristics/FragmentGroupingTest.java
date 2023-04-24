@@ -40,21 +40,19 @@ public class FragmentGroupingTest {
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         Map<String, List<Integer>> assignedVars = extractReturnMap();
-        Cluster.setAssignedNodes(assignedVars);
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
 
-        for (Cluster cluster: blocks) {
-            cluster.setAssignedNodes(assignedVars);
-            String returnValue = cluster.getReturnValue(assignedVars,table1);
+        for (Cluster clusterr: blocks) {
+            String returnValue = clusterr.getReturnValue(assignedVars,table1);
             //System.out.println(returnValue);
             //cluster.getReturnType(nodeTypeMap, returnValue);
-            System.out.println(cluster.getReturnType(nodeTypeMap, returnValue));
+            System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
             Random rand = new Random();
             //cluster.getMethodName(returnValue, rand.nextInt());
-            System.out.println(cluster.getMethodName(returnValue, rand.nextInt()));
+            System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
         }
 
         Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());

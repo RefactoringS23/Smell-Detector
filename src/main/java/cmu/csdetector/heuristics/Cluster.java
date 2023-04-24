@@ -9,16 +9,12 @@ import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.Objects;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-
 import java.util.*;
 
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
     private Set<ASTNode> accessedVariables;
-    private Map<String, List<Integer>> accessedVariables1;
-    private static Map<String, List<Integer>> assignedVariables;
 
     private double lcom;
     private double benefit;
@@ -75,10 +71,6 @@ public class Cluster {
 
     public Set<ASTNode> getAccessedVariables() {
         return accessedVariables;
-    }
-
-    public Map<String, List<Integer>> getAccessedVariables1() {
-        return accessedVariables1;
     }
 
     public double getLcom() {
@@ -264,9 +256,5 @@ public class Cluster {
             name = String.join("","get",returnValue);
         }
         return name;
-    }
-
-    public static void setAssignedNodes(Map<String, List<Integer>> varsAssigned){;
-        assignedVariables = varsAssigned;
     }
 }
