@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.Objects;
 
+import java.util.*;
+
 public class Cluster {
     private final ClusterLine startLine;
     private final ClusterLine endLine;
@@ -188,5 +190,71 @@ public class Cluster {
 
     public void setAccessedVariables(Set<ASTNode> accessedVariables) {
         this.accessedVariables = accessedVariables;
+    }
+
+    private Map<String, List<Integer>>  getListOfAccessedVariables1(SortedMap<Integer, HashSet<String>> table) {
+        Map<String, List<Integer>>  access = new HashMap<String, List<Integer>>();
+        for (int ind: table.keySet()) {
+            for(String name: table.get(ind)) {
+                List<Integer> indList = access.get(name);
+                if(indList == null) {
+                    indList = new ArrayList<>();
+                }
+                indList.add(ind);
+                access.put(name, indList);
+            }
+        }
+        return access;
+    }
+
+    public String getReturnValue(Map<String, List<Integer>> assignmentVariables, SortedMap<Integer, HashSet<String>> visitorTable) {
+        String returnType = "void";
+        Integer count = 0;
+
+        Map<String, List<Integer>> variablesAccessedInClass = getListOfAccessedVariables1(visitorTable);
+        for (String node: assignmentVariables.keySet()) {
+            List<Integer> indexList = variablesAccessedInClass.get(node);
+            int insideCluster = 0;
+            int afterCluster = 0;
+            if(indexList != null) {
+                for( int ind : indexList) {
+                    if (ind >= startLine.getLineNumber() && ind <= endLine.getLineNumber()) {
+                        insideCluster += 1;
+                    } else if (ind > endLine.getLineNumber()) {
+                        afterCluster += 1;
+                    }
+                }
+            }
+            if (insideCluster > 0 && afterCluster > 0) {
+                returnType = node;
+                count += 1;
+            }
+        }
+        if (count>1) {
+            returnType = "invalid";
+        }
+        System.out.println("return value");
+        System.out.println(startLine.getLineNumber());
+        System.out.println(endLine.getLineNumber());
+        System.out.println(returnType);
+        System.out.println(" ");
+        return returnType;
+    }
+
+    public String getReturnType(Map<String, String> nodeTypeMap, String returnValue) {
+        if (returnValue != "void" && returnValue != "invalid") {
+            return nodeTypeMap.get(returnValue);
+        }
+        else {
+            return returnValue;
+        }
+    }
+
+    public String getMethodName(String returnValue, int i) {
+        String name = String.join("","LeoIsTheBestProf", String.valueOf(i));
+        if (returnValue != "void" && returnValue != "invalid") {
+            name = String.join("","get",returnValue);
+        }
+        return name;
     }
 }

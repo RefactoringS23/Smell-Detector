@@ -10,17 +10,21 @@ public class StatementObjectsVisitor extends ASTVisitor {
 
     private Map<String, ASTNode> nodeNameMap;
 
+    private  Set<Integer> methodDeclarations;
+
     private Map<ASTNode, Integer> nodesDeclared = new HashMap<>();
 
     public StatementObjectsVisitor(Map<Integer, ArrayList<Integer>> ifMap) {
         this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = ifMap;
+        this.methodDeclarations = new HashSet<>();
     };
     public StatementObjectsVisitor() {
         this.heuristicMap = new TreeMap<Integer, HashSet<String>>();
         this.nodeNameMap = new HashMap<String, ASTNode>();
         this.ifMap = new HashMap<Integer, ArrayList<Integer>>();
+        this.methodDeclarations = new HashSet<>();
     }
 
     @Override
@@ -47,9 +51,15 @@ public class StatementObjectsVisitor extends ASTVisitor {
     };
 
 
-
+    @Override
     public boolean visit(VariableDeclarationFragment node) {
         this.nodesDeclared.put(node.getName(), getStartLineNumber(node));
+        return true;
+    }
+
+    @Override
+    public  boolean visit(MethodDeclaration node) {
+        this.methodDeclarations.add(getStartLineNumber(node));
         return true;
     }
 
@@ -100,6 +110,9 @@ public class StatementObjectsVisitor extends ASTVisitor {
     }
 
     public SortedMap<Integer, HashSet<String>> getHeuristicMap() {
+        for (int i: this.methodDeclarations) {
+            this.heuristicMap.remove(i);
+        }
         return this.heuristicMap;
     }
 

@@ -1,5 +1,6 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.BlockLineNumberVisitor;
 import cmu.csdetector.ast.visitors.IfBlockVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
@@ -20,11 +21,16 @@ import java.util.*;
 public class FragmentGroupingTest {
 
     private static List<Type> types;
+    private static SortedMap<Integer, HashSet<String>> table1;
+
+    private static Map<String, String> nodeTypeMap;
 
     @BeforeAll
     public static void setUp() throws IOException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
         types = TypeLoader.loadAllFromDir(dir);
+        table1 = new TreeMap<Integer, HashSet<String>>();
+        nodeTypeMap = new HashMap<>();
         GenericCollector.collectAll(types);
     }
 
@@ -33,10 +39,22 @@ public class FragmentGroupingTest {
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<String, List<Integer>> assignedVars = extractReturnMap();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
+
+        for (Cluster clusterr: blocks) {
+            String returnValue = clusterr.getReturnValue(assignedVars,table1);
+            //System.out.println(returnValue);
+            //cluster.getReturnType(nodeTypeMap, returnValue);
+            System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
+            Random rand = new Random();
+            //cluster.getMethodName(returnValue, rand.nextInt());
+            System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
+        }
+
         Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
     }
 
@@ -98,6 +116,27 @@ public class FragmentGroupingTest {
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
         return statementObjectsVisitor.getNodesDeclared();
+    }
+
+    private  Map<String, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
+        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
+        IfBlockVisitor visitor =  new IfBlockVisitor();
+        targetMethod.accept(visitor);
+        AssignmentVisitor assignmentVisitor = new AssignmentVisitor(visitor.getSpecialLine());
+        targetMethod.accept(assignmentVisitor);
+
+        Map<String, List<Integer>> assignmentNameMap = assignmentVisitor.getLineMap();
+        Map<String, String> nameMap = assignmentVisitor.getNodeTypeMap();
+        nodeTypeMap = nameMap;
+
+        /**
+        System.out.println("1234567890");
+        System.out.println(visitor.getSpecialLine());
+        System.out.println(assignmentNameMap);
+        System.out.println("12345678901234"); **/
+        return assignmentNameMap;
     }
 
     private Set<Cluster> getGrabManifestsBlock() throws ClassNotFoundException {
