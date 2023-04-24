@@ -1,4 +1,4 @@
-package cmu.csdetector.metrics;
+package cmu.csdetector.heuristics;
 
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
@@ -14,12 +14,17 @@ import java.util.List;
 
 public class MoveMethodLCOMTest {
     private static List<Type> types;
+    private static Cluster extractOpp;
 
     @BeforeAll
     public static void setUp() throws IOException {
         File dir = new File("src/test/java/cmu/csdetector/dummy/group");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
+    }
+
+    public static void setExtractOpp(Cluster c){
+        extractOpp = c;
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
@@ -56,6 +61,16 @@ public class MoveMethodLCOMTest {
         Method method = getMethod(type, "statement");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
+
+        System.out.println("featureEnvyMethod");
+    }
+
+    @Test
+    public void moveMethodForExtractMethod() throws ClassNotFoundException {
+//        Type type = getType("Customer");
+//        Method method = getMethod(type, "statement");
+//        MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
+        GenericCollector.collectTypeMetricsForExtractedMethod(types, extractOpp);
 
         System.out.println("featureEnvyMethod");
     }

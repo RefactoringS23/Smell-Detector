@@ -1,7 +1,10 @@
 package cmu.csdetector.metrics.calculators.type;
 
+import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.metrics.MetricName;
 import org.eclipse.jdt.core.dom.*;
+
+import java.util.HashSet;
 
 /**
  * Class to calculate the LCOM3 ‘lack of cohesion of methods’ metrics.
@@ -23,24 +26,32 @@ import org.eclipse.jdt.core.dom.*;
  */
 public class LCOM3DiffCalculator extends BaseLCOM {
 	private MethodDeclaration featureEnvyMethod;
+	private Cluster extractedMethod;
+
+	private String featureEnvyParentClass;
 	public LCOM3DiffCalculator(MethodDeclaration type) {
 		super();
-
 		featureEnvyMethod = type;
+		featureEnvyParentClass =  ((TypeDeclaration) featureEnvyMethod.getParent()).getName().toString();
+	};
+
+	public LCOM3DiffCalculator(Cluster type) {
+		super();
+		extractedMethod = type;
+		featureEnvyParentClass = type.getParentClass();
 	}
 
 	@Override
 	protected Double computeValue(ASTNode target) {
 		TypeDeclaration type = (TypeDeclaration) target;
-		String featureEnvyParentClass = ((TypeDeclaration) featureEnvyMethod.getParent()).getName().toString();
 		if(type.getName().toString().equals(featureEnvyParentClass)){
 			return 0d;
 		}
 		double before = calculateLCOM3BeforeMove(target);
 		double after = calculateLCOM3AfterMove(target);
-		if(after>before){
-			return 0d;
-		}
+//		if(after>before){
+//			return 0d;
+//		}
 		return before-after;
 	}
 
@@ -63,7 +74,13 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 		return (nMethods - timesAccessedAttributes/nAttributes) / (nMethods - 1);
 	}
 	private double calculateLCOM3AfterMove(ASTNode target){
-		boolean isPossibleLCOM = simulateMoveMethod(target, this.featureEnvyMethod);	//call the method first in order to initialize the attributes
+		boolean isPossibleLCOM;
+		if(this.extractedMethod != null){
+			isPossibleLCOM = simulateMoveMethod(target, this.extractedMethod.getAccessedVariables());	//call the method first in order to initialize the attributes
+		} else {
+			isPossibleLCOM = simulateMoveMethod(target, this.featureEnvyMethod);	//call the method first in order to initialize the attributes
+
+		}
 
 		if (!isPossibleLCOM){
 			return 0.0;

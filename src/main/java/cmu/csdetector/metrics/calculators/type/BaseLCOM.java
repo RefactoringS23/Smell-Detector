@@ -1,6 +1,7 @@
 package cmu.csdetector.metrics.calculators.type;
 
 import cmu.csdetector.ast.visitors.ClassFieldAccessCollector;
+import cmu.csdetector.ast.visitors.ClassFieldAccessCollectorWithoutDeclarations;
 import cmu.csdetector.ast.visitors.MethodCollector;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.calculators.MetricValueCalculator;
@@ -55,6 +56,7 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 		
 		// get the number of methods within a class
 		this.nMethods = methods.size();
+		timesAccessedAttributes = 0;
 		// Sum the number of times that each attribute is accessed by all methods
 		for (MethodDeclaration md : methods) {
 			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
@@ -89,8 +91,6 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 		for (MethodDeclaration md : methods) {
 			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
 			md.accept(fieldVisitor);
-//			System.out.println("pppp" + fieldVisitor.getNodesCollected());
-
 			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
 		}
 
@@ -100,7 +100,43 @@ public abstract class BaseLCOM extends MetricValueCalculator {
 
 		return true;
 	}
-	
+	protected boolean simulateMoveMethod(ASTNode target, Set<ASTNode> extractedMethodNodes) {
+		TypeDeclaration type = (TypeDeclaration) target;
+		ITypeBinding binding = type.resolveBinding();
+
+		if (binding == null) {
+			return false;
+		}
+		List<MethodDeclaration> methods = getMethods(target);
+
+		this.nAttributes = this.getVariablesInHierarchy(binding).size();
+
+		// add extracted mehtod to the number of methods within a class
+		this.nMethods = methods.size() + 1;
+
+		// Sum the number of times that each attribute is accessed by all methods
+		timesAccessedAttributes = 0;
+		for (MethodDeclaration md : methods) {
+			ClassFieldAccessCollector fieldVisitor = new ClassFieldAccessCollector(type);
+			md.accept(fieldVisitor);
+			timesAccessedAttributes += fieldVisitor.getNodesCollected().size();
+		}
+		// add class variables accessed in extracted method
+		ClassFieldAccessCollectorWithoutDeclarations nodeClassFieldVisitor = new ClassFieldAccessCollectorWithoutDeclarations(type);
+
+		for (ASTNode node: extractedMethodNodes) {
+			node.accept(nodeClassFieldVisitor);
+		}
+//			System.out.println("pppp" + fieldVisitor.getNodesCollected());
+
+		timesAccessedAttributes += nodeClassFieldVisitor.getNodesCollected().size();
+
+		if (nMethods == 0 || nAttributes == 0) {
+			return false; // it is impossible to calculate lcom
+		}
+
+		return true;
+	}
 	private Set<IVariableBinding> getVariablesInHierarchy(ITypeBinding type) {
 		IVariableBinding[] localVariables = type.getDeclaredFields();
 		Set<IVariableBinding> variables = new HashSet<>(Arrays.asList(localVariables));
