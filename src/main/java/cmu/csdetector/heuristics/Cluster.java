@@ -22,6 +22,9 @@ public class Cluster {
     private double clusterSize;
     private Set<ASTNode> missingVars;
 
+    private String returnType = null;
+    private String clusterName = null;
+
     private boolean isAlternative = false;
 
     private List<Cluster> alternatives;
@@ -33,6 +36,22 @@ public class Cluster {
         this.alternatives = new ArrayList<>();
         this.accessedVariables = new HashSet<ASTNode>();
         this.missingVars = new HashSet<>();
+    }
+
+    public String getClusterName() {
+        return this.clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public String getReturnType() {
+        return this.returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
     }
 
     public void setMissingVars(Set<ASTNode> missingVars) {

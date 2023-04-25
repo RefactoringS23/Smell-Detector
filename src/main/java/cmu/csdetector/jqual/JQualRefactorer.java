@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 
 import java.io.BufferedWriter;
 import java.io.File;
