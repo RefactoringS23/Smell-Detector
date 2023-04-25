@@ -4,6 +4,8 @@ import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.heuristics.ClusterManager;
+import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
+import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
@@ -182,6 +184,8 @@ public class JQualRefactorer {
 //                        TODO: implement getRecommendatin mehtod to get top target class;
                 Type taregtClass = operation.getRecommendation();
 
+//                TODO: get class name for method
+                Type c = null;
 //                        TODO: write a recommendation interface
                 Recommendation r = new MoveMethodRecommendation(c, m, taregtClass)
 
