@@ -44,9 +44,9 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
         try {
             MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
             String parentClassName = super.parentClass.getBinding().getName();
-            cm = new ClusterManager(targetMethod, parentClassName);
+            cm = new ClusterManager(targetMethod, parentClass);
             blocks = getGrabManifestsBlock();
-            setTopClusters(cm.getBestClusters(blocks).subList(0,TOP_COUNT));
+            setTopClusters(cm.getTopClusters(blocks).subList(0,TOP_COUNT));
             setBestCluster(getTopRecommendations().get(0));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

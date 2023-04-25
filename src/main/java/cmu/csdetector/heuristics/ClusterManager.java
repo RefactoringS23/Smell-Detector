@@ -50,7 +50,7 @@ public class ClusterManager {
         this.assignmentVariables = assignmentVisitor.getLineMap();
     }
 
-    public Cluster getBestCluster(Set<Cluster> blocks) {
+    public List<Cluster> getTopClusters(Set<Cluster> blocks) {
         Set<Cluster> baseClusters = makeClusters();
         Set<Cluster> allClusters = createMergedClusters(baseClusters);
         this.filterValidClusters(allClusters, blocks);
