@@ -1,14 +1,14 @@
 package cmu.csdetector.heuristics;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClusterManager {
 
-    private Map<ASTNode, Integer> nodesDeclared;
+    private Map<String, Integer> nodesDeclared;
     private SortedMap<Integer, HashSet<String>> statementObjectsMap;
 
     private Map<String, ASTNode> stringASTNodeMap;
@@ -20,8 +20,27 @@ public class ClusterManager {
     private Set<Cluster> allClusters;
     private Set<Cluster> mergedClusters;
     private Set<Cluster> filteredClusters;
+    private Map<String, String> nodeTypeMap;
+    private Map<String, List<Integer>> assignmentVariables;
+    private Set<Integer> breakSet;
+    private  Set<List<Integer>> loopSet;
 
-    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<ASTNode, Integer> variableDeclarations, String declaringClassName) {
+    public void setNodeTypeMap( Map<String, String> nodeTypeMap ) {
+        this.nodeTypeMap = nodeTypeMap;
+    }
+
+    public void setAssignmentVariables(Map<String, List<Integer>> assignmentVariables) {
+        this.assignmentVariables = assignmentVariables;
+    }
+
+    public void setBreakSet(Set<Integer> breakSet) {
+        this.breakSet = breakSet;
+    }
+
+    public void setLoopSet(Set<List<Integer>> loopSet) {
+        this.loopSet = loopSet;
+    }
+    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<String, Integer> variableDeclarations, String declaringClassName) {
         this.statementObjectsMap = statementObjectsMap;
         this.stringASTNodeMap = stringASTNodeMap;
         this.nodesDeclared = variableDeclarations;
@@ -73,11 +92,90 @@ public class ClusterManager {
         Set<ASTNode> requiredAttributes = new HashSet<>();
         for (ASTNode n : cluster.getAccessedVariables()) {
             // ERROR: this.nodesDeclared.get(n) is always null
-            if (this.nodesDeclared.get(n) == null || this.nodesDeclared.get(n) < cluster.getStartLine().getLineNumber() || this.nodesDeclared.get(n) > cluster.getEndLine().getLineNumber()) {
-                requiredAttributes.add(n);
+
+            if(n.getNodeType() == ASTNode.SIMPLE_NAME) {
+                SimpleName variable = (SimpleName) n;
+                String variableParentClassName = ((SimpleName) n).resolveTypeBinding().getTypeDeclaration().getName();
+                if(variableParentClassName != cluster.getParentClassName() && variable.getParent().getNodeType() != ASTNode.QUALIFIED_NAME) {
+                    if (this.nodesDeclared.get(variable.getIdentifier()) == null || this.nodesDeclared.get(variable.getIdentifier()) < cluster.getStartLine().getLineNumber() ) {
+                        requiredAttributes.add(n);
+                    }
+                }
             }
         }
         cluster.setMissingVars(requiredAttributes);
+    }
+
+    private Map<String, List<Integer>>  getVariableLineNumbers() {
+        Map<String, List<Integer>>  access = new HashMap<String, List<Integer>>();
+        for (int ind: statementObjectsMap.keySet()) {
+            for(String name: statementObjectsMap.get(ind)) {
+
+                List<Integer> indList = access.get(name);
+                if(indList == null) {
+                    indList = new ArrayList<>();
+                }
+                indList.add(ind);
+                access.put(name, indList);
+            }
+        }
+        return access;
+    }
+
+    public String getReturnValue(Cluster cluster) {
+        //System.out.println(assignmentVariables);
+        //System.out.println(statementObjectsMap);
+        String returnType = "void";
+        Integer count = 0;
+
+        Map<String, List<Integer>> variablesAccessedInClass = getVariableLineNumbers();
+        for (String node: this.assignmentVariables.keySet()) {
+            List<Integer> indexList = variablesAccessedInClass.get(node);
+            int insideCluster = 0;
+            int afterCluster = 0;
+            if(indexList != null) {
+                for( int ind : indexList) {
+                    if (ind >= cluster.getStartLineNumber() && ind <= cluster.getEndLineNumber()) {
+                        insideCluster += 1;
+                    } else if (ind > cluster.getEndLineNumber()) {
+                        afterCluster += 1;
+                    }
+                }
+            }
+            if (insideCluster > 0 && afterCluster > 0) {
+                returnType = node;
+                count += 1;
+            }
+        }
+        if (count>1) {
+            returnType = "invalid";
+        }
+        /**
+        System.out.println("return value");
+        System.out.println(cluster.getStartLineNumber());
+        System.out.println(cluster.getEndLineNumber());
+        System.out.println(returnType);
+        System.out.println(" "); **/
+        return returnType;
+    }
+
+    public void getReturnType(Cluster cluster) {
+        String returnValue = getReturnValue(cluster);
+        if (returnValue != "void" && returnValue != "invalid") {
+            cluster.setReturnType(this.nodeTypeMap.get(returnValue));
+        }
+        else {
+            cluster.setReturnType(returnValue);
+        }
+    }
+
+    public void getMethodName(Cluster cluster, int i) {
+        String returnValue = getReturnValue(cluster);
+        String name = String.join("","LeoIsTheBestProf", String.valueOf(i));
+        if (returnValue != "void" && returnValue != "invalid") {
+            name = String.join("","get",returnValue);
+        }
+        cluster.setMethodName(name);
     }
 
     private Set<Cluster> makeClusters() {
@@ -160,24 +258,26 @@ public class ClusterManager {
             // step 3: check that endLine is not in any of the sub blocks
             if (!startLineIsInSubBlocks(cluster.getStartLineNumber(), subBlocks) &&
                     !endLineIsInSubBlocks(cluster.getEndLineNumber(), subBlocks)) {
-                filteredClusters.add(cluster);
+                if(!invalidateClustersWithBreak(cluster) && getReturnValue(cluster) != "invalid"){
+                    filteredClusters.add(cluster);
+                }
             }
         }
         setAccessedVariablesForValidClusters(filteredClusters);
         return filteredClusters;
     }
 
-    public boolean invalidateClustersWithBreak(Cluster cluster, Set<Integer> breakSet, Set<List<Integer>> loopSet) {
+    public boolean invalidateClustersWithBreak(Cluster cluster) {
         Set<Integer> breakSetInside = new HashSet<Integer>();
         Set<List<Integer>> loopSetInside = new HashSet<List<Integer>>();
 
-        for(int i: breakSet) {
+        for(int i: this.breakSet) {
             if(i>=cluster.getStartLineNumber() && i<= cluster.getEndLineNumber()){
                 breakSetInside.add(i);
             }
         }
 
-        for(List<Integer> ind : loopSet) {
+        for(List<Integer> ind : this.loopSet) {
             if(ind.get(0) >= cluster.getStartLineNumber() && ind.get(1)<= cluster.getEndLineNumber()) {
                 loopSetInside.add(ind);
             }
@@ -190,7 +290,7 @@ public class ClusterManager {
                 return true;
             }
             int count = 0;
-            for(List<Integer> ind : loopSet) {
+            for(List<Integer> ind : this.loopSet) {
                 if(ind.get(0) <= i && ind.get(1)>=i) {
                     count = count + 1;
                 }
