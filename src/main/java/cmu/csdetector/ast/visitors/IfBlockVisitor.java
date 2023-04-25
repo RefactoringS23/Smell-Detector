@@ -25,26 +25,28 @@ public class IfBlockVisitor extends ASTVisitor {
             addToMap(nodeStart, getStartLineNumber(node.getElseStatement()));
         }
 
-        Block ifBlock = (Block) node.getThenStatement();
-        List ifBlockList = ifBlock.statements();
-        for (int i=0; i<ifBlockList.size(); i++) {
-            if(ifBlockList.get(i).getClass().toString().contains("IfStatement")){
-                Integer nestedIfStart = getStartLineNumber((ASTNode) ifBlockList.get(i));
-                addToMap(nodeStart, nestedIfStart);
-            }
-        }
-
-        for (Map.Entry<Integer, ArrayList<Integer>> set :
-                this.ifMap.entrySet()) {
-            ArrayList<Integer> listOfParent = set.getValue();
-            ArrayList<Integer> listOfNode = this.ifMap.get(nodeStart);
-            if (listOfParent != null && listOfNode != null && listOfNode != listOfParent && listOfParent.contains(nodeStart)) {
-                listOfParent.addAll(listOfNode);
+        if(node.getThenStatement().getNodeType() == ASTNode.BLOCK){
+            Block ifBlock = (Block) node.getThenStatement();
+            List ifBlockList = ifBlock.statements();
+            for (int i=0; i<ifBlockList.size(); i++) {
+                if(ifBlockList.get(i).getClass().toString().contains("IfStatement")){
+                    Integer nestedIfStart = getStartLineNumber((ASTNode) ifBlockList.get(i));
+                    addToMap(nodeStart, nestedIfStart);
+                }
             }
 
+            for (Map.Entry<Integer, ArrayList<Integer>> set :
+                    this.ifMap.entrySet()) {
+                ArrayList<Integer> listOfParent = set.getValue();
+                ArrayList<Integer> listOfNode = this.ifMap.get(nodeStart);
+                if (listOfParent != null && listOfNode != null && listOfNode != listOfParent && listOfParent.contains(nodeStart)) {
+                    listOfParent.addAll(listOfNode);
+                }
+
+            }
+            specialLine.add(nodeStart);
         }
 
-        specialLine.add(nodeStart);
         return true;
     }
 
