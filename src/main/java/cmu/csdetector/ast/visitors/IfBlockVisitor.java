@@ -8,9 +8,14 @@ public class IfBlockVisitor extends ASTVisitor {
     private Map<Integer, ArrayList<Integer>> ifMap;
     private Set<Integer> specialLine;
 
+    private Set<List<Integer>> loopStartEnd;
+
+    private Set<Integer> breakSet;
     public IfBlockVisitor() {
         this.ifMap = new HashMap<Integer, ArrayList<Integer>>();
         this.specialLine = new HashSet<>();
+        this.loopStartEnd = new HashSet<List<Integer>>();
+        this.breakSet = new HashSet<Integer>();
     }
 
     @Override
@@ -20,29 +25,42 @@ public class IfBlockVisitor extends ASTVisitor {
             addToMap(nodeStart, getStartLineNumber(node.getElseStatement()));
         }
 
-        Block ifBlock = (Block) node.getThenStatement();
-        List ifBlockList = ifBlock.statements();
-        for (int i=0; i<ifBlockList.size(); i++) {
-            if(ifBlockList.get(i).getClass().toString().contains("IfStatement")){
-                Integer nestedIfStart = getStartLineNumber((ASTNode) ifBlockList.get(i));
-                addToMap(nodeStart, nestedIfStart);
-            }
-        }
-
-        for (Map.Entry<Integer, ArrayList<Integer>> set :
-                this.ifMap.entrySet()) {
-            ArrayList<Integer> listOfParent = set.getValue();
-            ArrayList<Integer> listOfNode = this.ifMap.get(nodeStart);
-            if (listOfParent != null && listOfNode != null && listOfNode != listOfParent && listOfParent.contains(nodeStart)) {
-                listOfParent.addAll(listOfNode);
+        if(node.getThenStatement().getNodeType() == ASTNode.BLOCK){
+            Block ifBlock = (Block) node.getThenStatement();
+            List ifBlockList = ifBlock.statements();
+            for (int i=0; i<ifBlockList.size(); i++) {
+                if(ifBlockList.get(i).getClass().toString().contains("IfStatement")){
+                    Integer nestedIfStart = getStartLineNumber((ASTNode) ifBlockList.get(i));
+                    addToMap(nodeStart, nestedIfStart);
+                }
             }
 
+            for (Map.Entry<Integer, ArrayList<Integer>> set :
+                    this.ifMap.entrySet()) {
+                ArrayList<Integer> listOfParent = set.getValue();
+                ArrayList<Integer> listOfNode = this.ifMap.get(nodeStart);
+                if (listOfParent != null && listOfNode != null && listOfNode != listOfParent && listOfParent.contains(nodeStart)) {
+                    listOfParent.addAll(listOfNode);
+                }
+
+            }
+            specialLine.add(nodeStart);
         }
 
-        specialLine.add(nodeStart);
         return true;
     }
 
+    @Override
+    public boolean visit(BreakStatement node) {
+        breakSet.add(getStartLineNumber(node));
+        return true;
+    }
+    @Override
+    public boolean visit(ContinueStatement node) {
+        breakSet.add(getStartLineNumber(node));
+        return true;
+    }
+    
     @Override
     public boolean visit(CatchClause node) {
         specialLine.add(getStartLineNumber(node));
@@ -52,18 +70,30 @@ public class IfBlockVisitor extends ASTVisitor {
     @Override
     public boolean visit(DoStatement node) {
         specialLine.add(getStartLineNumber(node));
+        List<Integer> lines = new ArrayList<>();
+        lines.add(getStartLineNumber(node));
+        lines.add(getEndLineNumber(node));
+        loopStartEnd.add(lines);
         return true;
     }
 
     @Override
     public boolean visit(EnhancedForStatement node) {
         specialLine.add(getStartLineNumber(node));
+        List<Integer> lines = new ArrayList<>();
+        lines.add(getStartLineNumber(node));
+        lines.add(getEndLineNumber(node));
+        loopStartEnd.add(lines);
         return true;
     }
 
     @Override
     public boolean visit(ForStatement node) {
         specialLine.add(getStartLineNumber(node));
+        List<Integer> lines = new ArrayList<>();
+        lines.add(getStartLineNumber(node));
+        lines.add(getEndLineNumber(node));
+        loopStartEnd.add(lines);
         return true;
     }
 
@@ -80,8 +110,23 @@ public class IfBlockVisitor extends ASTVisitor {
     }
 
     @Override
+    public boolean visit(SwitchStatement node) {
+        specialLine.add(getStartLineNumber(node));
+        List<Integer> lines = new ArrayList<>();
+        lines.add(getStartLineNumber(node));
+        lines.add(getEndLineNumber(node));
+        loopStartEnd.add(lines);
+        return true;
+    }
+
+
+    @Override
     public boolean visit(WhileStatement node) {
         specialLine.add(getStartLineNumber(node));
+        List<Integer> lines = new ArrayList<>();
+        lines.add(getStartLineNumber(node));
+        lines.add(getEndLineNumber(node));
+        loopStartEnd.add(lines);
         return true;
     }
 
@@ -113,5 +158,13 @@ public class IfBlockVisitor extends ASTVisitor {
 
     public Set<Integer> getSpecialLine() {
         return this.specialLine;
+    }
+
+    public Set<List<Integer>> getLoopStartEnd() {
+        return this.loopStartEnd;
+    }
+
+    public Set<Integer> getBreakSet() {
+        return this.breakSet;
     }
 }
