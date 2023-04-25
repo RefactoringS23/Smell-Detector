@@ -23,7 +23,6 @@ public class FragmentGroupingHeu1Test {
     private static List<Type> types;
     private static List<Type> moviewtypes;
 
-    private static SortedMap<Integer, HashSet<String>> table1;
 
     @BeforeAll
     public static void setUp() throws IOException {
@@ -32,7 +31,6 @@ public class FragmentGroupingHeu1Test {
 
         types = TypeLoader.loadAllFromDir(dir);
         moviewtypes = TypeLoader.loadAllFromDir(moview);
-        table1 = new TreeMap<>();
         GenericCollector.collectAll(types);
     }
 
