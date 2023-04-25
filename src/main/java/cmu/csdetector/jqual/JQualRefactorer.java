@@ -255,6 +255,9 @@ public class JQualRefactorer {
         try {
             ToolParameters parameters = ToolParameters.getInstance();
             File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
+            if (suggestionsFile.exists()) {
+                suggestionsFile.delete();
+            }
             BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile, true));
 
             writer.write(r.getReadableString());
@@ -262,7 +265,6 @@ public class JQualRefactorer {
 
             System.out.println("Saving recommendations file...");
 
-    //      TODO: write recommendations to file
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
