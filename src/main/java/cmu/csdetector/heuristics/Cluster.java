@@ -1,5 +1,6 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.resources.Type;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.util.List;
@@ -8,8 +9,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.Objects;
-
-import java.util.*;
 
 public class Cluster {
     private final ClusterLine startLine;
@@ -28,6 +27,8 @@ public class Cluster {
 
     private List<Cluster> alternatives;
 
+    private Type parentClass;
+
     private String parentClassName;
 
     public Cluster(Integer startLine, Integer endLine) {
@@ -40,21 +41,22 @@ public class Cluster {
         this.methodName = "LeoIsTheBestProf";
     }
 
-    public Cluster(Integer startLine, Integer endLine, String parentClassName) {
+    public Cluster(Integer startLine, Integer endLine, Type parentClass) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.alternatives = new ArrayList<>();
         this.accessedVariables = new HashSet<ASTNode>();
         this.missingVars = new HashSet<>();
-        this.parentClassName = parentClassName;
+        this.parentClass = parentClass;
+        this.parentClassName = parentClass.getBinding().getName();
     }
 
-    public String getParentClassName() {
-        return parentClassName;
+    public Type getParentClass() {
+        return parentClass;
     }
 
-    public void setParentClassName(String parentClassName) {
-        this.parentClassName = parentClassName;
+    public void setParentClass(Type parentClass) {
+        this.parentClass = parentClass;
     }
     
     public void setMissingVars(Set<ASTNode> missingVars) {
@@ -99,9 +101,9 @@ public class Cluster {
         return accessedVariables;
     }
 
-   public String getParentClass() {
-        return "abcd";
-   }
+    public String getParentClassName() {
+        return parentClassName;
+    }
 
     public double getLcom() {
         return lcom;

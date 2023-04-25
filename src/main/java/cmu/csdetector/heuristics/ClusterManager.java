@@ -3,6 +3,7 @@ package cmu.csdetector.heuristics;
 import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.IfBlockVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
+import cmu.csdetector.resources.Type;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -17,8 +18,7 @@ public class ClusterManager {
 
     private Map<String, ASTNode> stringASTNodeMap;
 
-    private String declaringClassName;
-
+    private Type declaringClass;
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
     private Set<Cluster> filteredClusters;
@@ -27,9 +27,9 @@ public class ClusterManager {
     private Set<Integer> breakSet;
     private  Set<List<Integer>> loopSet;
 
-    public ClusterManager(MethodDeclaration md, String declaringClassName) {
-        this.declaringClassName = declaringClassName;
-        
+    public ClusterManager(MethodDeclaration md, Type declaringClass) {
+        this.declaringClass = declaringClass;
+
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         md.accept(ifBlockVisitor);
 
@@ -191,13 +191,13 @@ public class ClusterManager {
                 if (this.statementObjectsMap.containsKey(currentEndLine)) {
                     for (String variableOrMethodCall : row) {
                         if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
-                            clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
+                            clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClass));
                             break;
                         }
                     }
                 } else {
                     // In case of empty line, we add it for safety measures
-                    clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
+                    clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClass));
                 }
             }
 
@@ -231,7 +231,7 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClassName));
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClass));
                     }
                     currentOpenClusters.add(line);
                 } else {

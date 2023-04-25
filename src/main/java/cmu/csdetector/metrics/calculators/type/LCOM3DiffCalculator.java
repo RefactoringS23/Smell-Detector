@@ -38,7 +38,7 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 	public LCOM3DiffCalculator(Cluster type) {
 		super();
 		extractedMethod = type;
-		featureEnvyParentClass = type.getParentClass();
+		featureEnvyParentClass = type.getParentClassName();
 	}
 
 	@Override
