@@ -37,10 +37,9 @@ public class FragmentGroupingHeu1Test {
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
         Type type = getType("testFile");
-        String parentClassName = type.getBinding().getName();
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
 
@@ -55,10 +54,9 @@ public class FragmentGroupingHeu1Test {
     @Test
     public void canRankClusters() throws ClassNotFoundException {
         Type type = getType("testFile");
-        String parentClassName = type.getBinding().getName();
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
 
@@ -69,10 +67,9 @@ public class FragmentGroupingHeu1Test {
     @Test
     public void moveMethodForExtractMethod() throws ClassNotFoundException {
         Type type = getType("testFile");
-        String parentClassName = type.getBinding().getName();
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
 
