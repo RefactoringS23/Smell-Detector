@@ -1,9 +1,12 @@
-package cmu.csdetector;
+package cmu.csdetector.jqual;
 
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.heuristics.Cluster;
-import cmu.csdetector.heuristics.ClusterManager;
+import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
+import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
+import cmu.csdetector.jqual.recommendation.Recommendation;
+import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
@@ -19,7 +22,6 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -250,10 +252,7 @@ public class JQualRefactorer {
         gson.toJson(smellyTypes, writer);
         writer.close();
     }
-private void saveRecommendationToFile(String title, Recommendation r){
-//        TODO: sankalp
-}
-    private void saveRecommendationsFile(String ) throws IOException {
+    private void saveRecommendationsFile(String t) throws IOException {
         ToolParameters parameters = ToolParameters.getInstance();
         File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
         BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile));

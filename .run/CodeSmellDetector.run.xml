@@ -5,7 +5,7 @@
     <option name="PROGRAM_PARAMETERS" value="-sf $USER_HOME$/Desktop/smells_output.json -src $PROJECT_DIR$/src/test/java/cmu/csdetector/dummy/group&quot;" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="cmu.csdetector.*" />
+        <option name="PATTERN" value="cmu.csdetector.jqual.recommendation.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
