@@ -210,7 +210,7 @@ public class JQualRefactorer {
 
                         ExtractMethodRecommendation em = (ExtractMethodRecommendation) operation.getRecommendation();
 
-                        RefactoringOperation operation2 = new MoveMethodRefactoring(em.getFinalCluster());
+                        RefactoringOperation operation2 = new MoveMethodRefactoring(em.getFinalCluster(), allTypes);
 //                        TODO: implement getRecokomendation inside extractrecommendatin class
 
                         Recommendation r = operation2.getRecommendation();

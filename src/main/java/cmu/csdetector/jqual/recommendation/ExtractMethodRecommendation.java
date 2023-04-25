@@ -25,10 +25,7 @@ public class ExtractMethodRecommendation extends Recommendation {
             + cluster.getStartLineNumber() + " to " + cluster.getEndLineNumber() + " with the extracted method name " + cluster.getMethodName()
             + " with parameters " + cluster.getMissingVars() + " and return type " + cluster.getReturnType();
     }
-    public List<Cluster> getTopRecommendations(){
-            List<Cluster> l = new ArrayList<>();
-            return l;
-    }
+
     @Override
     public String toString() {
         return "ExtractMethodRecommendation{" +
@@ -36,5 +33,9 @@ public class ExtractMethodRecommendation extends Recommendation {
                 ", method=" + method +
                 ", cluster=" + cluster +
                 '}';
+    }
+
+    public Cluster getFinalCluster() {
+        return cluster;
     }
 }

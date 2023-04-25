@@ -53,18 +53,19 @@ public class ClusterManager {
         this.assignmentVariables = assignmentVisitor.getLineMap();
     }
 
-    public Cluster getBestCluster(Set<Cluster> blocks) {
+    public List<Cluster> getBestClusters(Set<Cluster> blocks) {
         allClusters = makeClusters();
         mergedClusters = createMergedClusters();
         filteredClusters = filterValidClusters(blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
         ClusterRanking.groupClusters(filteredClusters);
-        finalCluster = this.rankClusters();
-        return finalCluster;
+        List<Cluster> finalClusters = this.rankClusters();
+        setFinalCluster(finalClusters.get(0));
+        return finalClusters;
     }
 
-    private Cluster rankClusters() {
+    private List<Cluster> rankClusters() {
         Set<Cluster> primaryClusters = new HashSet<>();
         for (Cluster cluster : this.filteredClusters) {
             if (!cluster.isAlternative()) {
@@ -74,7 +75,7 @@ public class ClusterManager {
         List<Cluster> sortedClusters = primaryClusters.stream()
                 .sorted(Comparator.comparing(Cluster::getBenefit).reversed())
                 .collect(Collectors.toList());
-        return sortedClusters.get(0);
+        return sortedClusters;
 
     }
 

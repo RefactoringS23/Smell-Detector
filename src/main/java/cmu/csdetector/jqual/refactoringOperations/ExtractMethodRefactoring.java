@@ -11,14 +11,14 @@ import cmu.csdetector.resources.Type;
 import cmu.csdetector.resources.Method;
 import org.eclipse.jdt.core.dom.ASTNode;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.*;
+
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class ExtractMethodRefactoring extends RefactoringOperation {
     private Cluster bestCluster;
+
+    private List<Cluster> topClusters;
 
     public ExtractMethodRefactoring(Type parentClass, Method candidateMethod) {
         super(parentClass, candidateMethod);
@@ -45,7 +45,7 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
             String parentClassName = super.parentClass.getBinding().getName();
             cm = new ClusterManager(targetMethod, parentClassName);
             blocks = getGrabManifestsBlock();
-            setBestCluster(cm.getBestCluster(blocks));
+            setTopClusters(cm.getBestClusters(blocks));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -57,5 +57,10 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
     }
     public void setBestCluster(Cluster bestCluster) {
         this.bestCluster = bestCluster;
+    }
+
+    public List<Cluster> getTopRecommendations() {
+        return topClusters;
+
     }
 }
