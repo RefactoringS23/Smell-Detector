@@ -15,6 +15,10 @@ import java.util.Map;
 public class MoveMethodRefactoring extends RefactoringOperation {
 
     private List<Type> allTypes;
+
+
+
+    private Type finalTargetClass;
     public MoveMethodRefactoring(Type parentClass, Method featureEnvyMethod, List<Type> types){
         super(parentClass, featureEnvyMethod);
         allTypes = types;
@@ -38,12 +42,19 @@ public class MoveMethodRefactoring extends RefactoringOperation {
                 targetClass = t;
             }
         };
-
+        setTargetClass(targetClass);
         String targetName = targetClass.getNodeAsTypeDeclaration().getName().toString();
         System.out.println(targetName);
         Recommendation r = new MoveMethodRecommendation(parentClass, candidateMethod, targetClass);
         return r;
 
     };
+
+    public Type getTargetClass() {
+        return finalTargetClass;
+    }
+    public void setTargetClass(Type finalTargetClass) {
+        this.finalTargetClass = finalTargetClass;
+    }
 
 }

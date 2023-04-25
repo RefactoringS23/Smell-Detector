@@ -13,5 +13,5 @@ public abstract class RefactoringOperation {
 
     }
     public abstract Recommendation getRecommendation();
-    public abstract void  runOperation();
+    public abstract void runOperation();
 }
