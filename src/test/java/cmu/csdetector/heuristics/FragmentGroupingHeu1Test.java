@@ -170,11 +170,6 @@ public class FragmentGroupingHeu1Test {
         Map<String, String> nameMap = assignmentVisitor.getNodeTypeMap();
         nodeTypeMap = nameMap;
 
-        /**
-        System.out.println("1234567890");
-        System.out.println(visitor.getSpecialLine());
-        System.out.println(assignmentNameMap);
-        System.out.println("12345678901234"); **/
         return assignmentNameMap;
     }
 

@@ -61,7 +61,7 @@ public class FragmentGroupingTest {
         Cluster cluster = cm.getBestCluster(blocks);
         cm.getReturnType(cluster);
         cm.getMethodName(cluster, 1);
-        
+
         Assertions.assertEquals(4, cluster.getMissingVars().size());
         Assertions.assertEquals("String",cluster.getReturnType());
         Assertions.assertEquals("getresult", cluster.getMethodName());
@@ -169,11 +169,6 @@ public class FragmentGroupingTest {
         Map<String, String> nameMap = assignmentVisitor.getNodeTypeMap();
         nodeTypeMap = nameMap;
 
-        /**
-        System.out.println("1234567890");
-        System.out.println(visitor.getSpecialLine());
-        System.out.println(assignmentNameMap);
-        System.out.println("12345678901234"); **/
         return assignmentNameMap;
     }
 
