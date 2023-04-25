@@ -6,6 +6,7 @@ import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.heuristics.ClusterManager;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
+import cmu.csdetector.jqual.recommendation.Recommendation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
@@ -142,7 +143,7 @@ public class JQualRefactorer {
         return false;
     }
 
-    private  void findExtractMethodOpportunities(){
+    private  void findExtractMethodOpportunities() throws IOException {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
@@ -163,7 +164,7 @@ public class JQualRefactorer {
                             printRecommendations(r);
 
 //                        TODO: save text to output.json
-                            saveRecommendationToFile("EXTRACT METHOD", r);
+                            saveRecommendationsToFile(r);
                         }
 //
                     }
@@ -172,7 +173,7 @@ public class JQualRefactorer {
         }
     }
 
-    private  void findMovetMethodOpportunities(){
+    private  void findMovetMethodOpportunities() throws IOException {
         for(Method m: methodSmells.keySet()){
             if(isFeatureEnvyPresent(methodSmells.get(m)){
 
@@ -193,12 +194,12 @@ public class JQualRefactorer {
                 printRecommendations(r);
 
 //                        TODO: save text to output.json
-                saveRecommendationToFile("MOVE METHOD", r);
+                saveRecommendationsToFile(r);
             }
         }
 
     };
-    private  void findExtractAndMoveMethodOpportunities(){
+    private  void findExtractAndMoveMethodOpportunities() throws IOException {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
@@ -231,7 +232,7 @@ public class JQualRefactorer {
                         printRecommendations(taregtClass);
 
 //                        TODO: save text to output.json
-                        saveRecommendationToFile("MOVE METHOD", r);
+                        saveRecommendationsToFile(r);
                     }
                 }
             }
@@ -255,13 +256,17 @@ public class JQualRefactorer {
         writer.close();
     }
 
-    private void saveRecommendationsFile(String recommendationString) throws IOException {
+    private void printRecommendations(Recommendation r) {
+        System.out.println(r.getReadableString());
+    }
+
+    private void saveRecommendationsToFile(Recommendation r) throws IOException {
         try {
             ToolParameters parameters = ToolParameters.getInstance();
             File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
             BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile, true));
             
-            writer.write(recommendationString);
+            writer.write(r.getReadableString());
             writer.newLine();
 
             System.out.println("Saving recommendations file...");
