@@ -7,6 +7,7 @@ import cmu.csdetector.resources.Type;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -123,10 +124,7 @@ public class ClusterManager {
     }
 
     public String getReturnValue(Cluster cluster) {
-        //System.out.println(assignmentVariables);
-        //System.out.println(statementObjectsMap);
-        String returnType = "void";
-        Integer count = 0;
+        Set<String> returnType = new HashSet<>();
 
         Map<String, List<Integer>> variablesAccessedInClass = getVariableLineNumbers();
         for (String node: this.assignmentVariables.keySet()) {
@@ -143,26 +141,48 @@ public class ClusterManager {
                 }
             }
             if (insideCluster > 0 && afterCluster > 0) {
-                returnType = node;
-                count += 1;
+                returnType.add(node);
             }
         }
-        if (count>1) {
-            returnType = "invalid";
+
+        for(String nodeName : this.nodesDeclared.keySet()){
+            int declaredAt = this.nodesDeclared.get(nodeName);
+            if(declaredAt >= cluster.getStartLineNumber() && declaredAt <= cluster.getEndLineNumber()) {
+                List<Integer> indexList = variablesAccessedInClass.get(nodeName);
+                if(indexList != null) {
+                    for( int ind : indexList) {
+                        if (ind > cluster.getEndLineNumber()) {
+                            returnType.add(nodeName);
+                        }
+                    }
+                }
+            }
+
         }
-        /**
-        System.out.println("return value");
-        System.out.println(cluster.getStartLineNumber());
-        System.out.println(cluster.getEndLineNumber());
-        System.out.println(returnType);
-        System.out.println(" "); **/
-        return returnType;
+
+        if (returnType.size()>1) {
+            return("invalid");
+        }
+
+        if(returnType.size() == 1) {
+            for (String str : returnType){
+                return str;
+            }
+        }
+        return "void";
     }
 
     public void getReturnType(Cluster cluster) {
         String returnValue = getReturnValue(cluster);
         if (returnValue != "void" && returnValue != "invalid") {
-            cluster.setReturnType(this.nodeTypeMap.get(returnValue));
+            String returnType = this.nodeTypeMap.get(returnValue);
+            if (returnType != null) {
+                cluster.setReturnType(returnType);
+            }
+            else {
+                Expression node = (Expression) this.stringASTNodeMap.get(returnValue);
+                cluster.setReturnType(node.resolveTypeBinding().getName());
+            }
         }
         else {
             cluster.setReturnType(returnValue);
