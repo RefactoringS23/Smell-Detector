@@ -3,11 +3,10 @@ package cmu.csdetector;
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.heuristics.Cluster;
-import cmu.csdetector.heuristics.ClusterManager;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
-import cmu.csdetector.jqual.refactoringOperations.ExtractRefactoring;
+import cmu.csdetector.jqual.refactoringOperations.ExtractMethod;
 import cmu.csdetector.jqual.refactoringOperations.MoveRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
@@ -25,8 +24,6 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -156,7 +153,7 @@ public class JQualRefactorer {
 //                        TODO: move the extact opp setup to this class (refer any test)
                         //RefactoringOperation- INTERFACE
                         //ExtractRefactoring - Class extending above
-                        RefactoringOperation operation = new ExtractRefactoring();
+                        RefactoringOperation operation = new ExtractMethod(c, m);
 
 //                        TODO: implement getRecommendatin mehtod to get top 3 recommmnedations;
                         List<Cluster> suggestions = operation.getRecommendation();
@@ -212,7 +209,7 @@ public class JQualRefactorer {
 //                        TODO: move the extact opp setup to this class (refer any test)
                         //RefactoringOperation- INTERFACE
                         //ExtractRefactoring - Class extending above
-                        RefactoringOperation operation = new ExtractRefactoring();
+                        RefactoringOperation operation = new ExtractMethod(c, m);
 
 //                        TODO: implement getRecommendatin mehtod to get top recommmnedation ;
                         Cluster extractedMethod = operation.getFinalRecommendation();
