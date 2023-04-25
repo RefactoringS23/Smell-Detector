@@ -45,6 +45,8 @@ public class JQualRefactorer {
     public static final Integer MOVE = 2;
     public static final Integer EM = 3;
 
+    private int freshPrintCounter = 0;
+
     public static void main(String[] args) throws IOException{
         JQualRefactorer instance = new JQualRefactorer();
 
@@ -252,19 +254,23 @@ public class JQualRefactorer {
     }
 
     private void saveRecommendationsToFile(Recommendation r) throws IOException {
+
         try {
             ToolParameters parameters = ToolParameters.getInstance();
             File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
-            if (suggestionsFile.exists()) {
+    
+            if (suggestionsFile.exists() && freshPrintCounter == 0) {
                 suggestionsFile.delete();
             }
+            freshPrintCounter++;
+    
             BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile, true));
-
+    
             writer.write(r.getReadableString());
             writer.newLine();
-
+    
             System.out.println("Saving recommendations file...");
-
+    
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -291,10 +297,6 @@ public class JQualRefactorer {
             System.out.println("Invalid entry. try again !");
             getRefactoringOperation(allTypes);
         }
-
-
-
-
-    };
+    }
 
 }
