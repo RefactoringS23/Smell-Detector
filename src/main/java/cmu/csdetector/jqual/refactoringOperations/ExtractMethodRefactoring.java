@@ -17,11 +17,12 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class ExtractMethodRefactoring extends RefactoringOperation {
     private Cluster bestCluster;
-
     private List<Cluster> topClusters;
 
+    private final static int TOP_COUNT = 3;
     public ExtractMethodRefactoring(Type parentClass, Method candidateMethod) {
         super(parentClass, candidateMethod);
+        runOperation();
     }
 
     public Cluster getBestCluster() {
@@ -45,7 +46,8 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
             String parentClassName = super.parentClass.getBinding().getName();
             cm = new ClusterManager(targetMethod, parentClassName);
             blocks = getGrabManifestsBlock();
-            setTopClusters(cm.getBestClusters(blocks));
+            setTopClusters(cm.getBestClusters(blocks).subList(0,TOP_COUNT));
+            setBestCluster(getTopRecommendations().get(0));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -58,6 +60,10 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
     public void setBestCluster(Cluster bestCluster) {
         this.bestCluster = bestCluster;
     }
+    public void setTopClusters(List<Cluster> topClusters) {
+        this.topClusters = topClusters;
+    }
+
 
     public List<Cluster> getTopRecommendations() {
         return topClusters;

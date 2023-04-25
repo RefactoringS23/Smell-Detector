@@ -61,7 +61,6 @@ public class ClusterManager {
         this.prepareClustersForRanking();
         ClusterRanking.groupClusters(filteredClusters);
         List<Cluster> finalClusters = this.rankClusters();
-        setFinalCluster(finalClusters.get(0));
         return finalClusters;
     }
 

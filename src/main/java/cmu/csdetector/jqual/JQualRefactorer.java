@@ -76,7 +76,7 @@ public class JQualRefactorer {
 
         getRefactoringOperation(allTypes);
 
-//        saveSmellsFile(allTypes);
+        saveSmellsFile(allTypes);
 
         System.out.println(new Date());
 
@@ -139,7 +139,15 @@ public class JQualRefactorer {
             }
         }
         return false;
-    }
+    };
+    private boolean isBrainMethod(List<Smell> smells){
+        for(Smell s:smells){
+            if(s.getName() == SmellName.BrainMethod) {
+                return true;
+            }
+        }
+        return false;
+    };
     private boolean isFeatureEnvyPresent(List<Smell> smells){
         for(Smell s:smells){
             if(s.getName() == SmellName.FeatureEnvy) {
@@ -153,12 +161,12 @@ public class JQualRefactorer {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
-                    if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
-                        RefactoringOperation operation = new ExtractMethodRefactoring(c, m);
+                    if(isBrainMethod(methodSmells.get(m))){
+                        ExtractMethodRefactoring operation = new ExtractMethodRefactoring(c, m);
 
 //                        TODO: implement getTopRecommendatin mehtod to get top 3 recommmnedations;
-                            ExtractMethodRecommendation extractR = (ExtractMethodRecommendation) operation.getRecommendation();
-                            List<Cluster> suggestions =  extractR.getTopRecommendations();
+//                            ExtractMethodRecommendation extractR = (ExtractMethodRecommendation) operation.getRecommendation();
+                            List<Cluster> suggestions =  operation.getTopRecommendations();
                         for(Cluster s: suggestions){
                             Recommendation r = new ExtractMethodRecommendation(c,m,s);
                             printRecommendations(r);
@@ -201,16 +209,16 @@ public class JQualRefactorer {
                 for(Method m: c.getMethods()){
                     if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
 
-                        RefactoringOperation operation = new ExtractMethodRefactoring(c, m);
-                        Recommendation extractedMethod = operation.getRecommendation();
+                        ExtractMethodRefactoring operation1 = new ExtractMethodRefactoring(c, m);
+                        Recommendation extractedMethod = operation1.getRecommendation();
                         printRecommendations(extractedMethod);
                         saveRecommendationsToFile(extractedMethod);
 
 
 
-                        ExtractMethodRecommendation em = (ExtractMethodRecommendation) operation.getRecommendation();
+                        ExtractMethodRecommendation em = (ExtractMethodRecommendation) operation1.getRecommendation();
 
-                        RefactoringOperation operation2 = new MoveMethodRefactoring(em.getFinalCluster(), allTypes);
+                        RefactoringOperation operation2 = new MoveMethodRefactoring(null, operation1.getBestCluster(), allTypes);
 //                        TODO: implement getRecokomendation inside extractrecommendatin class
 
                         Recommendation r = operation2.getRecommendation();
