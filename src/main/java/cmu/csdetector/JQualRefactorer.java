@@ -155,13 +155,13 @@ public class JQualRefactorer {
                         List<Cluster> suggestions = operation.getRecommendation();
 
                         for(Cluster s: suggestions){
-                            Recommendation r = new ExtractMethodRecommendation(s);
+                            Recommendation r = new ExtractMethodRecommendation(c,m,s);
 
 //                            TODO: print user firendly recommendation of cluster
                             printRecommendations(r);
 
 //                        TODO: save text to output.json
-                            saveRecommendationToFile("EXTRACT METHOD", c, m, r);
+                            saveRecommendationToFile("EXTRACT METHOD", r);
                         }
 //
                     }
@@ -183,13 +183,13 @@ public class JQualRefactorer {
                 Type taregtClass = operation.getRecommendation();
 
 //                        TODO: write a recommendation interface
-                Recommendation r = new MoveMethodRecommendation(taregtClass)
+                Recommendation r = new MoveMethodRecommendation(c, m, taregtClass)
 
 //                        TODO: print user firendly recommendation of cluster
                 printRecommendations(r);
 
 //                        TODO: save text to output.json
-                saveRecommendationToFile("MOVE METHOD", c, m, r);
+                saveRecommendationToFile("MOVE METHOD", r);
             }
         }
 
@@ -222,12 +222,12 @@ public class JQualRefactorer {
                         Type taregtClass = operation2.getRecommendation();
 
 //                        TODO: write a recommendation interface
-                        Recommendation r = new MoveMethodRecommendation(taregtClass)
+                        Recommendation r = new MoveMethodRecommendation(c,m,taregtClass)
 //                        TODO: print user firendly recommendation of cluster
                         printRecommendations(taregtClass);
 
 //                        TODO: save text to output.json
-                        saveRecommendationToFile("MOVE METHOD", c, m, suggestions);
+                        saveRecommendationToFile("MOVE METHOD", r);
                     }
                 }
             }
@@ -250,11 +250,10 @@ public class JQualRefactorer {
         gson.toJson(smellyTypes, writer);
         writer.close();
     }
-
-    private void saveRecommendationToFile(Recommendation r) {
-        System.out.println(r);
-    }
-    private void saveRecommendationsFile() throws IOException {
+private void saveRecommendationToFile(String title, Recommendation r){
+//        TODO: sankalp
+}
+    private void saveRecommendationsFile(String ) throws IOException {
         ToolParameters parameters = ToolParameters.getInstance();
         File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
         BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile));
