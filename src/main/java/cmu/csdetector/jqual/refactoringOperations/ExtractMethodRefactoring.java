@@ -5,6 +5,7 @@ import cmu.csdetector.ast.visitors.IfBlockVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.heuristics.ClusterManager;
+import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
 import cmu.csdetector.resources.Type;
 import cmu.csdetector.resources.Method;
@@ -16,12 +17,18 @@ import java.util.Set;
 import java.util.SortedMap;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-public class ExtractMethod extends RefactoringOperation {
+public class ExtractMethodRefactoring extends RefactoringOperation {
 
-    public ExtractMethod(Type parentClass, Method candidateMethod) {
+    private Cluster bestCluster;
+
+    public ExtractMethodRefactoring(Type parentClass, Method candidateMethod) {
         super(parentClass, candidateMethod);
     }
 
+    public Cluster getBestCluster() {
+        return this.bestCluster;
+    }
+    
     private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
         MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
@@ -54,23 +61,27 @@ public class ExtractMethod extends RefactoringOperation {
         return blockLineNumberVisitor.getLineMap();
     }
 
-    public Cluster getBestCluster () throws ClassNotFoundException {
-        SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
-        Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations(); 
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
-        Set<Cluster> blocks = getGrabManifestsBlock();
-
-        return cm.getBestCluster(blocks);
+    @Override
+    public void runOperation() {
+        SortedMap<Integer, HashSet<String>> table = null;
+        Map<String, ASTNode> stringASTNodeMap = null;
+        Map<ASTNode, Integer> declaredVars = null;
+        ClusterManager cm = null;
+        Set<Cluster> blocks = null;
+        try {
+            table = getHashMapForClustering();
+            stringASTNodeMap = getStringASTNodeMap();
+            declaredVars = extractVariableDeclarations();
+            cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+            blocks = getGrabManifestsBlock();
+            this.bestCluster = cm.getBestCluster(blocks);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Recommendation getRecommendation() {
-        return null;
-    }
-
-    @Override
-    public void runOperation() {
-
+        return new ExtractMethodRecommendation(super.parentClass, super.candidateMethod, this.getBestCluster());
     }
 }
