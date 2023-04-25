@@ -157,13 +157,13 @@ public class JQualRefactorer {
                         RefactoringOperation operation = new ExtractMethodRefactoring(c, m);
 
 //                        TODO: implement getTopRecommendatin mehtod to get top 3 recommmnedations;
-//                        List<Cluster> suggestions = operation.getTopRecommendations();
-
-//                        for(Cluster s: suggestions){
-//                            Recommendation r = new ExtractMethodRecommendation(c,m,s);
-//                            printRecommendations(r);
-//                            saveRecommendationsToFile(r);
-//                        }
+                            ExtractMethodRecommendation extractR = (ExtractMethodRecommendation) operation.getRecommendation();
+                            List<Cluster> suggestions =  extractR.getTopRecommendations();
+                        for(Cluster s: suggestions){
+                            Recommendation r = new ExtractMethodRecommendation(c,m,s);
+                            printRecommendations(r);
+                            saveRecommendationsToFile(r);
+                        }
 //
                     }
                 }
@@ -206,12 +206,16 @@ public class JQualRefactorer {
                         printRecommendations(extractedMethod);
                         saveRecommendationsToFile(extractedMethod);
 
-//                        RefactoringOperation operation2 = new MoveMethodRefactoring(extractedMethod.getFinal());
+
+
+                        ExtractMethodRecommendation em = (ExtractMethodRecommendation) operation.getRecommendation();
+
+                        RefactoringOperation operation2 = new MoveMethodRefactoring(em.getFinalCluster());
 //                        TODO: implement getRecokomendation inside extractrecommendatin class
 
-//                        Recommendation r = operation2.getRecommendation();
-//                        printRecommendations(r);
-//                        saveRecommendationsToFile(r);
+                        Recommendation r = operation2.getRecommendation();
+                        printRecommendations(r);
+                        saveRecommendationsToFile(r);
                     }
                 }
             }

@@ -4,6 +4,9 @@ import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ExtractMethodRecommendation extends Recommendation {
 
     private Type type;
@@ -22,7 +25,10 @@ public class ExtractMethodRecommendation extends Recommendation {
             + cluster.getStartLineNumber() + " to " + cluster.getEndLineNumber() + " with the extracted method name " + cluster.getClusterName()
             + " with parameters " + "TODO_____________" + " and return type " + cluster.getReturnType();
     }
-
+    public List<Cluster> getTopRecommendations(){
+            List<Cluster> l = new ArrayList<>();
+            return l;
+    }
     @Override
     public String toString() {
         return "ExtractMethodRecommendation{" +
