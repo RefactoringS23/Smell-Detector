@@ -61,25 +61,25 @@ public class Customer {
     }
 
     // manually refactored
-    public double getAmount(double thisAmount, Rental each) {
-        switch (each.getTape().getMovie().priceCode()) {
-            case Movie.REGULAR:
-                thisAmount += 2;
-                if (each.daysRented() > 2)
-                    thisAmount += (each.daysRented() - 2) * 1.5;
-                break;
-            case Movie.NEW_RELEASE:
-                thisAmount += each.daysRented() * 3;
-                break;
-            case Movie.CHILDREN:
-                thisAmount += 1.5;
-                if (each.daysRented() > 3)
-                    thisAmount += (each.daysRented() - 3) * 1.5;
-                break;
-
-        }
-        return thisAmount;
-    }
+//    public double getAmount(double thisAmount, Rental each) {
+//        switch (each.getTape().getMovie().priceCode()) {
+//            case Movie.REGULAR:
+//                thisAmount += 2;
+//                if (each.daysRented() > 2)
+//                    thisAmount += (each.daysRented() - 2) * 1.5;
+//                break;
+//            case Movie.NEW_RELEASE:
+//                thisAmount += each.daysRented() * 3;
+//                break;
+//            case Movie.CHILDREN:
+//                thisAmount += 1.5;
+//                if (each.daysRented() > 3)
+//                    thisAmount += (each.daysRented() - 3) * 1.5;
+//                break;
+//
+//        }
+//        return thisAmount;
+//    }
 
     // manually refactored
     public int updateFrequentRenterPoints(Rental each, int frequentRenterPoints) {
