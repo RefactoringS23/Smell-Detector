@@ -250,17 +250,23 @@ public class JQualRefactorer {
         gson.toJson(smellyTypes, writer);
         writer.close();
     }
-private void saveRecommendationToFile(String title, Recommendation r){
-//        TODO: sankalp
-}
-    private void saveRecommendationsFile(String ) throws IOException {
-        ToolParameters parameters = ToolParameters.getInstance();
-        File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile));
-        System.out.println("Saving recommendations file...");
 
-//      TODO: write recommendations to file
-        writer.close();
+    private void saveRecommendationsFile(String recommendationString) throws IOException {
+        try {
+            ToolParameters parameters = ToolParameters.getInstance();
+            File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile, true));
+            
+            writer.write(recommendationString);
+            writer.newLine();
+
+            System.out.println("Saving recommendations file...");
+
+    //      TODO: write recommendations to file
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void getRefactoringOperation(){
