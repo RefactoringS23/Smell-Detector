@@ -1,10 +1,8 @@
 package cmu.csdetector.heuristics;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import java.lang.Math;
-import java.util.SortedMap;
 
 public class ClusterRanking {
 

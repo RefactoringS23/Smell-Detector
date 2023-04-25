@@ -18,9 +18,6 @@ import java.util.SortedMap;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class ExtractMethodRefactoring extends RefactoringOperation {
-
-
-
     private Cluster bestCluster;
 
     public ExtractMethodRefactoring(Type parentClass, Method candidateMethod) {
@@ -31,31 +28,6 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
         return this.bestCluster;
     }
 
-    
-    private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
-        MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
-        IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
-        targetMethod.accept(ifBlockVisitor);
-        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
-        targetMethod.accept(statementObjectsVisitor);
-        return statementObjectsVisitor.getHeuristicMap();
-    }
-
-    private Map<String, ASTNode> getStringASTNodeMap() throws ClassNotFoundException {
-        MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
-        IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
-        targetMethod.accept(ifBlockVisitor);
-        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
-        targetMethod.accept(statementObjectsVisitor);
-        return statementObjectsVisitor.getNodeNameMap();
-    }
-
-    private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
-        MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
-        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
-        targetMethod.accept(statementObjectsVisitor);
-        return statementObjectsVisitor.getNodesDeclared();
-    }
 
     private Set<Cluster> getGrabManifestsBlock() throws ClassNotFoundException {
         MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
@@ -66,16 +38,12 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
 
     @Override
     public void runOperation() {
-        SortedMap<Integer, HashSet<String>> table = null;
-        Map<String, ASTNode> stringASTNodeMap = null;
-        Map<ASTNode, Integer> declaredVars = null;
         ClusterManager cm = null;
         Set<Cluster> blocks = null;
         try {
-            table = getHashMapForClustering();
-            stringASTNodeMap = getStringASTNodeMap();
-            declaredVars = extractVariableDeclarations();
-            cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+            MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
+            String parentClassName = super.parentClass.getBinding().getName();
+            cm = new ClusterManager(targetMethod, parentClassName);
             blocks = getGrabManifestsBlock();
             setBestCluster(cm.getBestCluster(blocks));
         } catch (ClassNotFoundException e) {

@@ -22,8 +22,8 @@ public class ExtractMethodRecommendation extends Recommendation {
     public String getReadableString() {
         // TODO: cluster.getMissingVars() is a Set<ASTNode>, need to convert to String
         return "EXTRACT METHOD: Inside class " + type.getFullyQualifiedName() + " Inside Method " + method.getFullyQualifiedName() + " from "
-            + cluster.getStartLineNumber() + " to " + cluster.getEndLineNumber() + " with the extracted method name " + cluster.getClusterName()
-            + " with parameters " + "TODO_____________" + " and return type " + cluster.getReturnType();
+            + cluster.getStartLineNumber() + " to " + cluster.getEndLineNumber() + " with the extracted method name " + cluster.getMethodName()
+            + " with parameters " + cluster.getMissingVars() + " and return type " + cluster.getReturnType();
     }
     public List<Cluster> getTopRecommendations(){
             List<Cluster> l = new ArrayList<>();
