@@ -1,4 +1,4 @@
-package cmu.csdetector;
+package cmu.csdetector.jqual;
 
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
