@@ -31,19 +31,24 @@ public class ClusterManager {
 
     public ClusterManager(MethodDeclaration md, String declaringClassName) {
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
+        md.accept(ifBlockVisitor);
+
         loopSet = ifBlockVisitor.getLoopStartEnd();
         breakSet = ifBlockVisitor.getBreakSet();
-        md.accept(ifBlockVisitor);
+
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
         md.accept(statementObjectsVisitor);
+
         this.statementObjectsMap = statementObjectsVisitor.getHeuristicMap();
         this.stringASTNodeMap = statementObjectsVisitor.getNodeNameMap();
         this.nodesDeclared = statementObjectsVisitor.getNodesDeclared();
         this.declaringClassName = declaringClassName;
         this.loopSet = ifBlockVisitor.getLoopStartEnd();
         this.breakSet = ifBlockVisitor.getBreakSet();
+
         AssignmentVisitor assignmentVisitor = new AssignmentVisitor(ifBlockVisitor.getSpecialLine());
         md.accept(assignmentVisitor);
+
         this.nodeTypeMap = assignmentVisitor.getNodeTypeMap();
         this.assignmentVariables = assignmentVisitor.getLineMap();
     }
@@ -88,12 +93,9 @@ public class ClusterManager {
         return access;
     }
 
-    // TODO: missing vars logic is incorrect
     private void setMissingVarsForValidCluster(Cluster cluster) {
         Set<ASTNode> requiredAttributes = new HashSet<>();
         for (ASTNode n : cluster.getAccessedVariables()) {
-            // ERROR: this.nodesDeclared.get(n) is always null
-
             if(n.getNodeType() == ASTNode.SIMPLE_NAME) {
                 SimpleName variable = (SimpleName) n;
                 String variableParentClassName = ((SimpleName) n).resolveTypeBinding().getTypeDeclaration().getName();
