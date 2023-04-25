@@ -1,14 +1,14 @@
 package cmu.csdetector.heuristics;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClusterManager {
 
-    private Map<ASTNode, Integer> nodesDeclared;
+    private Map<String, Integer> nodesDeclared;
     private SortedMap<Integer, HashSet<String>> statementObjectsMap;
 
     private Map<String, ASTNode> stringASTNodeMap;
@@ -40,7 +40,7 @@ public class ClusterManager {
     public void setLoopSet(Set<List<Integer>> loopSet) {
         this.loopSet = loopSet;
     }
-    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<ASTNode, Integer> variableDeclarations, String declaringClassName) {
+    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<String, Integer> variableDeclarations, String declaringClassName) {
         this.statementObjectsMap = statementObjectsMap;
         this.stringASTNodeMap = stringASTNodeMap;
         this.nodesDeclared = variableDeclarations;
@@ -92,10 +92,15 @@ public class ClusterManager {
         Set<ASTNode> requiredAttributes = new HashSet<>();
         for (ASTNode n : cluster.getAccessedVariables()) {
             // ERROR: this.nodesDeclared.get(n) is always null
-            if (this.nodesDeclared.get(n) == null || this.nodesDeclared.get(n) < cluster.getStartLine().getLineNumber() || this.nodesDeclared.get(n) > cluster.getEndLine().getLineNumber()) {
-                //n is not a local class obj
 
-                requiredAttributes.add(n);
+            if(n.getNodeType() == ASTNode.SIMPLE_NAME) {
+                SimpleName variable = (SimpleName) n;
+                String variableParentClassName = ((SimpleName) n).resolveTypeBinding().getTypeDeclaration().getName();
+                if(variableParentClassName != cluster.getParentClassName() && variable.getParent().getNodeType() != ASTNode.QUALIFIED_NAME) {
+                    if (this.nodesDeclared.get(variable.getIdentifier()) == null || this.nodesDeclared.get(variable.getIdentifier()) < cluster.getStartLine().getLineNumber() ) {
+                        requiredAttributes.add(n);
+                    }
+                }
             }
         }
         cluster.setMissingVars(requiredAttributes);

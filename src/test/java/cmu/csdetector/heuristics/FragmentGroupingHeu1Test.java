@@ -45,11 +45,13 @@ public class FragmentGroupingHeu1Test {
 
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
         Map<String, List<Integer>> assignedVars = extractReturnMap();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         cm.setAssignmentVariables(assignedVars);
         cm.setNodeTypeMap(nodeTypeMap);
         cm.setBreakSet(breakSet);
@@ -99,10 +101,12 @@ public class FragmentGroupingHeu1Test {
 
     @Test
     public void canRankClusters() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
@@ -116,10 +120,12 @@ public class FragmentGroupingHeu1Test {
     }
     @Test
     public void moveMethodForExtractMethod() throws ClassNotFoundException {
+        Type type = getType("testFile");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
@@ -175,7 +181,7 @@ public class FragmentGroupingHeu1Test {
         return statementObjectsVisitor.getHeuristicMap();
     };
 
-    private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
+    private  Map<String, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
         Type type = getType("testFile");
         Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();

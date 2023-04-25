@@ -49,7 +49,7 @@ public class FragmentGroupingTest {
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
         Map<String, List<Integer>> assignedVars = extractReturnMap();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         cm.setAssignmentVariables(assignedVars);
@@ -103,7 +103,7 @@ public class FragmentGroupingTest {
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
@@ -122,7 +122,7 @@ public class FragmentGroupingTest {
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
-        Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
+        Map<String, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
@@ -179,7 +179,7 @@ public class FragmentGroupingTest {
         return statementObjectsVisitor.getHeuristicMap();
     };
 
-    private  Map<ASTNode, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
+    private  Map<String, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
         Type type = getType("Customer");
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
