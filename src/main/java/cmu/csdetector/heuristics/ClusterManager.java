@@ -1,6 +1,10 @@
 package cmu.csdetector.heuristics;
 
+import cmu.csdetector.ast.visitors.AssignmentVisitor;
+import cmu.csdetector.ast.visitors.IfBlockVisitor;
+import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 import java.util.*;
@@ -25,26 +29,28 @@ public class ClusterManager {
     private Set<Integer> breakSet;
     private  Set<List<Integer>> loopSet;
 
-    public void setNodeTypeMap( Map<String, String> nodeTypeMap ) {
-        this.nodeTypeMap = nodeTypeMap;
-    }
+    public ClusterManager(MethodDeclaration md, String declaringClassName) {
+        IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
+        md.accept(ifBlockVisitor);
 
-    public void setAssignmentVariables(Map<String, List<Integer>> assignmentVariables) {
-        this.assignmentVariables = assignmentVariables;
-    }
+        loopSet = ifBlockVisitor.getLoopStartEnd();
+        breakSet = ifBlockVisitor.getBreakSet();
 
-    public void setBreakSet(Set<Integer> breakSet) {
-        this.breakSet = breakSet;
-    }
+        StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
+        md.accept(statementObjectsVisitor);
 
-    public void setLoopSet(Set<List<Integer>> loopSet) {
-        this.loopSet = loopSet;
-    }
-    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<String, Integer> variableDeclarations, String declaringClassName) {
-        this.statementObjectsMap = statementObjectsMap;
-        this.stringASTNodeMap = stringASTNodeMap;
-        this.nodesDeclared = variableDeclarations;
+        this.statementObjectsMap = statementObjectsVisitor.getHeuristicMap();
+        this.stringASTNodeMap = statementObjectsVisitor.getNodeNameMap();
+        this.nodesDeclared = statementObjectsVisitor.getNodesDeclared();
         this.declaringClassName = declaringClassName;
+        this.loopSet = ifBlockVisitor.getLoopStartEnd();
+        this.breakSet = ifBlockVisitor.getBreakSet();
+
+        AssignmentVisitor assignmentVisitor = new AssignmentVisitor(ifBlockVisitor.getSpecialLine());
+        md.accept(assignmentVisitor);
+
+        this.nodeTypeMap = assignmentVisitor.getNodeTypeMap();
+        this.assignmentVariables = assignmentVisitor.getLineMap();
     }
 
     public Cluster getBestCluster(Set<Cluster> blocks) {
@@ -87,12 +93,9 @@ public class ClusterManager {
         return access;
     }
 
-    // TODO: missing vars logic is incorrect
     private void setMissingVarsForValidCluster(Cluster cluster) {
         Set<ASTNode> requiredAttributes = new HashSet<>();
         for (ASTNode n : cluster.getAccessedVariables()) {
-            // ERROR: this.nodesDeclared.get(n) is always null
-
             if(n.getNodeType() == ASTNode.SIMPLE_NAME) {
                 SimpleName variable = (SimpleName) n;
                 String variableParentClassName = ((SimpleName) n).resolveTypeBinding().getTypeDeclaration().getName();
