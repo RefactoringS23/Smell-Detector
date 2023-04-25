@@ -18,6 +18,7 @@ public class Customer {
         Iterator<Rental> rentals = this.rentals.iterator();
         String result = "Rental Record for " + name + "\n";
 
+        each, thismaoutn, childeren, regaulrs, new release,
         while (rentals.hasNext()) {
             double thisAmount = 0;
             Rental each = rentals.next();

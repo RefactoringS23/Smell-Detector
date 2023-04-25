@@ -16,12 +16,11 @@ public class ExtractMethodRecommendation extends Recommendation {
         this.cluster = cluster;
     }
 
-    @Override
-    protected String getReadableString() {
+    public String getReadableString() {
         // TODO: cluster.getMissingVars() is a Set<ASTNode>, need to convert to String
         return "EXTRACT METHOD: Inside class " + type.getFullyQualifiedName() + " Inside Method " + method.getFullyQualifiedName() + " from "
             + cluster.getStartLineNumber() + " to " + cluster.getEndLineNumber() + " with the extracted method name " + cluster.getClusterName()
-            + " with parameters " + cluster.getMissingVars() + " and return type " + cluster.getReturnType();
+            + " with parameters " + "TODO_____________" + " and return type " + cluster.getReturnType();
     }
 
     @Override

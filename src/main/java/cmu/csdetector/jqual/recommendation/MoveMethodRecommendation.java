@@ -23,5 +23,6 @@ public class MoveMethodRecommendation extends Recommendation {
         s.append(method.getFullyQualifiedName() + " ");
         s.append("Target Class -");
         s.append(target);
+        return s.toString();
     };
 }
