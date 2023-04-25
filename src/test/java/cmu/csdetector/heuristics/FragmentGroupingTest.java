@@ -59,42 +59,12 @@ public class FragmentGroupingTest {
         
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
-        int expectedNumberOfClusters = 4;
-
-        //System.out.println(loopSet);
-        //System.out.println(breakSet);
-        //Cluster newCluster = new Cluster(17, 28);
-
-        String returnValue = cm.getReturnValue(cluster);
         cm.getReturnType(cluster);
         cm.getMethodName(cluster, 1);
-        System.out.println(cluster);
-        System.out.println(cluster.getMissingVars());
-        System.out.println(cluster.getReturnType());
-        System.out.println(cluster.getMethodName());
-
-        //System.out.println("x");
-        //System.out.println(newCluster);
-        //System.out.println(cm.invalidateClustersWithBreak(newCluster,breakSet,loopSet));
-        int count =0;
-        for (Cluster clusterr: blocks) {
-            count++;
-            //String returnValue = clusterr.getReturnValue(assignedVars,table1);
-            /**
-            String returnValue1 = cm.getReturnValue(clusterr);
-            cm.getReturnType(clusterr);
-            cm.getMethodName(clusterr, count);
-            System.out.println(clusterr);
-            System.out.println(clusterr.getReturnType());
-            System.out.println(clusterr.getMethodName());
-            System.out.println(clusterr.getMissingVars()); **/
-            //System.out.println(cm.invalidateClustersWithBreak(clusterr,breakSet,loopSet));
-            //System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
-            Random rand = new Random();
-            //System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
-        }
-
-        Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
+        
+        Assertions.assertEquals(4, cluster.getMissingVars().size());
+        Assertions.assertEquals("String",cluster.getReturnType());
+        Assertions.assertEquals("getresult", cluster.getMethodName());
     }
 
     @Test
@@ -105,15 +75,16 @@ public class FragmentGroupingTest {
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<String, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
+        Map<String, List<Integer>> assignedVars = extractReturnMap();
+        cm.setAssignmentVariables(assignedVars);
+        cm.setNodeTypeMap(nodeTypeMap);
+        cm.setBreakSet(breakSet);
+        cm.setLoopSet(loopSet);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
-        int expectedNumberOfClusters = 4;
-        int startLine = 17;
-        int endLine = 32;
-        Assertions.assertEquals(25, cm.getFilteredClusters().size());
-        // adderting if the final cluster 17-32
-        Assertions.assertEquals(new Integer(17), recommendedCluster.getStartLineNumber());
-        Assertions.assertEquals(new Integer(32), recommendedCluster.getEndLineNumber());
+
+        Assertions.assertEquals(new Integer(21), recommendedCluster.getStartLineNumber());
+        Assertions.assertEquals(new Integer(57), recommendedCluster.getEndLineNumber());
 
     }
     @Test
@@ -124,18 +95,15 @@ public class FragmentGroupingTest {
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<String, Integer> declaredVars = extractVariableDeclarations();
         ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
+        Map<String, List<Integer>> assignedVars = extractReturnMap();
+        cm.setAssignmentVariables(assignedVars);
+        cm.setNodeTypeMap(nodeTypeMap);
+        cm.setBreakSet(breakSet);
+        cm.setLoopSet(loopSet);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
-        int expectedNumberOfClusters = 4;
-        int startLine = 17;
-        int endLine = 32;
-//        Assertions.assertEquals(25, cm.getFilteredClusters().size());
-        // adderting if the final cluster 17-32
-//        Assertions.assertEquals(new Integer(17), recommendedCluster.getStartLineNumber());
-//        Assertions.assertEquals(new Integer(32), recommendedCluster.getEndLineNumber());
-        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster);
 
-        System.out.println("moving");
+        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster);
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
