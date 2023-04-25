@@ -26,6 +26,8 @@ public class FragmentGroupingTest {
     private static SortedMap<Integer, HashSet<String>> table1;
 
     private static Map<String, String> nodeTypeMap;
+    private static Set<Integer> breakSet;
+    private static Set<List<Integer>> loopSet;
 
     @BeforeAll
     public static void setUp() throws IOException {
@@ -36,6 +38,8 @@ public class FragmentGroupingTest {
         moviewtypes = TypeLoader.loadAllFromDir(moview);
         table1 = new TreeMap<Integer, HashSet<String>>();
         nodeTypeMap = new HashMap<>();
+        breakSet = new HashSet<>();
+        loopSet = new HashSet<>();
         GenericCollector.collectAll(types);
     }
 
@@ -50,14 +54,19 @@ public class FragmentGroupingTest {
         Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
 
+        System.out.println(loopSet);
+        System.out.println(breakSet);
+        Cluster newCluster = new Cluster(16, 32);
+        System.out.println("x");
+        System.out.println(newCluster);
+        System.out.println(cm.invalidateClustersWithBreak(newCluster,breakSet,loopSet));
         for (Cluster clusterr: blocks) {
-            String returnValue = clusterr.getReturnValue(assignedVars,table1);
-            //System.out.println(returnValue);
-            //cluster.getReturnType(nodeTypeMap, returnValue);
-            System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
+            //String returnValue = clusterr.getReturnValue(assignedVars,table1);
+            System.out.println(clusterr);
+            System.out.println(cm.invalidateClustersWithBreak(clusterr,breakSet,loopSet));
+            //System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
             Random rand = new Random();
-            //cluster.getMethodName(returnValue, rand.nextInt());
-            System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
+            //System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
         }
 
         Assertions.assertEquals(expectedNumberOfClusters, cm.getFilteredClusters().size());
@@ -133,6 +142,8 @@ public class FragmentGroupingTest {
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
+        loopSet = ifBlockVisitor.getLoopStartEnd();
+        breakSet = ifBlockVisitor.getBreakSet();
         targetMethod.accept(ifBlockVisitor);
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
         targetMethod.accept(statementObjectsVisitor);

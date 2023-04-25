@@ -164,6 +164,44 @@ public class ClusterManager {
         return filteredClusters;
     }
 
+    public boolean invalidateClustersWithBreak(Cluster cluster, Set<Integer> breakSet, Set<List<Integer>> loopSet) {
+        Set<Integer> breakSetInside = new HashSet<Integer>();
+        Set<List<Integer>> loopSetInside = new HashSet<List<Integer>>();
+
+        for(int i: breakSet) {
+            if(i>=cluster.getStartLineNumber() && i<= cluster.getEndLineNumber()){
+                breakSetInside.add(i);
+            }
+        }
+
+        for(List<Integer> ind : loopSet) {
+            if(ind.get(0) >= cluster.getStartLineNumber() && ind.get(1)<= cluster.getEndLineNumber()) {
+                loopSetInside.add(ind);
+            }
+        }
+
+        Set<Integer> countOfParentLoop = new HashSet<Integer>();
+
+        for (int i: breakSetInside){
+            if(loopSetInside.size()<1){
+                return true;
+            }
+            int count = 0;
+            for(List<Integer> ind : loopSet) {
+                if(ind.get(0) <= i && ind.get(1)>=i) {
+                    count = count + 1;
+                }
+            }
+            countOfParentLoop.add(count);
+        }
+
+        if(countOfParentLoop.size()>0) {
+            return (countOfParentLoop.contains(0));
+        }
+
+        return false;
+    }
+
     private void setAccessedVariablesForValidClusters(Set<Cluster> validClusters) {
         for (Cluster cluster : validClusters) {
             Set<ASTNode> accessedVariables = getListOfAccessedVariables(cluster.getStartLineNumber(), cluster.getEndLineNumber());
