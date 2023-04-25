@@ -21,8 +21,6 @@ public class ClusterManager {
 
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
-    private Set<Cluster> allClusters;
-    private Set<Cluster> mergedClusters;
     private Set<Cluster> filteredClusters;
     private Map<String, String> nodeTypeMap;
     private Map<String, List<Integer>> assignmentVariables;
@@ -30,11 +28,13 @@ public class ClusterManager {
     private  Set<List<Integer>> loopSet;
 
     public ClusterManager(MethodDeclaration md, String declaringClassName) {
+        this.declaringClassName = declaringClassName;
+        
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         md.accept(ifBlockVisitor);
 
-        loopSet = ifBlockVisitor.getLoopStartEnd();
-        breakSet = ifBlockVisitor.getBreakSet();
+        this.loopSet = ifBlockVisitor.getLoopStartEnd();
+        this.breakSet = ifBlockVisitor.getBreakSet();
 
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor(ifBlockVisitor.getIfMap());
         md.accept(statementObjectsVisitor);
@@ -42,9 +42,6 @@ public class ClusterManager {
         this.statementObjectsMap = statementObjectsVisitor.getHeuristicMap();
         this.stringASTNodeMap = statementObjectsVisitor.getNodeNameMap();
         this.nodesDeclared = statementObjectsVisitor.getNodesDeclared();
-        this.declaringClassName = declaringClassName;
-        this.loopSet = ifBlockVisitor.getLoopStartEnd();
-        this.breakSet = ifBlockVisitor.getBreakSet();
 
         AssignmentVisitor assignmentVisitor = new AssignmentVisitor(ifBlockVisitor.getSpecialLine());
         md.accept(assignmentVisitor);
@@ -54,9 +51,9 @@ public class ClusterManager {
     }
 
     public Cluster getBestCluster(Set<Cluster> blocks) {
-        allClusters = makeClusters();
-        mergedClusters = createMergedClusters();
-        filteredClusters = filterValidClusters(blocks);
+        Set<Cluster> baseClusters = makeClusters();
+        Set<Cluster> allClusters = createMergedClusters(baseClusters);
+        this.filterValidClusters(allClusters, blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
         ClusterRanking.groupClusters(filteredClusters);
@@ -222,11 +219,12 @@ public class ClusterManager {
         return sortedLines;
     }
 
-    private Set<Cluster> createMergedClusters() {
-        Set<Cluster> mergeCandidates = new HashSet<>(this.allClusters);
+    private Set<Cluster> createMergedClusters(Set<Cluster> baseClusters) {
+        Set<Cluster> mergeCandidates = baseClusters;
         Set<Cluster> finalClusters = mergeCandidates;
         Set<Cluster> newClusters = new HashSet<>();
-        do {
+
+        while (mergeCandidates.size() > 0) {
             List<ClusterLine> sortedLines = convertListOfClusterObjectsToSortedList(mergeCandidates);
             List<ClusterLine> currentOpenClusters = new ArrayList<>();
 
@@ -244,21 +242,21 @@ public class ClusterManager {
             finalClusters.addAll(newClusters);
             newClusters = new HashSet<>();
 
-        } while (mergeCandidates.size() > 0);
+        }
 
         return finalClusters;
     }
 
 
-    private Set<Cluster> filterValidClusters(Set<Cluster> blocks) {
-        Set<Cluster> filteredClusters = new HashSet<>();
+    private Set<Cluster> filterValidClusters(Set<Cluster> mergedClusters, Set<Cluster> blocks) {
+        filteredClusters = new HashSet<>();
         for (Cluster cluster : mergedClusters) {
             // step 1 : find smallest block that contains this cluster
             Cluster smallestBlock = findSmallestBlockContainingThisCluster(cluster, blocks);
             if (smallestBlock == null) continue;
             // step 2: find every sub block of the smallest block
             Set<Cluster> subBlocks = findSubBlocksOfBlock(smallestBlock, blocks);
-            // step 3: check that endLine is not in any of the sub blocks
+            // step 3: check that startLine and endLine are not in any of the sub blocks
             if (!startLineIsInSubBlocks(cluster.getStartLineNumber(), subBlocks) &&
                     !endLineIsInSubBlocks(cluster.getEndLineNumber(), subBlocks)) {
                 if(!invalidateClustersWithBreak(cluster) && getReturnValue(cluster) != "invalid"){
