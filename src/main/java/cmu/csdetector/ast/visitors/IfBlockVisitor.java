@@ -104,12 +104,19 @@ public class IfBlockVisitor extends ASTVisitor {
     @Override
     public boolean visit(SwitchCase node) {
         specialLine.add(getStartLineNumber(node));
+        return true;
+    }
+
+    @Override
+    public boolean visit(SwitchStatement node) {
+        specialLine.add(getStartLineNumber(node));
         List<Integer> lines = new ArrayList<>();
         lines.add(getStartLineNumber(node));
         lines.add(getEndLineNumber(node));
         loopStartEnd.add(lines);
         return true;
     }
+
 
     @Override
     public boolean visit(WhileStatement node) {
