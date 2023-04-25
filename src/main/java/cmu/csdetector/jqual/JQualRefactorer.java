@@ -8,6 +8,7 @@ import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
 import cmu.csdetector.jqual.refactoringOperations.ExtractRefactoring;
+import cmu.csdetector.jqual.refactoringOperations.MoveMethodRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.MoveRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
@@ -27,6 +28,8 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -72,7 +75,7 @@ public class JQualRefactorer {
 
         detectSmells(allTypes);
 
-        getRefactoringOperation();
+        getRefactoringOperation(allTypes);
 
 //        saveSmellsFile(allTypes);
 
@@ -147,7 +150,7 @@ public class JQualRefactorer {
         return false;
     }
 
-    private  void findExtractMethodOpportunities() throws IOException {
+    private  void findExtractMethodOpportunities(List<Type> allTypes) throws IOException {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
@@ -177,14 +180,13 @@ public class JQualRefactorer {
         }
     }
 
-    private  void findMovetMethodOpportunities() throws IOException {
+    private  void findMovetMethodOpportunities(List<Type> allTypes) throws IOException {
         for(Method m: methodSmells.keySet()){
             if(isFeatureEnvyPresent(methodSmells.get(m)){
 
-//                        TODO: move the extact opp setup to this class (refer any test)
-                //RefactoringOperation- INTERFACE
-                //ExtractRefactoring - Class extending above
-                RefactoringOperation operation = new MoveRefactoring();
+                MethodDeclaration declaration = (MethodDeclaration) m.getNode();
+                IMethodBinding binding = declaration.resolveBinding();
+                RefactoringOperation operation = new MoveMethodRefactoring((Type) binding.getDeclaringClass(), m, allTypes);
 
 //                        TODO: implement getRecommendatin mehtod to get top target class;
                 Type taregtClass = operation.getRecommendation();
@@ -282,7 +284,7 @@ public class JQualRefactorer {
         }
     }
 
-    private void getRefactoringOperation(){
+    private void getRefactoringOperation(List<Type> allTypes){
         Scanner reader = new Scanner(System.in);  // Reading from System.in
         System.out.println("What refactoring operation do you want to run on selected project ?");
         System.out.println("Select 1 for Extract Method");
@@ -291,10 +293,10 @@ public class JQualRefactorer {
         int n = reader.nextInt();
         if(n==EXTRACT){
             System.out.println("Finding Extract opportunitites ....");
-            findExtractMethodOpportunities();
+            findExtractMethodOpportunities(allTypes);
         } else if(n==MOVE){
             System.out.println("Finding Move opportunitites ....");
-            findExtractMethodOpportunities();
+            findExtractMethodOpportunities(allTypes);
         } else if(n==EM){
             System.out.println("Finding Extract and Move opportunitites ....");
             findExtractMoveMethodOpportunities();

@@ -1,5 +1,10 @@
 package cmu.csdetector.jqual.refactoringOperations;
 
+import cmu.csdetector.heuristics.Cluster;
+
+import java.util.HashSet;
+import java.util.SortedMap;
+
 public class ExtractRefactoring extends RefactoringOperation {
 
 
