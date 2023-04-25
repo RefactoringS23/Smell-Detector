@@ -28,6 +28,10 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
     public Cluster getBestCluster() {
         return this.bestCluster;
     }
+
+    public void setBestCluster(Cluster bestCluster) {
+        this.bestCluster = bestCluster;
+    }
     
     private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
         MethodDeclaration targetMethod = (MethodDeclaration) super.candidateMethod.getNode();
@@ -74,7 +78,7 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
             declaredVars = extractVariableDeclarations();
             cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
             blocks = getGrabManifestsBlock();
-            this.bestCluster = cm.getBestCluster(blocks);
+            setBestCluster(cm.getBestCluster(blocks));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
