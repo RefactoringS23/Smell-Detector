@@ -17,12 +17,15 @@ public class MoveMethodRecommendation extends Recommendation {
     public String getReadableString(){
         StringBuilder s = new StringBuilder();
         s.append("MOVE METHOD:");
+        s.append("\n");
         s.append("Source Class - ");
         s.append(parent.getFullyQualifiedName() + " | ");
         s.append("Method Name -");
         s.append(method.getFullyQualifiedName() + " | ");
         s.append("Target Class -");
         s.append(target);
+        s.append("\n********************************************\n");
+
         return s.toString();
     };
 }
