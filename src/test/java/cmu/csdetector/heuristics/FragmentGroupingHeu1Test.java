@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class FragmentGroupingTest {
+public class FragmentGroupingHeu1Test {
 
     private static List<Type> types;
     private static List<Type> moviewtypes;
@@ -31,8 +31,8 @@ public class FragmentGroupingTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
-        File moview = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
+        File moview = new File("src/test/java/cmu/csdetector/dummy/heu1");
 
         types = TypeLoader.loadAllFromDir(dir);
         moviewtypes = TypeLoader.loadAllFromDir(moview);
@@ -45,7 +45,7 @@ public class FragmentGroupingTest {
 
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
-        Type type = getType("Customer");
+        Type type = getType("testFile");
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
@@ -56,7 +56,6 @@ public class FragmentGroupingTest {
         cm.setNodeTypeMap(nodeTypeMap);
         cm.setBreakSet(breakSet);
         cm.setLoopSet(loopSet);
-        
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
@@ -68,10 +67,11 @@ public class FragmentGroupingTest {
         String returnValue = cm.getReturnValue(cluster);
         cm.getReturnType(cluster);
         cm.getMethodName(cluster, 1);
+
         System.out.println(cluster);
         System.out.println(cluster.getMissingVars());
         System.out.println(cluster.getReturnType());
-        System.out.println(cluster.getMethodName());
+        System.out.println(cluster.getMethodName()); 
 
         //System.out.println("x");
         //System.out.println(newCluster);
@@ -88,7 +88,9 @@ public class FragmentGroupingTest {
             System.out.println(clusterr.getReturnType());
             System.out.println(clusterr.getMethodName());
             System.out.println(clusterr.getMissingVars()); **/
-            //System.out.println(cm.invalidateClustersWithBreak(clusterr,breakSet,loopSet));
+
+            //System.out.println(clusterr);
+            //System.out.println(cm.invalidateClustersWithBreak(clusterr));
             //System.out.println(clusterr.getReturnType(nodeTypeMap, returnValue));
             Random rand = new Random();
             //System.out.println(clusterr.getMethodName(returnValue, rand.nextInt()));
@@ -99,7 +101,7 @@ public class FragmentGroupingTest {
 
     @Test
     public void canRankClusters() throws ClassNotFoundException {
-        Type type = getType("Customer");
+        Type type = getType("testFile");
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
@@ -118,7 +120,7 @@ public class FragmentGroupingTest {
     }
     @Test
     public void moveMethodForExtractMethod() throws ClassNotFoundException {
-        Type type = getType("Customer");
+        Type type = getType("testFile");
         String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
@@ -156,8 +158,8 @@ public class FragmentGroupingTest {
     }
 
     private Map<String, ASTNode> getStringASTNodeMap() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         targetMethod.accept(ifBlockVisitor);
@@ -167,8 +169,8 @@ public class FragmentGroupingTest {
     }
 
     private SortedMap<Integer, HashSet<String>> getHashMapForClustering() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         loopSet = ifBlockVisitor.getLoopStartEnd();
@@ -180,8 +182,8 @@ public class FragmentGroupingTest {
     };
 
     private  Map<String, Integer>  extractVariableDeclarations() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         StatementObjectsVisitor statementObjectsVisitor = new StatementObjectsVisitor();
         targetMethod.accept(statementObjectsVisitor);
@@ -189,8 +191,8 @@ public class FragmentGroupingTest {
     }
 
     private  Map<String, List<Integer>>  extractReturnMap() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         IfBlockVisitor visitor =  new IfBlockVisitor();
         targetMethod.accept(visitor);
@@ -210,8 +212,8 @@ public class FragmentGroupingTest {
     }
 
     private Set<Cluster> getGrabManifestsBlock() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
+        Type type = getType("testFile");
+        Method target = getMethod(type, "grabManifests");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         BlockLineNumberVisitor blockLineNumberVisitor = new BlockLineNumberVisitor();
         targetMethod.accept(blockLineNumberVisitor);
