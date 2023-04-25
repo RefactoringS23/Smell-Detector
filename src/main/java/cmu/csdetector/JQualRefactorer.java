@@ -2,7 +2,10 @@ package cmu.csdetector;
 
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
+import cmu.csdetector.heuristics.Cluster;
+import cmu.csdetector.heuristics.ClusterManager;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
+import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
@@ -16,16 +19,22 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class JQualRefactorer {
+    private Map<Type, List<Smell>> classSmells = new HashMap<>();
+    private Map<Method, List<Smell>> methodSmells = new HashMap<>();
+
+    private static final Integer CC_THRESHOLD = 6;
+    public static final Integer EXTRACT = 1;
+    public static final Integer MOVE = 2;
+    public static final Integer EM = 3;
 
     public static void main(String[] args) throws IOException{
         JQualRefactorer instance = new JQualRefactorer();
@@ -55,6 +64,8 @@ public class JQualRefactorer {
         collectTypeMetrics(allTypes);
 
         detectSmells(allTypes);
+
+        getRefactoringOperation();
 
 //        saveSmellsFile(allTypes);
 
@@ -98,6 +109,8 @@ public class JQualRefactorer {
             for(Method method : type.getMethods()) {
                 List<Smell> smells = methodLevelSmellDetector.detect(method);
                 method.addAllSmells(smells);
+                methodSmells.put(method, smells);
+
             }
 
             // Some class-level smell detectors rely on method-level smells as part of their detection
@@ -105,9 +118,7 @@ public class JQualRefactorer {
             List<Smell> smells = classLevelSmellDetector.detect(type);
 
             type.addAllSmells(smells);
-            if(isComplexClass(smells)){
-                complexClassList.add(type);
-            };
+            classSmells.put(type, smells);
             System.out.println(complexClassList);
         }
     }
@@ -119,6 +130,62 @@ public class JQualRefactorer {
             }
         }
         return false;
+    }
+    private boolean isFeatureEnvyPresent(List<Smell> smells){
+        for(Smell s:smells){
+            if(s.getName() == SmellName.FeatureEnvy) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private  void findExtractMethodOpportunities(){
+        for(Type c: classSmells.keySet()){
+            if(isComplexClass(classSmells.get(c))){
+                for(Method m: c.getMethods()){
+                    if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
+
+//                        TODO: move the extact opp setup to this class (refer any test)
+                        //RefactoringOperation- INTERFACE
+                        //ExtractRefactoring - Class extending above
+                        RefactoringOperation operation = new ExtractRefactoring();
+
+//                        TODO: implement getRecommendatin mehtod to get top 3 recommmnedations;
+                        List<Cluster> suggestions = operation.getRecommendation();
+
+//                        TODO: print user firendly recommendation of cluster
+                        printRecommendations(suggestions);
+
+//                        TODO: save text to output.json
+                        saveRecommendationToFile("EXTRACT METHOD", c, m, suggestions);
+                    }
+                }
+            }
+        }
+    }
+
+    private  void findMovetMethodOpportunities(){
+                for(Method m: methodSmells.keySet()){
+                    if(isFeatureEnvyPresent(methodSmells.get(m)){
+
+//                        TODO: move the extact opp setup to this class (refer any test)
+                        //RefactoringOperation- INTERFACE
+                        //ExtractRefactoring - Class extending above
+                        RefactoringOperation operation = new MoveRefactoring();
+
+//                        TODO: implement getRecommendatin mehtod to get top target class;
+                        Type taregtClass = operation.getRecommendation();
+
+//                        TODO: print user firendly recommendation of cluster
+                        printRecommendations(taregtClass);
+
+//                        TODO: save text to output.json
+                        saveRecommendationToFile("MOVE METHOD", c, m, suggestions);
+                    }
+                }
+            }
+        }
     }
 //    private void saveSmellsFile(List<Type> smellyTypes) throws IOException {
 //        ToolParameters parameters = ToolParameters.getInstance();
@@ -136,4 +203,31 @@ public class JQualRefactorer {
 //        gson.toJson(smellyTypes, writer);
 //        writer.close();
 //    }
+
+    private void getRefactoringOperation(){
+        Scanner reader = new Scanner(System.in);  // Reading from System.in
+        System.out.println("What refactoring operation do you want to run on selected project ?");
+        System.out.println("Select 1 for Extract Method");
+        System.out.println("Select 2 for Move Method");
+        System.out.println("Select 3 for Extract followed by Move Method");
+        int n = reader.nextInt();
+        if(n==EXTRACT){
+            System.out.println("Finding Extract opportunitites ....");
+            findExtractMethodOpportunities();
+        } else if(n==MOVE){
+            System.out.println("Finding Move opportunitites ....");
+            findExtractMethodOpportunities();
+        } else if(n==EM){
+            System.out.println("Finding Extract and Move opportunitites ....");
+            findExtractMoveMethodOpportunities();
+        } else {
+            System.out.println("Invalid entry. try again !");
+            getRefactoringOperation();
+        }
+
+
+
+
+    };
+
 }
