@@ -13,16 +13,19 @@ public class ClusterManager {
 
     private Map<String, ASTNode> stringASTNodeMap;
 
+    private String declaringClassName;
+
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
     private Set<Cluster> allClusters;
     private Set<Cluster> mergedClusters;
     private Set<Cluster> filteredClusters;
 
-    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<ASTNode, Integer> variableDeclarations) {
+    public ClusterManager(SortedMap<Integer, HashSet<String>> statementObjectsMap, Map<String, ASTNode> stringASTNodeMap, Map<ASTNode, Integer> variableDeclarations, String declaringClassName) {
         this.statementObjectsMap = statementObjectsMap;
         this.stringASTNodeMap = stringASTNodeMap;
         this.nodesDeclared = variableDeclarations;
+        this.declaringClassName = declaringClassName;
     }
 
     public Cluster getBestCluster(Set<Cluster> blocks) {
@@ -90,13 +93,13 @@ public class ClusterManager {
                 if (this.statementObjectsMap.containsKey(currentEndLine)) {
                     for (String variableOrMethodCall : row) {
                         if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
-                            clusters.add(new Cluster(currentLine, currentEndLine));
+                            clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
                             break;
                         }
                     }
                 } else {
                     // In case of empty line, we add it for safety measures
-                    clusters.add(new Cluster(currentLine, currentEndLine));
+                    clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
                 }
             }
 
@@ -129,7 +132,7 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber()));
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClassName));
                     }
                     currentOpenClusters.add(line);
                 } else {

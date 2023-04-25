@@ -41,11 +41,13 @@ public class FragmentGroupingTest {
 
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
+        Type type = getType("Customer");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
         Map<String, List<Integer>> assignedVars = extractReturnMap();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster cluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
@@ -65,10 +67,12 @@ public class FragmentGroupingTest {
 
     @Test
     public void canRankClusters() throws ClassNotFoundException {
+        Type type = getType("Customer");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;
@@ -82,10 +86,12 @@ public class FragmentGroupingTest {
     }
     @Test
     public void moveMethodForExtractMethod() throws ClassNotFoundException {
+        Type type = getType("Customer");
+        String parentClassName = type.getBinding().getName();
         SortedMap<Integer, HashSet<String>> table = getHashMapForClustering();
         Map<String, ASTNode> stringASTNodeMap = getStringASTNodeMap();
         Map<ASTNode, Integer> declaredVars = extractVariableDeclarations();
-        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
+        ClusterManager cm = new ClusterManager(table, stringASTNodeMap, declaredVars, parentClassName);
         Set<Cluster> blocks = getGrabManifestsBlock();
         Cluster recommendedCluster = cm.getBestCluster(blocks);
         int expectedNumberOfClusters = 4;

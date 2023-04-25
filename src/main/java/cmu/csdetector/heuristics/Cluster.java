@@ -26,15 +26,33 @@ public class Cluster {
 
     private List<Cluster> alternatives;
 
+    private String parentClassName;
 
     public Cluster(Integer startLine, Integer endLine) {
         this.startLine = new ClusterLine(startLine, this, true);
         this.endLine = new ClusterLine(endLine, this, false);
         this.alternatives = new ArrayList<>();
-        this.accessedVariables = new HashSet<ASTNode>();
+        this.accessedVariables = new HashSet<>();
         this.missingVars = new HashSet<>();
     }
 
+    public Cluster(Integer startLine, Integer endLine, String parentClassName) {
+        this.startLine = new ClusterLine(startLine, this, true);
+        this.endLine = new ClusterLine(endLine, this, false);
+        this.alternatives = new ArrayList<>();
+        this.accessedVariables = new HashSet<ASTNode>();
+        this.missingVars = new HashSet<>();
+        this.parentClassName = parentClassName;
+    }
+
+    public String getParentClassName() {
+        return parentClassName;
+    }
+
+    public void setParentClassName(String parentClassName) {
+        this.parentClassName = parentClassName;
+    }
+    
     public void setMissingVars(Set<ASTNode> missingVars) {
         this.missingVars = missingVars;
     }
