@@ -154,11 +154,16 @@ public class JQualRefactorer {
 //                        TODO: implement getRecommendatin mehtod to get top 3 recommmnedations;
                         List<Cluster> suggestions = operation.getRecommendation();
 
-//                        TODO: print user firendly recommendation of cluster
-                        printRecommendations(suggestions);
+                        for(Cluster s: suggestions){
+                            Recommendation r = new ExtractMethodRecommendation(s);
+
+//                            TODO: print user firendly recommendation of cluster
+                            printRecommendations(r);
 
 //                        TODO: save text to output.json
-                        saveRecommendationToFile("EXTRACT METHOD", c, m, suggestions);
+                            saveRecommendationToFile("EXTRACT METHOD", c, m, r);
+                        }
+//
                     }
                 }
             }
@@ -166,17 +171,58 @@ public class JQualRefactorer {
     }
 
     private  void findMovetMethodOpportunities(){
-                for(Method m: methodSmells.keySet()){
-                    if(isFeatureEnvyPresent(methodSmells.get(m)){
+        for(Method m: methodSmells.keySet()){
+            if(isFeatureEnvyPresent(methodSmells.get(m)){
+
+//                        TODO: move the extact opp setup to this class (refer any test)
+                //RefactoringOperation- INTERFACE
+                //ExtractRefactoring - Class extending above
+                RefactoringOperation operation = new MoveRefactoring();
+
+//                        TODO: implement getRecommendatin mehtod to get top target class;
+                Type taregtClass = operation.getRecommendation();
+
+//                        TODO: write a recommendation interface
+                Recommendation r = new MoveMethodRecommendation(taregtClass)
+
+//                        TODO: print user firendly recommendation of cluster
+                printRecommendations(r);
+
+//                        TODO: save text to output.json
+                saveRecommendationToFile("MOVE METHOD", c, m, r);
+            }
+        }
+
+    };
+    private  void findExtractAndMoveMethodOpportunities(){
+        for(Type c: classSmells.keySet()){
+            if(isComplexClass(classSmells.get(c))){
+                for(Method m: c.getMethods()){
+                    if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
 
 //                        TODO: move the extact opp setup to this class (refer any test)
                         //RefactoringOperation- INTERFACE
                         //ExtractRefactoring - Class extending above
-                        RefactoringOperation operation = new MoveRefactoring();
+                        RefactoringOperation operation = new ExtractRefactoring();
+
+//                        TODO: implement getRecommendatin mehtod to get top recommmnedation ;
+                        Cluster extractedMethod = operation.getFinalRecommendation();
+
+//                        TODO: print user firendly recommendation of cluster
+                        printRecommendations(suggestions);
+
+//                        TODO: save text to output.json
+                        saveRecommendationToFile("EXTRACT METHOD", c, m, suggestions);
+
+                        //TODO: overload constructor to work with cluster
+
+                        RefactoringOperation operation2 = new MoveRefactoring(extractedMethod);
 
 //                        TODO: implement getRecommendatin mehtod to get top target class;
-                        Type taregtClass = operation.getRecommendation();
+                        Type taregtClass = operation2.getRecommendation();
 
+//                        TODO: write a recommendation interface
+                        Recommendation r = new MoveMethodRecommendation(taregtClass)
 //                        TODO: print user firendly recommendation of cluster
                         printRecommendations(taregtClass);
 
@@ -187,22 +233,36 @@ public class JQualRefactorer {
             }
         }
     }
-//    private void saveSmellsFile(List<Type> smellyTypes) throws IOException {
-//        ToolParameters parameters = ToolParameters.getInstance();
-//        File smellsFile = new File(parameters.getValue(ToolParameters.SMELLS_FILE));
-//        BufferedWriter writer = new BufferedWriter(new FileWriter(smellsFile));
-//        System.out.println("Saving smells file...");
-//
-//        GsonBuilder builder = new GsonBuilder();
-//        builder.addSerializationExclusionStrategy(new ObservableExclusionStrategy());
-//        builder.disableHtmlEscaping();
-//        builder.setPrettyPrinting();
-//        builder.serializeNulls();
-//
-//        Gson gson = builder.create();
-//        gson.toJson(smellyTypes, writer);
-//        writer.close();
-//    }
+
+    private void saveSmellsFile(List<Type> smellyTypes) throws IOException {
+        ToolParameters parameters = ToolParameters.getInstance();
+        File smellsFile = new File(parameters.getValue(ToolParameters.SMELLS_FILE));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(smellsFile));
+        System.out.println("Saving smells file...");
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.addSerializationExclusionStrategy(new ObservableExclusionStrategy());
+        builder.disableHtmlEscaping();
+        builder.setPrettyPrinting();
+        builder.serializeNulls();
+
+        Gson gson = builder.create();
+        gson.toJson(smellyTypes, writer);
+        writer.close();
+    }
+
+    private void saveRecommendationToFile(Recommendation r) {
+        System.out.println(r);
+    }
+    private void saveRecommendationsFile() throws IOException {
+        ToolParameters parameters = ToolParameters.getInstance();
+        File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile));
+        System.out.println("Saving recommendations file...");
+
+//      TODO: write recommendations to file
+        writer.close();
+    }
 
     private void getRefactoringOperation(){
         Scanner reader = new Scanner(System.in);  // Reading from System.in
