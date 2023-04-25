@@ -17,10 +17,10 @@ public class MoveMethodRecommendation extends Recommendation {
     public String getReadableString(){
         StringBuilder s = new StringBuilder();
         s.append("MOVE METHOD:");
-        s.append("Source Class -");
-        s.append(parent.getFullyQualifiedName() + " ");
+        s.append("Source Class - ");
+        s.append(parent.getFullyQualifiedName() + " | ");
         s.append("Method Name -");
-        s.append(method.getFullyQualifiedName() + " ");
+        s.append(method.getFullyQualifiedName() + " | ");
         s.append("Target Class -");
         s.append(target);
         return s.toString();

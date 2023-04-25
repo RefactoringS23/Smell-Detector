@@ -1,5 +1,6 @@
 package cmu.csdetector.jqual.refactoringOperations;
 
+import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
 import cmu.csdetector.metrics.MetricName;
@@ -15,23 +16,42 @@ import java.util.Map;
 public class MoveMethodRefactoring extends RefactoringOperation {
 
     private List<Type> allTypes;
-
+    private Cluster candidateCluster;
 
 
     private Type finalTargetClass;
     public MoveMethodRefactoring(Type parentClass, Method featureEnvyMethod, List<Type> types){
         super(parentClass, featureEnvyMethod);
         allTypes = types;
-    }
+        runOperation();
+    };
+
+    public MoveMethodRefactoring(Type parentClass, Cluster extractedCluster, List<Type> types){
+        super(parentClass, null);
+        allTypes = types;
+        candidateCluster = extractedCluster;
+        runOperation();
+    };
+
     public void runOperation(){
-        MethodDeclaration md = (MethodDeclaration) candidateMethod.getNode();
-        TypeMetricValueCollectorForFeatureEnvyMethod metricCollector = new  TypeMetricValueCollectorForFeatureEnvyMethod(md);
+        if(candidateMethod != null) {
+            MethodDeclaration md = (MethodDeclaration) candidateMethod.getNode();
+            for(Type t: allTypes){
+                TypeMetricValueCollectorForFeatureEnvyMethod metricCollector = new TypeMetricValueCollectorForFeatureEnvyMethod(md);
+                metricCollector.collect(t);
+            }
+        } else {
+            for(Type t: allTypes){
+                TypeMetricValueCollectorForFeatureEnvyMethod metricCollector = new TypeMetricValueCollectorForFeatureEnvyMethod(candidateCluster);
+                metricCollector.collect(t);
+            }
+        }
     }
 
     public Recommendation getRecommendation() {
         Map<String, Double> metrics = new HashMap<>();
         Double maxDifference = -10d;
-        Type targetClass = new Type();
+        Type targetClass = null;
 
         for(Type t: allTypes){
             Double metricValue = t.getMetricValue(MetricName.LCOM3Diff);

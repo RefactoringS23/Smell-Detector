@@ -8,8 +8,8 @@ public abstract class RefactoringOperation {
     protected Type parentClass;
     protected Method candidateMethod;
     public RefactoringOperation( Type parentClass, Method m){
-        parentClass = parentClass;
-        candidateMethod = m;
+        this.parentClass = parentClass;
+        this.candidateMethod = m;
 
     }
     public abstract Recommendation getRecommendation();

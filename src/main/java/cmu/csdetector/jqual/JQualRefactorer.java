@@ -6,8 +6,8 @@ import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
+import cmu.csdetector.jqual.refactoringOperations.ExtractMethodRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.MoveMethodRefactoring;
-import cmu.csdetector.jqual.refactoringOperations.ExtractMethod;
 import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
@@ -24,13 +24,11 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
-<<<<<<< HEAD
 import org.eclipse.jdt.core.dom.ASTNode;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-=======
->>>>>>> origin/Jqual-runner
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -156,16 +154,16 @@ public class JQualRefactorer {
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
                     if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
-                        RefactoringOperation operation = new ExtractMethod(c, m);
+                        RefactoringOperation operation = new ExtractMethodRefactoring(c, m);
 
-//                        TODO: implement getRecommendatin mehtod to get top 3 recommmnedations;
-                        List<Cluster> suggestions = operation.getRecommendation();
+//                        TODO: implement getTopRecommendatin mehtod to get top 3 recommmnedations;
+//                        List<Cluster> suggestions = operation.getTopRecommendations();
 
-                        for(Cluster s: suggestions){
-                            Recommendation r = new ExtractMethodRecommendation(c,m,s);
-                            printRecommendations(r);
-                            saveRecommendationsToFile(r);
-                        }
+//                        for(Cluster s: suggestions){
+//                            Recommendation r = new ExtractMethodRecommendation(c,m,s);
+//                            printRecommendations(r);
+//                            saveRecommendationsToFile(r);
+//                        }
 //
                     }
                 }
@@ -175,14 +173,24 @@ public class JQualRefactorer {
 
     private  void findMovetMethodOpportunities(List<Type> allTypes) throws IOException {
         for(Method m: methodSmells.keySet()){
-            if(isFeatureEnvyPresent(methodSmells.get(m)){
+            if(isFeatureEnvyPresent(methodSmells.get(m))){
 
                 MethodDeclaration declaration = (MethodDeclaration) m.getNode();
                 IMethodBinding binding = declaration.resolveBinding();
-                RefactoringOperation operation = new MoveMethodRefactoring((Type) binding.getDeclaringClass(), m, allTypes);
+//                TODO: get class type from m or md;
+                Type parent = null;
+                for(Type t: allTypes){
+                    if(t.getMethods().contains(m)){
+                        parent = t;
+                        break;
+                    }
+                }
+//                Type tt = ((TypeDeclaration) declaration.getParent());
+                RefactoringOperation operation = new MoveMethodRefactoring(parent, m, allTypes);
                 Recommendation r = operation.getRecommendation();
                 printRecommendations(r);
                 saveRecommendationsToFile(r);
+                System.out.println("end of move");
             }
         }
 
@@ -193,19 +201,17 @@ public class JQualRefactorer {
                 for(Method m: c.getMethods()){
                     if(m.getMetricValue(MetricName.CC) > CC_THRESHOLD){
 
-                        RefactoringOperation operation = new ExtractMethod(c, m);
-
-//                        TODO: implement getRecommendatin mehtod to get top recommmnedation ;
-                        Recommendation extractedMethod = operation.getFinalRecommendation();
+                        RefactoringOperation operation = new ExtractMethodRefactoring(c, m);
+                        Recommendation extractedMethod = operation.getRecommendation();
                         printRecommendations(extractedMethod);
                         saveRecommendationsToFile(extractedMethod);
 
-//                        TODO: support cluster constructor
-                        RefactoringOperation operation2 = new MoveMethodRefactoring(extractedMethod);
+//                        RefactoringOperation operation2 = new MoveMethodRefactoring(extractedMethod.getFinal());
+//                        TODO: implement getRecokomendation inside extractrecommendatin class
 
-                        Recommendation r = operation2.getRecommendation();
-                        printRecommendations(r);
-                        saveRecommendationsToFile(r);
+//                        Recommendation r = operation2.getRecommendation();
+//                        printRecommendations(r);
+//                        saveRecommendationsToFile(r);
                     }
                 }
             }

@@ -19,6 +19,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class ExtractMethodRefactoring extends RefactoringOperation {
 
+
+
     private Cluster bestCluster;
 
     public ExtractMethodRefactoring(Type parentClass, Method candidateMethod) {
@@ -74,7 +76,7 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
             declaredVars = extractVariableDeclarations();
             cm = new ClusterManager(table, stringASTNodeMap, declaredVars);
             blocks = getGrabManifestsBlock();
-            this.bestCluster = cm.getBestCluster(blocks);
+            setBestCluster(cm.getBestCluster(blocks));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -83,5 +85,8 @@ public class ExtractMethodRefactoring extends RefactoringOperation {
     @Override
     public Recommendation getRecommendation() {
         return new ExtractMethodRecommendation(super.parentClass, super.candidateMethod, this.getBestCluster());
+    }
+    public void setBestCluster(Cluster bestCluster) {
+        this.bestCluster = bestCluster;
     }
 }
