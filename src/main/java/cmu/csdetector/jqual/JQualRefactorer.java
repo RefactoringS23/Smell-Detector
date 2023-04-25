@@ -6,13 +6,8 @@ import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
-<<<<<<< HEAD
-import cmu.csdetector.jqual.refactoringOperations.ExtractRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.MoveMethodRefactoring;
-=======
 import cmu.csdetector.jqual.refactoringOperations.ExtractMethod;
->>>>>>> origin/Jqual-runner
-import cmu.csdetector.jqual.refactoringOperations.MoveRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
@@ -192,7 +187,7 @@ public class JQualRefactorer {
         }
 
     };
-    private  void findExtractAndMoveMethodOpportunities() throws IOException {
+    private  void findExtractAndMoveMethodOpportunities(List<Type> allTypes) throws IOException {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
@@ -256,7 +251,7 @@ public class JQualRefactorer {
         }
     }
 
-    private void getRefactoringOperation(List<Type> allTypes){
+    private void getRefactoringOperation(List<Type> allTypes) throws IOException {
         Scanner reader = new Scanner(System.in);  // Reading from System.in
         System.out.println("What refactoring operation do you want to run on selected project ?");
         System.out.println("Select 1 for Extract Method");
@@ -268,13 +263,13 @@ public class JQualRefactorer {
             findExtractMethodOpportunities(allTypes);
         } else if(n==MOVE){
             System.out.println("Finding Move opportunitites ....");
-            findExtractMethodOpportunities(allTypes);
+            findMovetMethodOpportunities(allTypes);
         } else if(n==EM){
             System.out.println("Finding Extract and Move opportunitites ....");
-            findExtractMoveMethodOpportunities();
+            findExtractAndMoveMethodOpportunities(allTypes);
         } else {
             System.out.println("Invalid entry. try again !");
-            getRefactoringOperation();
+            getRefactoringOperation(allTypes);
         }
 
 
