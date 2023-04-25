@@ -1,12 +1,9 @@
-package cmu.csdetector.jqual;
+package cmu.csdetector;
 
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.heuristics.Cluster;
-import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
-import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
-import cmu.csdetector.jqual.recommendation.Recommendation;
-import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
+import cmu.csdetector.heuristics.ClusterManager;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
 import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.metrics.TypeMetricValueCollector;
@@ -22,6 +19,7 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -252,14 +250,23 @@ public class JQualRefactorer {
         gson.toJson(smellyTypes, writer);
         writer.close();
     }
-    private void saveRecommendationsFile(String t) throws IOException {
-        ToolParameters parameters = ToolParameters.getInstance();
-        File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile));
-        System.out.println("Saving recommendations file...");
 
-//      TODO: write recommendations to file
-        writer.close();
+    private void saveRecommendationsFile(String recommendationString) throws IOException {
+        try {
+            ToolParameters parameters = ToolParameters.getInstance();
+            File suggestionsFile = new File(parameters.getValue(ToolParameters.SUGGESTION_FILE));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(suggestionsFile, true));
+            
+            writer.write(recommendationString);
+            writer.newLine();
+
+            System.out.println("Saving recommendations file...");
+
+    //      TODO: write recommendations to file
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void getRefactoringOperation(){
