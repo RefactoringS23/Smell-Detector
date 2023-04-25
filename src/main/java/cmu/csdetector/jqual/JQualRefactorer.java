@@ -3,12 +3,10 @@ package cmu.csdetector;
 import cmu.csdetector.console.ToolParameters;
 import cmu.csdetector.console.output.ObservableExclusionStrategy;
 import cmu.csdetector.heuristics.Cluster;
-import cmu.csdetector.heuristics.ClusterManager;
 import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.MoveMethodRecommendation;
 import cmu.csdetector.jqual.recommendation.Recommendation;
-import cmu.csdetector.jqual.refactoringOperations.ExtractRefactoring;
-import cmu.csdetector.jqual.refactoringOperations.MoveMethodRefactoring;
+import cmu.csdetector.jqual.refactoringOperations.ExtractMethod;
 import cmu.csdetector.jqual.refactoringOperations.MoveRefactoring;
 import cmu.csdetector.jqual.refactoringOperations.RefactoringOperation;
 import cmu.csdetector.metrics.MethodMetricValueCollector;
@@ -26,10 +24,6 @@ import cmu.csdetector.smells.SmellName;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.ParseException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import cmu.csdetector.jqual.recommendation.ExtractMethodRecommendation;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -75,7 +69,7 @@ public class JQualRefactorer {
 
         detectSmells(allTypes);
 
-        getRefactoringOperation(allTypes);
+        getRefactoringOperation();
 
 //        saveSmellsFile(allTypes);
 
@@ -150,7 +144,7 @@ public class JQualRefactorer {
         return false;
     }
 
-    private  void findExtractMethodOpportunities(List<Type> allTypes) throws IOException {
+    private  void findExtractMethodOpportunities() throws IOException {
         for(Type c: classSmells.keySet()){
             if(isComplexClass(classSmells.get(c))){
                 for(Method m: c.getMethods()){
@@ -159,7 +153,7 @@ public class JQualRefactorer {
 //                        TODO: move the extact opp setup to this class (refer any test)
                         //RefactoringOperation- INTERFACE
                         //ExtractRefactoring - Class extending above
-                        RefactoringOperation operation = new ExtractRefactoring();
+                        RefactoringOperation operation = new ExtractMethod(c, m);
 
 //                        TODO: implement getRecommendatin mehtod to get top 3 recommmnedations;
                         List<Cluster> suggestions = operation.getRecommendation();
@@ -180,13 +174,14 @@ public class JQualRefactorer {
         }
     }
 
-    private  void findMovetMethodOpportunities(List<Type> allTypes) throws IOException {
+    private  void findMovetMethodOpportunities() throws IOException {
         for(Method m: methodSmells.keySet()){
             if(isFeatureEnvyPresent(methodSmells.get(m)){
 
-                MethodDeclaration declaration = (MethodDeclaration) m.getNode();
-                IMethodBinding binding = declaration.resolveBinding();
-                RefactoringOperation operation = new MoveMethodRefactoring((Type) binding.getDeclaringClass(), m, allTypes);
+//                        TODO: move the extact opp setup to this class (refer any test)
+                //RefactoringOperation- INTERFACE
+                //ExtractRefactoring - Class extending above
+                RefactoringOperation operation = new MoveRefactoring();
 
 //                        TODO: implement getRecommendatin mehtod to get top target class;
                 Type taregtClass = operation.getRecommendation();
@@ -214,7 +209,7 @@ public class JQualRefactorer {
 //                        TODO: move the extact opp setup to this class (refer any test)
                         //RefactoringOperation- INTERFACE
                         //ExtractRefactoring - Class extending above
-                        RefactoringOperation operation = new ExtractRefactoring();
+                        RefactoringOperation operation = new ExtractMethod(c, m);
 
 //                        TODO: implement getRecommendatin mehtod to get top recommmnedation ;
                         Cluster extractedMethod = operation.getFinalRecommendation();
@@ -284,7 +279,7 @@ public class JQualRefactorer {
         }
     }
 
-    private void getRefactoringOperation(List<Type> allTypes){
+    private void getRefactoringOperation(){
         Scanner reader = new Scanner(System.in);  // Reading from System.in
         System.out.println("What refactoring operation do you want to run on selected project ?");
         System.out.println("Select 1 for Extract Method");
@@ -293,10 +288,10 @@ public class JQualRefactorer {
         int n = reader.nextInt();
         if(n==EXTRACT){
             System.out.println("Finding Extract opportunitites ....");
-            findExtractMethodOpportunities(allTypes);
+            findExtractMethodOpportunities();
         } else if(n==MOVE){
             System.out.println("Finding Move opportunitites ....");
-            findExtractMethodOpportunities(allTypes);
+            findExtractMethodOpportunities();
         } else if(n==EM){
             System.out.println("Finding Extract and Move opportunitites ....");
             findExtractMoveMethodOpportunities();
