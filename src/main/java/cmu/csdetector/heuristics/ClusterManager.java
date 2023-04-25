@@ -285,6 +285,13 @@ public class ClusterManager {
             }
         }
         setAccessedVariablesForValidClusters(filteredClusters);
+        int counter = 0;
+        for(Cluster filteredCluster : filteredClusters) {
+            getReturnType(filteredCluster);
+            getMethodName(filteredCluster,counter);
+            counter ++;
+        }
+
         return filteredClusters;
     }
 
