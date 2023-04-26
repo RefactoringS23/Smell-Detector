@@ -4,10 +4,8 @@ import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.metrics.MetricName;
 import org.eclipse.jdt.core.dom.*;
 
-import java.util.HashSet;
-
 /**
- * Class to calculate the LCOM3 ‘lack of cohesion of methods’ metrics.
+ * Class to calculate the LCOM3 D‘lack of cohesion of methods’ metrics.
  * 
  * The equation to calculate the LCOM2 is:
  * 		m = #declaredMethods(C)
@@ -33,7 +31,7 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 		super();
 		featureEnvyMethod = type;
 		featureEnvyParentClass =  ((TypeDeclaration) featureEnvyMethod.getParent()).getName().toString();
-	};
+	}
 
 	public LCOM3DiffCalculator(Cluster type) {
 		super();
@@ -49,14 +47,12 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 		}
 		double before = calculateLCOM3BeforeMove(target);
 		double after = calculateLCOM3AfterMove(target);
-//		if(after>before){
-//			return 0d;
-//		}
 		return before-after;
 	}
 
 	private double calculateLCOM3BeforeMove(ASTNode target){
-		boolean isPossibleLCOM = instantiateAttributes(target);	//call the method first in order to initialize the attributes
+		//call the method first in order to initialize the attributes
+		boolean isPossibleLCOM = instantiateAttributes(target);
 
 		if (!isPossibleLCOM){
 			return 0.0;
@@ -69,31 +65,31 @@ public class LCOM3DiffCalculator extends BaseLCOM {
 		if(nMethods == 1){
 			return 0.0;
 		}
-//		System.out.println(nMethods + " " + timesAccessedAttributes + " " + nAttributes );
-
 		return (nMethods - timesAccessedAttributes/nAttributes) / (nMethods - 1);
 	}
+
 	private double calculateLCOM3AfterMove(ASTNode target){
 		boolean isPossibleLCOM;
 		if(this.extractedMethod != null){
-			isPossibleLCOM = simulateMoveMethod(target, this.extractedMethod.getAccessedVariables());	//call the method first in order to initialize the attributes
+			//call the method first in order to initialize the attributes
+			isPossibleLCOM = simulateMoveMethod(target, this.extractedMethod.getAccessedVariables());
 		} else {
-			isPossibleLCOM = simulateMoveMethod(target, this.featureEnvyMethod);	//call the method first in order to initialize the attributes
+			//call the method first in order to initialize the attributes
+			isPossibleLCOM = simulateMoveMethod(target, this.featureEnvyMethod);
 
 		}
 
 		if (!isPossibleLCOM){
 			return 0.0;
 		}
+
 		/*
 		 * If there are no more than one method in a class, LCOM3 is undefined.
 		 * An undefined LCOM3 is displayed as zero.
 		 */
 		if(nMethods == 1){
 			return 0.0;
-		};
-
-//		System.out.println("neww " + nMethods + " " + timesAccessedAttributes + " " + nAttributes );
+		}
 
 		return (nMethods - timesAccessedAttributes/nAttributes) / (nMethods - 1);
 	}
