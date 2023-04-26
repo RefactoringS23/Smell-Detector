@@ -11,7 +11,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args=&quot;-sf $USER_HOME$/Desktop/smells_output.json -src $PROJECT_DIR$/src/test/java/cmu/csdetector/dummy/group&quot;" />
+          <option value="--args=&quot;-sf $USER_HOME$/Desktop/smells_output.json -src $PROJECT_DIR$/src/test/java/cmu/csdetector/dummy/HourlyPayCalculator&quot;" />
         </list>
       </option>
       <option name="vmOptions" />
