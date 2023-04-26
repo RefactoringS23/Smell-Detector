@@ -26,7 +26,9 @@ public class AssignmentVisitor extends ASTVisitor {
         }
 
         ASTNode leftNode = (ASTNode) node.getLeftHandSide();
-        addToMap(leftNode, node.getLeftHandSide().resolveTypeBinding().getName());
+        if(leftNode != null && node.getLeftHandSide().resolveTypeBinding() != null) {
+            addToMap(leftNode, node.getLeftHandSide().resolveTypeBinding().getName());
+        }
 
         return true;
     }
@@ -35,7 +37,9 @@ public class AssignmentVisitor extends ASTVisitor {
     public boolean visit(PrefixExpression node) {
         if (node.getOperator() == PrefixExpression.Operator.INCREMENT || node.getOperator() == PrefixExpression.Operator.DECREMENT) {
             ASTNode leftNode = (ASTNode) node.getOperand();
-            addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+            if(leftNode != null && node.getOperand().resolveTypeBinding() != null) {
+                addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+            }
         }
         return true;
     }
@@ -44,7 +48,9 @@ public class AssignmentVisitor extends ASTVisitor {
     public boolean visit(PostfixExpression node) {
         if (node.getOperator() == PostfixExpression.Operator.INCREMENT || node.getOperator() == PostfixExpression.Operator.DECREMENT) {
             ASTNode leftNode = (ASTNode) node.getOperand();
-            addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+            if(leftNode != null && node.getOperand().resolveTypeBinding() != null) {
+                addToMap(leftNode, node.getOperand().resolveTypeBinding().getName());
+            }
         }
         return true;
     }

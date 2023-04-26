@@ -29,7 +29,7 @@ public class IfBlockVisitor extends ASTVisitor {
             Block ifBlock = (Block) node.getThenStatement();
             List ifBlockList = ifBlock.statements();
             for (int i=0; i<ifBlockList.size(); i++) {
-                if(ifBlockList.get(i).getClass().toString().contains("IfStatement")){
+                if(ifBlockList.get(i).getClass() != null && ifBlockList.get(i).getClass().toString().contains("IfStatement")){
                     Integer nestedIfStart = getStartLineNumber((ASTNode) ifBlockList.get(i));
                     addToMap(nodeStart, nestedIfStart);
                 }

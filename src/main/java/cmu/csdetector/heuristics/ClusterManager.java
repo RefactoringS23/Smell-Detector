@@ -186,7 +186,12 @@ public class ClusterManager {
             }
             else {
                 Expression node = (Expression) this.stringASTNodeMap.get(returnValue);
-                cluster.setReturnType(node.resolveTypeBinding().getName());
+                if(node != null && node.resolveTypeBinding() != null) {
+                    cluster.setReturnType(node.resolveTypeBinding().getName());
+                }
+                else {
+                    cluster.setReturnType("void");
+                }
             }
         }
         else {
