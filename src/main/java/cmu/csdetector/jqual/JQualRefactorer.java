@@ -130,7 +130,7 @@ public class JQualRefactorer {
 
             type.addAllSmells(smells);
             classSmells.put(type, smells);
-            System.out.println(complexClassList);
+            // System.out.println(complexClassList);
         }
     }
 

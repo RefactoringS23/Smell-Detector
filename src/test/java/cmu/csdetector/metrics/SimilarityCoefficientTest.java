@@ -59,6 +59,6 @@ public class SimilarityCoefficientTest {
         Method method = getMethod(type, "getAmount");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
-        System.out.println(featureEnvyMethod);
+        // System.out.println(featureEnvyMethod);
     }
 }

@@ -64,7 +64,7 @@ public class MoveMethodRefactoring extends RefactoringOperation {
         };
         setTargetClass(targetClass);
         String targetName = targetClass.getNodeAsTypeDeclaration().getName().toString();
-        System.out.println(targetName);
+        // System.out.println(targetName);
         if(candidateCluster != null){
             Recommendation r = new MoveMethodRecommendation(parentClass, candidateCluster, targetClass);
             return r;

@@ -44,7 +44,7 @@ public class Heu1Test {
         Heu1Calculator calculator = new Heu1Calculator();
 
         for(MethodDeclaration methodDeclaration: type.getMethods()){
-            System.out.println(methodDeclaration.getName());
+            // System.out.println(methodDeclaration.getName());
             Double i = calculator.getValue(methodDeclaration);
         }
         return 0.2;
