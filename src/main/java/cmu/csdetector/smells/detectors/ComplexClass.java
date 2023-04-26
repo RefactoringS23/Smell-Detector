@@ -15,7 +15,7 @@ import java.util.List;
  * Complex Class: A class having at least one method with McCabe Cyclomatic complexity greater than 10
  */
 public class ComplexClass extends SmellDetector {
-    private final static int OVERCOMPLEXITY = 10;
+    private final static int OVERCOMPLEXITY = 6;
 
     @Override
     public List<Smell> detect(Resource resource) {

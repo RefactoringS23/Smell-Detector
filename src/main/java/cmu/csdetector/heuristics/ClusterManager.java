@@ -3,9 +3,11 @@ package cmu.csdetector.heuristics;
 import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.IfBlockVisitor;
 import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
+import cmu.csdetector.resources.Type;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,8 +19,7 @@ public class ClusterManager {
 
     private Map<String, ASTNode> stringASTNodeMap;
 
-    private String declaringClassName;
-
+    private Type declaringClass;
     private Cluster finalCluster; // ClusterManager returns this finalCluster
 
     private Set<Cluster> filteredClusters;
@@ -27,9 +28,9 @@ public class ClusterManager {
     private Set<Integer> breakSet;
     private  Set<List<Integer>> loopSet;
 
-    public ClusterManager(MethodDeclaration md, String declaringClassName) {
-        this.declaringClassName = declaringClassName;
-        
+    public ClusterManager(MethodDeclaration md, Type declaringClass) {
+        this.declaringClass = declaringClass;
+
         IfBlockVisitor ifBlockVisitor = new IfBlockVisitor();
         md.accept(ifBlockVisitor);
 
@@ -50,18 +51,18 @@ public class ClusterManager {
         this.assignmentVariables = assignmentVisitor.getLineMap();
     }
 
-    public Cluster getBestCluster(Set<Cluster> blocks) {
+    public List<Cluster> getTopClusters(Set<Cluster> blocks) {
         Set<Cluster> baseClusters = makeClusters();
         Set<Cluster> allClusters = createMergedClusters(baseClusters);
         this.filterValidClusters(allClusters, blocks);
         this.calculateLcomOfClusters();
         this.prepareClustersForRanking();
         ClusterRanking.groupClusters(filteredClusters);
-        finalCluster = this.rankClusters();
-        return finalCluster;
+        List<Cluster> finalClusters = this.rankClusters();
+        return finalClusters;
     }
 
-    private Cluster rankClusters() {
+    private List<Cluster> rankClusters() {
         Set<Cluster> primaryClusters = new HashSet<>();
         for (Cluster cluster : this.filteredClusters) {
             if (!cluster.isAlternative()) {
@@ -71,7 +72,7 @@ public class ClusterManager {
         List<Cluster> sortedClusters = primaryClusters.stream()
                 .sorted(Comparator.comparing(Cluster::getBenefit).reversed())
                 .collect(Collectors.toList());
-        return sortedClusters.get(0);
+        return sortedClusters;
 
     }
 
@@ -123,10 +124,7 @@ public class ClusterManager {
     }
 
     public String getReturnValue(Cluster cluster) {
-        //System.out.println(assignmentVariables);
-        //System.out.println(statementObjectsMap);
-        String returnType = "void";
-        Integer count = 0;
+        Set<String> returnType = new HashSet<>();
 
         Map<String, List<Integer>> variablesAccessedInClass = getVariableLineNumbers();
         for (String node: this.assignmentVariables.keySet()) {
@@ -143,26 +141,48 @@ public class ClusterManager {
                 }
             }
             if (insideCluster > 0 && afterCluster > 0) {
-                returnType = node;
-                count += 1;
+                returnType.add(node);
             }
         }
-        if (count>1) {
-            returnType = "invalid";
+
+        for(String nodeName : this.nodesDeclared.keySet()){
+            int declaredAt = this.nodesDeclared.get(nodeName);
+            if(declaredAt >= cluster.getStartLineNumber() && declaredAt <= cluster.getEndLineNumber()) {
+                List<Integer> indexList = variablesAccessedInClass.get(nodeName);
+                if(indexList != null) {
+                    for( int ind : indexList) {
+                        if (ind > cluster.getEndLineNumber()) {
+                            returnType.add(nodeName);
+                        }
+                    }
+                }
+            }
+
         }
-        /**
-        System.out.println("return value");
-        System.out.println(cluster.getStartLineNumber());
-        System.out.println(cluster.getEndLineNumber());
-        System.out.println(returnType);
-        System.out.println(" "); **/
-        return returnType;
+
+        if (returnType.size()>1) {
+            return("invalid");
+        }
+
+        if(returnType.size() == 1) {
+            for (String str : returnType){
+                return str;
+            }
+        }
+        return "void";
     }
 
     public void getReturnType(Cluster cluster) {
         String returnValue = getReturnValue(cluster);
         if (returnValue != "void" && returnValue != "invalid") {
-            cluster.setReturnType(this.nodeTypeMap.get(returnValue));
+            String returnType = this.nodeTypeMap.get(returnValue);
+            if (returnType != null) {
+                cluster.setReturnType(returnType);
+            }
+            else {
+                Expression node = (Expression) this.stringASTNodeMap.get(returnValue);
+                cluster.setReturnType(node.resolveTypeBinding().getName());
+            }
         }
         else {
             cluster.setReturnType(returnValue);
@@ -191,13 +211,13 @@ public class ClusterManager {
                 if (this.statementObjectsMap.containsKey(currentEndLine)) {
                     for (String variableOrMethodCall : row) {
                         if (this.statementObjectsMap.get(currentEndLine).contains(variableOrMethodCall)) {
-                            clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
+                            clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClass));
                             break;
                         }
                     }
                 } else {
                     // In case of empty line, we add it for safety measures
-                    clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClassName));
+                    clusters.add(new Cluster(currentLine, currentEndLine, this.declaringClass));
                 }
             }
 
@@ -231,7 +251,7 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClassName));
+                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClass));
                     }
                     currentOpenClusters.add(line);
                 } else {
@@ -265,6 +285,13 @@ public class ClusterManager {
             }
         }
         setAccessedVariablesForValidClusters(filteredClusters);
+        int counter = 0;
+        for(Cluster filteredCluster : filteredClusters) {
+            getReturnType(filteredCluster);
+            getMethodName(filteredCluster,counter);
+            counter ++;
+        }
+
         return filteredClusters;
     }
 

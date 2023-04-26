@@ -32,45 +32,45 @@ public class FragmentGroupingTest {
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
         Type type = getType("Customer");
-        String parentClassName = type.getBinding().getName();
+
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster cluster = cm.getBestCluster(blocks);
-        cm.getReturnType(cluster);
-        cm.getMethodName(cluster, 1);
+        List<Cluster> clusters = cm.getTopClusters(blocks);
 
-        Assertions.assertEquals(4, cluster.getMissingVars().size());
-        Assertions.assertEquals("String",cluster.getReturnType());
-        Assertions.assertEquals("getresult", cluster.getMethodName());
+        Assertions.assertEquals(clusters.get(0).getMissingVars().size(), 2);
+        Assertions.assertEquals(clusters.get(0).getReturnType(), "double");
+        Assertions.assertEquals(clusters.get(0).getMethodName(), "getthisAmount");
+        Assertions.assertEquals(clusters.get(1).getMissingVars().size(), 2);
+        Assertions.assertEquals(clusters.get(1).getReturnType(), "int");
+        Assertions.assertEquals(clusters.get(1).getMethodName(), "getfrequentRenterPoints");
     }
 
-    @Test
+   @Test
     public void canRankClusters() throws ClassNotFoundException {
         Type type = getType("Customer");
-        String parentClassName = type.getBinding().getName();
+
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster recommendedCluster = cm.getBestCluster(blocks);
+        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
 
-        Assertions.assertEquals(new Integer(21), recommendedCluster.getStartLineNumber());
-        Assertions.assertEquals(new Integer(57), recommendedCluster.getEndLineNumber());
+        Assertions.assertEquals(new Integer(30), recommendedCluster.get(0).getStartLineNumber());
+        Assertions.assertEquals(new Integer(45), recommendedCluster.get(0).getEndLineNumber());
 
     }
     @Test
     public void moveMethodForExtractMethod() throws ClassNotFoundException {
         Type type = getType("Customer");
-        String parentClassName = type.getBinding().getName();
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, parentClassName);
+        ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster recommendedCluster = cm.getBestCluster(blocks);
+        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
 
-        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster);
+        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster.get(0));
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {

@@ -6,6 +6,8 @@ public class ToolParameters {
 
     public static final String SOURCE_FOLDER = "source-folder";
     public static final String SMELLS_FILE = "smells-file";
+    public static final String SUGGESTION_FILE = "suggestion-file";
+
     public static final String IGNORE_TESTS = "ignore-tests";
     public static final String ONLY_SMELLY = "only-smelly";
 
@@ -41,6 +43,14 @@ public class ToolParameters {
                 .required()
                 .build();
 
+        Option suggestionFile = Option.builder("sgf")
+                .longOpt(SUGGESTION_FILE)
+                .desc("File where all the recommendations will be saved in TXT format")
+                .hasArg()
+                .argName("file")
+                .required()
+                .build();
+
         Option sourceFolder = Option.builder("src")
                 .longOpt(SOURCE_FOLDER)
                 .desc("Folder containing all Java files to be analyzed")
@@ -60,6 +70,7 @@ public class ToolParameters {
                 .build();
 
         options.addOption(smellsFile);
+        options.addOption(suggestionFile);
         options.addOption(sourceFolder);
         options.addOption(ignoreTests);
         options.addOption(ignoreNonSmelly);

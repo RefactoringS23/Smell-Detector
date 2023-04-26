@@ -57,7 +57,7 @@ public class BrainMethod extends SmellDetector {
          *
          * If the condition is satisfied, a smell is created and returned of type Brain Method.
          */
-        if (nullCheck && MLOC > (highCLOC/2) && CC > highCC && maxNesting > Thresholds.SEVERAL && noav > Thresholds.MANY) {
+        if (nullCheck && MLOC > (highCLOC/2) && CC > highCC && maxNesting > Thresholds.SHALLOW && noav > Thresholds.MANY) {
             Smell smell = createSmell(resource);
             smell.setReason("MLOC = " + MLOC + " CC = " + CC + " maxNesting = " + maxNesting + " NOAV = " + noav);
 
