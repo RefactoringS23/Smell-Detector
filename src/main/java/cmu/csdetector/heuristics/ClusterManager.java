@@ -253,6 +253,7 @@ public class ClusterManager {
         Set<Cluster> mergeCandidates = baseClusters;
         Set<Cluster> finalClusters = mergeCandidates;
         Set<Cluster> newClusters = new HashSet<>();
+        Cluster tempCluster;
 
         while (mergeCandidates.size() > 0) {
             List<ClusterLine> sortedLines = convertListOfClusterObjectsToSortedList(mergeCandidates);
@@ -261,7 +262,10 @@ public class ClusterManager {
             for (ClusterLine line : sortedLines) {
                 if (line.getIsStart()) {
                     for (ClusterLine openClusterStartLine : currentOpenClusters) {
-                        newClusters.add(new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClass));
+                        tempCluster = new Cluster(openClusterStartLine.getLineNumber(), line.getCluster().getEndLineNumber(), this.declaringClass);
+                        if (!finalClusters.contains(tempCluster)) {
+                            newClusters.add(tempCluster);
+                        }
                     }
                     currentOpenClusters.add(line);
                 } else {
