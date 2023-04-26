@@ -2,7 +2,7 @@
   <configuration default="false" name="CodeSmellDetector" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="cmu.csdetector.CodeSmellDetector" />
     <module name="SmellDetector.main" />
-    <option name="PROGRAM_PARAMETERS" value="-sf $USER_HOME$/Desktop/smells_output.json -src $PROJECT_DIR$/src/test/java/cmu/csdetector/dummy/group&quot;" />
+    <option name="PROGRAM_PARAMETERS" value="-sf $USER_HOME$/Desktop/smells_output.json -src $USER_HOME$/Desktop/jqual_suggestion.json -src $PROJECT_DIR$/src/test/java/cmu/csdetector/dummy/movie&quot;" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cmu.csdetector.jqual.recommendation.*" />

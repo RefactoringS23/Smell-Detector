@@ -1,4 +1,4 @@
-package cmu.csdetector.dummy.group;
+package cmu.csdetector.dummy.movie;
 
 import java.util.HashMap;
 import java.util.Map;

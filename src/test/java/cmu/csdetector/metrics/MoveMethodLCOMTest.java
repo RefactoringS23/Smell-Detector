@@ -1,5 +1,6 @@
-package cmu.csdetector.heuristics;
+package cmu.csdetector.metrics;
 
+import cmu.csdetector.heuristics.Cluster;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
 import cmu.csdetector.util.GenericCollector;
@@ -18,7 +19,7 @@ public class MoveMethodLCOMTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/movie");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }
