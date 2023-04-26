@@ -41,14 +41,14 @@ public class FragmentGroupingHeu1Test {
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster cluster = cm.getBestCluster(blocks);
+        List<Cluster> clusters = cm.getTopClusters(blocks);
 
-        cm.getReturnType(cluster);
-        cm.getMethodName(cluster, 1);
-
-        Assertions.assertEquals(cluster.getMissingVars().size(), 4);
-        Assertions.assertEquals(cluster.getReturnType(), "String");
-        Assertions.assertEquals(cluster.getMethodName(), "getname");
+        Assertions.assertEquals(clusters.get(0).getMissingVars().size(), 4);
+        Assertions.assertEquals(clusters.get(0).getReturnType(), "String");
+        Assertions.assertEquals(clusters.get(0).getMethodName(), "getname");
+        Assertions.assertEquals(clusters.get(1).getMissingVars().size(), 3);
+        Assertions.assertEquals(clusters.get(1).getReturnType(), "String");
+        Assertions.assertEquals(clusters.get(1).getMethodName(), "getname");
     }
 
     @Test
@@ -58,10 +58,10 @@ public class FragmentGroupingHeu1Test {
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster recommendedCluster = cm.getBestCluster(blocks);
+        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
 
-        Assertions.assertEquals(new Integer(16), recommendedCluster.getStartLineNumber());
-        Assertions.assertEquals(new Integer(28), recommendedCluster.getEndLineNumber());
+        Assertions.assertEquals(new Integer(16), recommendedCluster.get(0).getStartLineNumber());
+        Assertions.assertEquals(new Integer(28), recommendedCluster.get(0).getEndLineNumber());
 
     }
     @Test
@@ -71,9 +71,9 @@ public class FragmentGroupingHeu1Test {
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         ClusterManager cm = new ClusterManager(targetMethod, type);
         Set<Cluster> blocks = getGrabManifestsBlock();
-        Cluster recommendedCluster = cm.getBestCluster(blocks);
+        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
 
-        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster);
+        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster.get(0));
 
     }
 
