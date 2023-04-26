@@ -78,7 +78,7 @@ public class JQualRefactorer {
 
         getRefactoringOperation(allTypes);
 
-        saveSmellsFile(allTypes);
+//        saveSmellsFile(allTypes);
 
         System.out.println(new Date());
 

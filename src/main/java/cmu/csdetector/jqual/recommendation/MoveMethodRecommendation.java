@@ -27,12 +27,12 @@ public class MoveMethodRecommendation extends Recommendation {
         StringBuilder s = new StringBuilder();
         s.append("MOVE METHOD:");
         s.append("\n");
-        s.append("Source Class - ");
-        s.append(parent.getFullyQualifiedName() + " | ");
-        s.append("Method Name -");
-        s.append(method!= null ? method.getFullyQualifiedName() : cluster.getMethodName() + " | ");
-        s.append("Target Class -");
-        s.append(target);
+        s.append("Source Class: ");
+        s.append(parent.getBinding().getName()).append(" | ");
+        s.append("Method Name: ");
+        s.append(method!= null ? method.getFullyQualifiedName() : cluster.getMethodName());
+        s.append(" | Target Class: ");
+        s.append(target.getBinding().getName());
         s.append("\n********************************************\n");
 
         return s.toString();
