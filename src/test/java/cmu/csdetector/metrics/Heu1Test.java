@@ -52,7 +52,7 @@ public class Heu1Test {
 
     @BeforeAll
     public void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/semi");
         this.types = TypeLoader.loadAllFromDir(dir);
 
     }

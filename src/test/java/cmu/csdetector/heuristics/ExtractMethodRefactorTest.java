@@ -1,14 +1,10 @@
 package cmu.csdetector.heuristics;
 
-import cmu.csdetector.ast.visitors.AssignmentVisitor;
 import cmu.csdetector.ast.visitors.BlockLineNumberVisitor;
-import cmu.csdetector.ast.visitors.IfBlockVisitor;
-import cmu.csdetector.ast.visitors.StatementObjectsVisitor;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
 import cmu.csdetector.util.GenericCollector;
 import cmu.csdetector.util.TypeLoader;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,19 +14,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class FragmentGroupingHeu1Test {
+public class ExtractMethodRefactorTest {
 
     private static List<Type> types;
-    private static List<Type> moviewtypes;
 
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/heu1");
-        File moview = new File("src/test/java/cmu/csdetector/dummy/heu1");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/semi");
 
         types = TypeLoader.loadAllFromDir(dir);
-        moviewtypes = TypeLoader.loadAllFromDir(moview);
         GenericCollector.collectAll(types);
     }
 
@@ -62,18 +55,6 @@ public class FragmentGroupingHeu1Test {
 
         Assertions.assertEquals(new Integer(16), recommendedCluster.get(0).getStartLineNumber());
         Assertions.assertEquals(new Integer(28), recommendedCluster.get(0).getEndLineNumber());
-
-    }
-    @Test
-    public void moveMethodForExtractMethod() throws ClassNotFoundException {
-        Type type = getType("testFile");
-        Method target = getMethod(type, "grabManifests");
-        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, type);
-        Set<Cluster> blocks = getGrabManifestsBlock();
-        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
-
-        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster.get(0));
 
     }
 

@@ -20,7 +20,7 @@ public class SimilarityCoefficientTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/movie");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }

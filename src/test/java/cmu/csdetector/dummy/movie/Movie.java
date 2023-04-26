@@ -1,8 +1,5 @@
-package cmu.csdetector.dummy.group;
+package cmu.csdetector.dummy.movie;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 /**
  * Movie represents the notion of a film. A video store might have several tapes in stock of the same movie
  */

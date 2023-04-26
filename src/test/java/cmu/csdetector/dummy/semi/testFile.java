@@ -1,4 +1,4 @@
-package cmu.csdetector.dummy.heu1;
+package cmu.csdetector.dummy.semi;
 
 public class testFile {
 

@@ -1,8 +1,8 @@
-package cmu.csdetector.dummy.group;
+package cmu.csdetector.dummy.movie;
 
-import cmu.csdetector.dummy.group.Movie;
-import cmu.csdetector.dummy.group.Registrar;
-import cmu.csdetector.dummy.group.Rental;
+import cmu.csdetector.dummy.movie.Movie;
+import cmu.csdetector.dummy.movie.Registrar;
+import cmu.csdetector.dummy.movie.Rental;
 
 import java.util.ArrayList;
 import java.util.Iterator;

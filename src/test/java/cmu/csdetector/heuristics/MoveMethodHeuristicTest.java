@@ -1,5 +1,6 @@
-package cmu.csdetector.metrics;
+package cmu.csdetector.heuristics;
 
+import cmu.csdetector.metrics.MetricName;
 import cmu.csdetector.resources.Method;
 import cmu.csdetector.resources.Type;
 import cmu.csdetector.util.GenericCollector;
@@ -19,7 +20,7 @@ public class MoveMethodHeuristicTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/movie");
         types = TypeLoader.loadAllFromDir(dir);
         GenericCollector.collectAll(types);
     }
@@ -82,7 +83,7 @@ public class MoveMethodHeuristicTest {
     @Test
     public void targetClassForExtractedMethod1ShouldBeMovie() throws ClassNotFoundException {
         Type type = getType("Customer");
-        Method method = getMethod(type, "getAmount");
+        Method method = getMethod(type, "statement");
         MethodDeclaration featureEnvyMethod = (MethodDeclaration) method.getNode();
         GenericCollector.collectTypeMetricsForFeatureEnvyMethod(types, featureEnvyMethod);
         assertEquals("Movie", getTargetClassUsingLCOM3Metric());

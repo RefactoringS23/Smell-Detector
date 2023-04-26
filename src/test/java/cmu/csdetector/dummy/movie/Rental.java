@@ -1,4 +1,4 @@
-package cmu.csdetector.dummy.group;
+package cmu.csdetector.dummy.movie;
 
 /**
  * The rental class represents a customer renting a movie.

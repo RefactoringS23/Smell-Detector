@@ -14,25 +14,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class FragmentGroupingTest {
+public class ExtractAndMoveRefactorTest {
 
     private static List<Type> types;
-    private static List<Type> moviewtypes;
 
     @BeforeAll
     public static void setUp() throws IOException {
-        File dir = new File("src/test/java/cmu/csdetector/dummy/group");
-        File moview = new File("src/test/java/cmu/csdetector/dummy/group");
+        File dir = new File("src/test/java/cmu/csdetector/dummy/movie");
 
         types = TypeLoader.loadAllFromDir(dir);
-        moviewtypes = TypeLoader.loadAllFromDir(moview);
         GenericCollector.collectAll(types);
     }
 
     @Test
     public void canIdentifyAllClusters() throws ClassNotFoundException {
         Type type = getType("Customer");
-
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         ClusterManager cm = new ClusterManager(targetMethod, type);
@@ -50,7 +46,6 @@ public class FragmentGroupingTest {
    @Test
     public void canRankClusters() throws ClassNotFoundException {
         Type type = getType("Customer");
-
         Method target = getMethod(type, "statement");
         MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
         ClusterManager cm = new ClusterManager(targetMethod, type);
@@ -60,17 +55,6 @@ public class FragmentGroupingTest {
         Assertions.assertEquals(new Integer(30), recommendedCluster.get(0).getStartLineNumber());
         Assertions.assertEquals(new Integer(45), recommendedCluster.get(0).getEndLineNumber());
 
-    }
-    @Test
-    public void moveMethodForExtractMethod() throws ClassNotFoundException {
-        Type type = getType("Customer");
-        Method target = getMethod(type, "statement");
-        MethodDeclaration targetMethod = (MethodDeclaration) target.getNode();
-        ClusterManager cm = new ClusterManager(targetMethod, type);
-        Set<Cluster> blocks = getGrabManifestsBlock();
-        List<Cluster> recommendedCluster = cm.getTopClusters(blocks);
-
-        GenericCollector.collectTypeMetricsForExtractedMethod(moviewtypes, recommendedCluster.get(0));
     }
 
     private Type getType(String typeName) throws ClassNotFoundException {
