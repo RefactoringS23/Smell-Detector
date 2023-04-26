@@ -127,8 +127,7 @@ public class Cluster {
                 }
             }
         }
-        this.lcom = p - q;
-        if (this.lcom < 0) this.lcom = 0;
+        this.lcom = Math.max(p-q, 0);
         return this.lcom;
     }
 
@@ -156,9 +155,7 @@ public class Cluster {
                 }
             }
         }
-        double lcom = p - q;
-        if (lcom < 0) lcom = 0;
-        return lcom;
+        return Math.max(p-q, 0);
     }
         
 
