@@ -96,7 +96,12 @@ public class ClusterManager {
         for (ASTNode n : cluster.getAccessedVariables()) {
             if(n.getNodeType() == ASTNode.SIMPLE_NAME) {
                 SimpleName variable = (SimpleName) n;
-                String variableParentClassName = ((SimpleName) n).resolveTypeBinding().getTypeDeclaration().getName();
+                ITypeBinding binding = ((SimpleName) n).resolveTypeBinding();
+                String variableParentClassName = null;
+                if(binding != null) {
+                    variableParentClassName = binding.getTypeDeclaration().getName();
+                }
+
                 if(variableParentClassName != cluster.getParentClassName() && variable.getParent().getNodeType() != ASTNode.QUALIFIED_NAME) {
                     if (this.nodesDeclared.get(variable.getIdentifier()) == null || this.nodesDeclared.get(variable.getIdentifier()) < cluster.getStartLine().getLineNumber() ) {
                         requiredAttributes.add(n);
