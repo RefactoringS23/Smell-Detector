@@ -63,17 +63,45 @@ public class MoveMethodRefactoring extends RefactoringOperation {
             }
         };
         setTargetClass(targetClass);
-        String targetName = targetClass.getNodeAsTypeDeclaration().getName().toString();
-        // System.out.println(targetName);
-        if(candidateCluster != null){
-            Recommendation r = new MoveMethodRecommendation(parentClass, candidateCluster, targetClass);
-            return r;
+        String targetClassName = targetClass != null ? targetClass.getNodeAsTypeDeclaration().getName().toString() : "";
+
+        Recommendation r;
+        if(!targetClassName.equals(parentClass.getNodeAsTypeDeclaration().getName().toString())){
+            if(candidateCluster != null){
+                r = new MoveMethodRecommendation(parentClass, candidateCluster, targetClass);
+            } else {
+                 r = new MoveMethodRecommendation(parentClass, candidateMethod, targetClass);
+            }
+        } else {
+            r = suggestUsingJaccardSimillarity();
         }
-            Recommendation r = new MoveMethodRecommendation(parentClass, candidateMethod, targetClass);
         return r;
 
     };
 
+    private Recommendation suggestUsingJaccardSimillarity(){
+        Map<String, Double> metrics = new HashMap<>();
+        Double maxSimillarity = -10d;
+        Type targetClass = null;
+
+        for(Type t: allTypes){
+            Double metricValue = t.getMetricValue(MetricName.JSC);
+            String className = t.getNodeAsTypeDeclaration().getName().toString();
+            metrics.put(className, metricValue);
+            if( metricValue > maxSimillarity){
+                maxSimillarity = metricValue;
+                targetClass = t;
+            }
+        };
+        setTargetClass(targetClass);
+        if(candidateCluster != null){
+            Recommendation r = new MoveMethodRecommendation(parentClass, candidateCluster, targetClass);
+            return r;
+        } else {
+            Recommendation r = new MoveMethodRecommendation(parentClass, candidateMethod, targetClass);
+            return r;
+        }
+    }
     public Type getTargetClass() {
         return finalTargetClass;
     }
