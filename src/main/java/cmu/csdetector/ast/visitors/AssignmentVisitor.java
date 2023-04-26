@@ -57,7 +57,7 @@ public class AssignmentVisitor extends ASTVisitor {
 
     private void addToMap (ASTNode leftNode, String nodeName) {
         List<String> primitiveTypesList = Arrays.asList(this.primitiveTypes);
-        List<Integer> lineList;
+        List<Integer> lineList = null;
         String name = "";
 
         if (leftNode.getNodeType() == ASTNode.ARRAY_ACCESS){
@@ -65,9 +65,14 @@ public class AssignmentVisitor extends ASTVisitor {
             name = left.getArray().toString();
             lineList = this.assignmentMap.get(name);
         }
-        else{
+        else if(leftNode.getNodeType() == ASTNode.SIMPLE_NAME){
             SimpleName left = (SimpleName) leftNode;
             name = left.resolveBinding().getName();
+            lineList = this.assignmentMap.get(name);
+        }
+        else if(leftNode.getNodeType() == ASTNode.FIELD_ACCESS) {
+            FieldAccess left = (FieldAccess) leftNode;
+            name = left.resolveFieldBinding().getName();
             lineList = this.assignmentMap.get(name);
         }
         if (lineList == null) {
