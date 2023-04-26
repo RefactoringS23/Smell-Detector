@@ -33,7 +33,7 @@ public class MoveMethodRecommendation extends Recommendation {
         s.append("\t\tSource Class: ");
         s.append(parent.getBinding().getName() + "\n");
         s.append("\t\tMethod Name: ");
-        s.append(method!= null ? method.getFullyQualifiedName() : cluster.getMethodName()+ "\n");
+        s.append(method!= null ? method.getBinding().getName()+ "\n" : cluster.getMethodName()+ "\n");
         s.append("\t\tTarget Class: ");
         s.append(target.getBinding().getName() + "\n");
         s.append("\n************************************************\n");
