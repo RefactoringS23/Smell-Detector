@@ -24,16 +24,19 @@ public class MoveMethodRecommendation extends Recommendation {
     }
 
     public String getReadableString(){
+        if (target == null) {
+            return "".toString();
+        }
         StringBuilder s = new StringBuilder();
         s.append("MOVE METHOD:");
         s.append("\n");
-        s.append("Source Class: ");
-        s.append(parent.getBinding().getName()).append(" | ");
-        s.append("Method Name: ");
-        s.append(method!= null ? method.getFullyQualifiedName() : cluster.getMethodName());
-        s.append(" | Target Class: ");
-        s.append(target.getBinding().getName());
-        s.append("\n********************************************\n");
+        s.append("\t\tSource Class: ");
+        s.append(parent.getBinding().getName() + "\n");
+        s.append("\t\tMethod Name: ");
+        s.append(method!= null ? method.getFullyQualifiedName() : cluster.getMethodName()+ "\n");
+        s.append("\t\tTarget Class: ");
+        s.append(target.getBinding().getName() + "\n");
+        s.append("\n************************************************\n");
 
         return s.toString();
     };

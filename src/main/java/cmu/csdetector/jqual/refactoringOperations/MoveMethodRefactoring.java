@@ -61,7 +61,7 @@ public class MoveMethodRefactoring extends RefactoringOperation {
                 maxDifference = metricValue;
                 targetClass = t;
             }
-        };
+        }
         setTargetClass(targetClass);
         String targetClassName = targetClass != null ? targetClass.getNodeAsTypeDeclaration().getName().toString() : "";
 
@@ -77,7 +77,7 @@ public class MoveMethodRefactoring extends RefactoringOperation {
         }
         return r;
 
-    };
+    }
 
     private Recommendation suggestUsingJaccardSimillarity(){
         Map<String, Double> metrics = new HashMap<>();
@@ -92,7 +92,11 @@ public class MoveMethodRefactoring extends RefactoringOperation {
                 maxSimillarity = metricValue;
                 targetClass = t;
             }
-        };
+        }
+        String targetClassName = targetClass.getNodeAsTypeDeclaration().getName().toString();
+        if (targetClassName.equals(parentClass.getNodeAsTypeDeclaration().getName().toString())) {
+            return new MoveMethodRecommendation((Type) null, (Method) null, null);
+        }
         setTargetClass(targetClass);
         if(candidateCluster != null){
             Recommendation r = new MoveMethodRecommendation(parentClass, candidateCluster, targetClass);
@@ -101,6 +105,7 @@ public class MoveMethodRefactoring extends RefactoringOperation {
             Recommendation r = new MoveMethodRecommendation(parentClass, candidateMethod, targetClass);
             return r;
         }
+
     }
     public Type getTargetClass() {
         return finalTargetClass;

@@ -7,5 +7,5 @@ public abstract class Recommendation {
     public Recommendation(){
 
     }
-    public abstract String  getReadableString();
+    public abstract String getReadableString();
 }
